@@ -147,7 +147,7 @@
 "guided_meditations.empty.findSources" = "Where can I find meditations?";
 
 "guided_meditations.guide.title" = "Where to find meditations?";
-"guided_meditations.guide.intro" = "These sites offer high-quality meditations as free downloads.";
+"guided_meditations.guide.intro" = "Good meditations are freely available on websites and in podcasts. You'll find a few recommendations below.";
 "guided_meditations.guide.close" = "Close";
 "guided_meditations.guide.openSource" = "Open source in browser";
 "guided_meditations.guide.info" = "Content guide";
@@ -166,9 +166,9 @@
 "guided_meditations.guide.howto.browser.step1.title" = "Share from the browser";
 "guided_meditations.guide.howto.browser.step1.body" = "Touch and hold the link to the recording until a menu appears. Choose “Share…”.";
 "guided_meditations.guide.howto.browser.step2.title" = "Pick Still Moment";
-"guided_meditations.guide.howto.browser.step2.body" = "Pick Still Moment from the suggested apps. A short confirmation appears — tap “OK”.";
+"guided_meditations.guide.howto.browser.step2.body" = "Pick Still Moment from the suggested apps and tap “Done” in the short confirmation.";
 "guided_meditations.guide.howto.browser.step3.title" = "Finish in the app";
-"guided_meditations.guide.howto.browser.step3.body" = "Open Still Moment. The import starts automatically — enter title, teacher and type.";
+"guided_meditations.guide.howto.browser.step3.body" = "Open Still Moment. The import starts automatically — adjust the details if you like.";
 
 "guided_meditations.guide.howto.files.title" = "How to import from your files";
 "guided_meditations.guide.howto.files.intro" = "If the recording is already on your device, you can add it directly from the library.";
@@ -177,7 +177,20 @@
 "guided_meditations.guide.howto.files.step2.title" = "Pick a recording";
 "guided_meditations.guide.howto.files.step2.body" = "Find the recording, e.g. in the Downloads folder, and tap it.";
 "guided_meditations.guide.howto.files.step3.title" = "Finish";
-"guided_meditations.guide.howto.files.step3.body" = "The import starts automatically — enter title, teacher and type.";
+"guided_meditations.guide.howto.files.step3.body" = "The import starts automatically — adjust the details if you like.";
+
+// Content Guide - Apple Podcasts how-to (shared-133)
+"guided_meditations.guide.banner.podcasts.title" = "How to import from Apple Podcasts";
+"guided_meditations.guide.banner.podcasts.subtitle" = "Episode → Share → Still Moment.";
+"guided_meditations.guide.howto.podcasts.title" = "How to import from Apple Podcasts";
+"guided_meditations.guide.howto.podcasts.intro" = "Many teachers publish their meditations as a podcast. Here's how to add an episode to your library.";
+"guided_meditations.guide.howto.podcasts.step1.title" = "Find the episode";
+"guided_meditations.guide.howto.podcasts.step1.body" = "Open the Podcasts app and find the episode you'd like to hear.";
+"guided_meditations.guide.howto.podcasts.step2.title" = "Share the episode";
+"guided_meditations.guide.howto.podcasts.step2.body" = "Open the episode and tap the share icon. Pick Still Moment and tap “Done” in the short confirmation.";
+"guided_meditations.guide.howto.podcasts.step3.title" = "Finish in the app";
+"guided_meditations.guide.howto.podcasts.step3.body" = "Open Still Moment. The episode loads — adjust the details if you like.";
+"guided_meditations.guide.howto.podcasts.note" = "You can only add single episodes, not whole podcasts.";
 
 "guided_meditations.migration.title" = "Updating Library";
 "guided_meditations.migration.message" = "Your meditations are being updated. This may take a moment.";

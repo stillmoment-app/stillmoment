@@ -388,6 +388,11 @@ final class ScreenshotTests: XCTestCase {
         let browserBanner = self.app.buttons["library.guideSheet.banner.browser"]
         XCTAssertTrue(browserBanner.waitForExistence(timeout: 5.0), "Guide sheet did not appear")
 
+        // shared-133: all three import banners (browser, files, Apple Podcasts) must be in the shot.
+        let podcastsBanner = self.app.buttons["library.guideSheet.banner.podcasts"]
+        XCTAssertTrue(podcastsBanner.waitForExistence(timeout: 5.0), "Podcasts banner not found")
+        XCTAssertTrue(podcastsBanner.isHittable, "Podcasts banner should be on screen without scrolling")
+
         Thread.sleep(forTimeInterval: 0.4)
 
         snapshot("13_ImportGuide", timeWaitingForIdle: 0)
