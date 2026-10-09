@@ -79,6 +79,8 @@ Status-Mapping bei Migration: `[ ] TODO`→todo, `[~] IN PROGRESS`→in-progress
   - `make tickets-check` → wie oben, schreibt nicht; Exit ≠ 0 wenn INDEX.md veraltet.
   - `make test-tickets` → pytest.
 - Migration: einmaliges Skript `scripts/tickets/migrate.py` mit `--dry-run` (Bericht: Konflikte Datei-Status vs. INDEX-Status, Dateien ohne INDEX-Zeile, INDEX-Zeilen ohne Datei, unbekannte Statusformate, Abhaengigkeiten mit Freitext). Verschieben per `git mv`. Wird nach erfolgreicher Migration geloescht (bleibt in der Git-Historie).
+  **Erledigt:** Migration in Commit `4491dc26`; Skript und Tests im Folge-Commit entfernt
+  (wiederherstellen mit `git show 4491dc26:scripts/tickets/migrate.py`).
 
 ## Generiertes INDEX.md
 
