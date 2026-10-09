@@ -110,6 +110,18 @@ struct ContentGuideSheet: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("library.guideSheet.banner.files")
+
+            NavigationLink {
+                HowToImportPodcastsView()
+            } label: {
+                ImportBannerCard(
+                    icon: "antenna.radiowaves.left.and.right",
+                    titleKey: "guided_meditations.guide.banner.podcasts.title",
+                    subtitleKey: "guided_meditations.guide.banner.podcasts.subtitle"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("library.guideSheet.banner.podcasts")
         }
         .padding(.bottom, 24)
     }

@@ -147,7 +147,7 @@
 "guided_meditations.empty.findSources" = "Wo finde ich Meditationen?";
 
 "guided_meditations.guide.title" = "Wo finde ich Meditationen?";
-"guided_meditations.guide.intro" = "Auf folgenden Seiten findest du qualitativ hochwertige Meditationen zum kostenlosen Download.";
+"guided_meditations.guide.intro" = "Gute Meditationen gibt es frei verfügbar auf Webseiten und in Podcasts. Ein paar Empfehlungen findest du unten.";
 "guided_meditations.guide.close" = "Schließen";
 "guided_meditations.guide.openSource" = "Quelle im Browser öffnen";
 "guided_meditations.guide.info" = "Inhalts-Guide";
@@ -166,9 +166,9 @@
 "guided_meditations.guide.howto.browser.step1.title" = "Im Browser teilen";
 "guided_meditations.guide.howto.browser.step1.body" = "Tippe lange auf den Link zur Aufnahme, bis sich ein Menü öffnet. Wähle „Teilen…“.";
 "guided_meditations.guide.howto.browser.step2.title" = "Still Moment auswählen";
-"guided_meditations.guide.howto.browser.step2.body" = "Wähle Still Moment aus den vorgeschlagenen Apps. Eine kurze Bestätigung erscheint — tippe auf „OK“.";
+"guided_meditations.guide.howto.browser.step2.body" = "Wähle Still Moment aus den vorgeschlagenen Apps und tippe in der kurzen Bestätigung auf „Fertig“.";
 "guided_meditations.guide.howto.browser.step3.title" = "In der App fertigstellen";
-"guided_meditations.guide.howto.browser.step3.body" = "Öffne Still Moment. Der Import beginnt automatisch — gib Titel, Lehrer:in und Typ an.";
+"guided_meditations.guide.howto.browser.step3.body" = "Öffne Still Moment. Der Import beginnt automatisch — passe die Angaben an, wenn du möchtest.";
 
 "guided_meditations.guide.howto.files.title" = "So importierst du aus deinen Dateien";
 "guided_meditations.guide.howto.files.intro" = "Wenn die Aufnahme schon auf deinem Gerät liegt, kannst du sie direkt aus der Bibliothek hinzufügen.";
@@ -177,7 +177,20 @@
 "guided_meditations.guide.howto.files.step2.title" = "Aufnahme wählen";
 "guided_meditations.guide.howto.files.step2.body" = "Suche die Aufnahme, z.B. im Downloads-Ordner, und tippe sie an.";
 "guided_meditations.guide.howto.files.step3.title" = "Fertigstellen";
-"guided_meditations.guide.howto.files.step3.body" = "Der Import beginnt automatisch — gib Titel, Lehrer:in und Typ an.";
+"guided_meditations.guide.howto.files.step3.body" = "Der Import beginnt automatisch — passe die Angaben an, wenn du möchtest.";
+
+// Content Guide - Anleitung Apple Podcasts (shared-133)
+"guided_meditations.guide.banner.podcasts.title" = "So importierst du aus Apple Podcasts";
+"guided_meditations.guide.banner.podcasts.subtitle" = "Folge → Teilen → Still Moment.";
+"guided_meditations.guide.howto.podcasts.title" = "So importierst du aus Apple Podcasts";
+"guided_meditations.guide.howto.podcasts.intro" = "Viele Lehrer:innen veröffentlichen ihre Meditationen als Podcast. So übernimmst du eine Folge in deine Bibliothek.";
+"guided_meditations.guide.howto.podcasts.step1.title" = "Folge suchen";
+"guided_meditations.guide.howto.podcasts.step1.body" = "Öffne die App „Podcasts“ und suche die Folge, die du hören möchtest.";
+"guided_meditations.guide.howto.podcasts.step2.title" = "Folge teilen";
+"guided_meditations.guide.howto.podcasts.step2.body" = "Öffne die Folge und tippe auf das Teilen-Symbol. Wähle Still Moment und tippe in der kurzen Bestätigung auf „Fertig“.";
+"guided_meditations.guide.howto.podcasts.step3.title" = "In der App fertigstellen";
+"guided_meditations.guide.howto.podcasts.step3.body" = "Öffne Still Moment. Die Folge wird geladen — passe die Angaben an, wenn du möchtest.";
+"guided_meditations.guide.howto.podcasts.note" = "Du kannst nur einzelne Folgen übernehmen, keine ganzen Podcasts.";
 
 "guided_meditations.migration.title" = "Bibliothek wird aktualisiert";
 "guided_meditations.migration.message" = "Deine Meditationen werden aktualisiert. Das kann einen Moment dauern.";

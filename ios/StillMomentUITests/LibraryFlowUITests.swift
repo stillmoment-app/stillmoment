@@ -277,9 +277,16 @@ final class LibraryFlowUITests: XCTestCase {
 
         let browserBanner = self.app.buttons["library.guideSheet.banner.browser"]
         let filesBanner = self.app.buttons["library.guideSheet.banner.files"]
+        let podcastsBanner = self.app.buttons["library.guideSheet.banner.podcasts"]
 
         XCTAssertTrue(browserBanner.waitForExistence(timeout: 2.0), "Browser banner should be visible")
         XCTAssertTrue(filesBanner.waitForExistence(timeout: 2.0), "Files banner should be visible")
+        XCTAssertTrue(podcastsBanner.waitForExistence(timeout: 2.0), "Podcasts banner should be visible")
+        XCTAssertLessThan(
+            filesBanner.frame.minY,
+            podcastsBanner.frame.minY,
+            "Podcasts banner should sit below the files banner"
+        )
     }
 
     /// Tests that tapping the browser banner pushes the browser how-to view, and the
@@ -324,6 +331,28 @@ final class LibraryFlowUITests: XCTestCase {
         XCTAssertTrue(
             filesBanner.waitForExistence(timeout: 2.0),
             "Files banner should be visible again after back"
+        )
+    }
+
+    /// Tests that tapping the Apple Podcasts banner pushes the podcasts how-to view
+    /// (shared-133), and the back button returns to the source list.
+    func testPodcastsBannerPushesHowtoAndBackReturns() {
+        self.openContentGuideSheet()
+
+        let podcastsBanner = self.app.buttons["library.guideSheet.banner.podcasts"]
+        XCTAssertTrue(podcastsBanner.waitForExistence(timeout: 2.0), "Podcasts banner should be visible")
+        podcastsBanner.tap()
+
+        let howtoTitle = self.app.staticTexts["library.guideSheet.howto.podcasts.title"]
+        XCTAssertTrue(howtoTitle.waitForExistence(timeout: 2.0), "Podcasts how-to should be pushed")
+
+        let backButton = self.app.navigationBars.buttons.element(boundBy: 0)
+        XCTAssertTrue(backButton.waitForExistence(timeout: 2.0), "Back button should exist")
+        backButton.tap()
+
+        XCTAssertTrue(
+            podcastsBanner.waitForExistence(timeout: 2.0),
+            "Podcasts banner should be visible again after back"
         )
     }
 }
