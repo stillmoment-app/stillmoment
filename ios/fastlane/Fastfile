@@ -31,6 +31,25 @@ def api_key
   )
 end
 
+RELEASE_IPA_PATH = "./build/StillMoment.ipa"
+
+# Build and export the App Store IPA (app + Share Extension) to RELEASE_IPA_PATH.
+# Shared by the `release` and `testflight_upload` lanes so both sign identically.
+def build_release_ipa
+  build_app(
+    scheme: "StillMoment",
+    export_method: "app-store",
+    output_directory: File.dirname(RELEASE_IPA_PATH),
+    output_name: File.basename(RELEASE_IPA_PATH),
+    export_options: {
+      provisioningProfiles: {
+        "com.stillmoment.StillMoment" => "StillMoment AppStore Distribution",
+        "com.stillmoment.StillMoment.StillMomentShareExtension" => "StillMoment ShareExtension AppStore Distribution"
+      }
+    }
+  )
+end
+
 platform :ios do
 
   # =============================================================================
@@ -191,22 +210,11 @@ platform :ios do
     build_number = nil
     if include_build
       UI.message("Building version #{app_version}...")
-      build_app(
-        scheme: "StillMoment",
-        export_method: "app-store",
-        output_directory: "./build",
-        output_name: "StillMoment.ipa",
-        export_options: {
-          provisioningProfiles: {
-            "com.stillmoment.StillMoment" => "StillMoment AppStore Distribution",
-            "com.stillmoment.StillMoment.StillMomentShareExtension" => "StillMoment ShareExtension AppStore Distribution"
-          }
-        }
-      )
+      build_release_ipa
 
       UI.message("Uploading build to TestFlight and waiting for processing...")
       upload_to_testflight(
-        ipa: "./build/StillMoment.ipa",
+        ipa: RELEASE_IPA_PATH,
         skip_waiting_for_build_processing: false,
         distribute_external: false
       )
@@ -263,16 +271,12 @@ platform :ios do
 
     # Build the app
     UI.message("Building release...")
-    build_app(
-      scheme: "StillMoment",
-      export_method: "app-store",
-      output_directory: "./build",
-      output_name: "StillMoment.ipa"
-    )
+    build_release_ipa
 
     # Upload to TestFlight
     UI.message("Uploading to TestFlight...")
     upload_to_testflight(
+      ipa: RELEASE_IPA_PATH,
       skip_waiting_for_build_processing: options[:skip_wait] || false,
       distribute_external: false
     )

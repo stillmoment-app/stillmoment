@@ -86,7 +86,8 @@ make testflight                          # Nur Build nach TestFlight (ohne Guard
 - `phased_release: false` — keine 7-taegige gestaffelte Veroeffentlichung, alle Nutzer auf einmal
 
 `make testflight` ist fuer den Release nicht noetig, weil `make release` den Build ebenfalls nach
-TestFlight laedt.
+TestFlight laedt. Beide Lanes bauen ueber dieselbe Methode `build_release_ipa` im Fastfile
+(gleiche Provisioning Profiles fuer App und Share Extension, IPA unter `ios/build/StillMoment.ipa`).
 
 ## Verzeichnisstruktur
 
