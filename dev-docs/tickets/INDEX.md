@@ -172,6 +172,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-130](archive/shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [x] | [x] |
 | [shared-131](archive/shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [x] | [x] |
 | [shared-134](archive/shared/shared-134-app-bewerten-und-schreib-uns.md) | App bewerten und Schreib uns in den Einstellungen | 3-Feature | [x] | [x] |
+| [shared-135](archive/shared/shared-135-eigener-abschnitt-rueckmeldung.md) | Eigener Abschnitt Rückmeldung in den Einstellungen | 4-Polish | [x] | [x] |
 
 ### iOS
 

@@ -62,6 +62,7 @@
 // MARK: - App Settings Tab
 
 "app.settings.guidedMeditations.header" = "Guided Meditations";
+"app.settings.feedback.header" = "Feedback";
 "app.settings.info.header" = "Info & Legal";
 "app.settings.soundAttributions.title" = "Sound Attributions";
 "app.settings.soundAttributions.page.title" = "Sound Attributions";
@@ -77,7 +78,8 @@
 "accessibility.appSettings.privacy.hint" = "Opens privacy policy in browser";
 "app.settings.rateApp.title" = "Rate the App";
 "app.settings.writeToUs.title" = "Write to Us";
-"app.settings.writeToUs.subtitle" = "Say hello, say thanks, share feedback";
+"app.settings.rateApp.subtitle" = "So others can find Still Moment";
+"app.settings.writeToUs.subtitle" = "Ideas, wishes, or just a hello";
 "app.settings.writeToUs.noMailApp.title" = "No Mail App Found";
 "app.settings.writeToUs.noMailApp.message" = "You can reach us at %@";
 "app.settings.writeToUs.noMailApp.copy" = "Copy Address";

@@ -2,13 +2,13 @@
 //  AppSettingsView.swift
 //  Still Moment
 //
-//  Presentation Layer - App-wide settings tab (Appearance, Info & Legal)
+//  Presentation Layer - App-wide settings tab (Appearance, Guided Meditations, Feedback, Info & Legal)
 //
 
 import SwiftUI
 import UIKit
 
-/// App settings tab: Appearance (theme, appearance mode) and Info & Legal.
+/// App settings tab: Appearance (theme, appearance mode), Guided Meditations, Feedback and Info & Legal.
 ///
 /// Theme/Appearance are handled by the reusable `GeneralSettingsSection`.
 /// Info rows navigate to sub-screens or open external links.
@@ -36,6 +36,7 @@ struct AppSettingsView: View {
             Form {
                 GeneralSettingsSection()
                 GuidedMeditationSettingsSection(settingsRepository: self.settingsRepository)
+                self.feedbackSection
                 self.infoSection
                 #if DEBUG
                 self.debugSection
@@ -88,9 +89,6 @@ struct AppSettingsView: View {
                 .cardRowBackground()
             }
 
-            self.rateAppRow
-            self.writeToUsRow
-
             HStack {
                 Text("app.settings.version.label", bundle: .main)
                     .textStyle(.body, color: \.textPrimary)
@@ -106,13 +104,26 @@ struct AppSettingsView: View {
         }
     }
 
-    // MARK: - Feedback Rows
+    // MARK: - Feedback Section
+
+    private var feedbackSection: some View {
+        Section {
+            self.rateAppRow
+            self.writeToUsRow
+        } header: {
+            Text("app.settings.feedback.header", bundle: .main)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
+        }
+    }
 
     @ViewBuilder private var rateAppRow: some View {
         if let url = FeedbackLinks.rateAppURL {
             Link(destination: url) {
-                Text("app.settings.rateApp.title", bundle: .main)
-                    .textStyle(.body, color: \.textPrimary)
+                self.feedbackRowLabel(
+                    title: "app.settings.rateApp.title",
+                    subtitle: "app.settings.rateApp.subtitle"
+                )
             }
             .accessibilityIdentifier("app.settings.row.rateApp")
             .accessibilityHint(
@@ -124,20 +135,28 @@ struct AppSettingsView: View {
 
     private var writeToUsRow: some View {
         Button(action: self.openWriteToUsMail) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("app.settings.writeToUs.title", bundle: .main)
-                    .textStyle(.body, color: \.textPrimary)
-                Text("app.settings.writeToUs.subtitle", bundle: .main)
-                    .textStyle(.caption, color: \.textSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+            self.feedbackRowLabel(
+                title: "app.settings.writeToUs.title",
+                subtitle: "app.settings.writeToUs.subtitle"
+            )
         }
         .accessibilityIdentifier("app.settings.row.writeToUs")
         .accessibilityHint(
             NSLocalizedString("accessibility.appSettings.writeToUs.hint", comment: "")
         )
         .cardRowBackground()
+    }
+
+    /// Title with subtitle, same pattern as the preparation time row in `GuidedMeditationSettingsSection`.
+    private func feedbackRowLabel(title: LocalizedStringKey, subtitle: LocalizedStringKey) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title, bundle: .main)
+                .textStyle(.body, color: \.textPrimary)
+            Text(subtitle, bundle: .main)
+                .textStyle(.caption, color: \.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     /// Opens a prepared mail; if no mail app can take it, shows the address to copy instead.
