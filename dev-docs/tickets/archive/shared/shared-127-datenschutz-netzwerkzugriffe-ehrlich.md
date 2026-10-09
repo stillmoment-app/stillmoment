@@ -2,8 +2,8 @@
 id: shared-127
 title: Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 1-Quick Fix
 priority: hoch
 ---
@@ -27,24 +27,24 @@ Die Datenschutzerklaerung sagt heute "Sendet keine Daten an externe Server" und 
 ## Akzeptanzkriterien
 
 ### Datenschutzerklaerung (DE + EN)
-- [ ] Beschreibt, dass die App nur dann eine Internetverbindung nutzt, wenn der Nutzer selbst eine Aufnahme aus einem Link importiert
-- [ ] Nennt, wer dabei was sieht: der Anbieter der Aufnahme (IP-Adresse, wie bei jedem Download im Browser — gilt auch fuer den Abruf seines Podcast-Feeds) und beim Podcast-Import zusaetzlich Apple (welche Podcast-Folge nachgeschlagen wird — deckt sowohl den Lookup-Dienst als auch den Abruf der Folgenseite ab)
-- [ ] Stellt klar, dass dabei keine Geraete- oder Nutzerkennungen uebertragen werden und Still Moment selbst keine Server betreibt und nichts erfasst
-- [ ] Stellt klar, dass Meditieren (Timer, Wiedergabe der Bibliothek) vollstaendig ohne Internet funktioniert
-- [ ] Enthaelt keine Aussage mehr, die dem tatsaechlichen Verhalten widerspricht ("keine Daten an externe Server" (Datenerfassung), "completely offline" (TL;DR), "entirely offline" (Kinder-Abschnitt))
-- [ ] Abschnitt "Dateizugriff" beschreibt alle Importwege (Dateiauswahl, Teilen an die App, Link-Import), nicht nur die System-Dateiauswahl
-- [ ] Widerspruch "Wir laden deine Dateien niemals hoch, kopieren oder uebertragen sie" vs. "werden in den App-Speicher kopiert" aufgeloest; veraltete Angaben (z.B. "security-scoped bookmarks", falls nicht mehr zutreffend) gegen den aktuellen Code geprueft
-- [ ] Aktualisierungsdatum angepasst
+- [x] Beschreibt, dass die App nur dann eine Internetverbindung nutzt, wenn der Nutzer selbst eine Aufnahme aus einem Link importiert
+- [x] Nennt, wer dabei was sieht: der Anbieter der Aufnahme (IP-Adresse, wie bei jedem Download im Browser — gilt auch fuer den Abruf seines Podcast-Feeds) und beim Podcast-Import zusaetzlich Apple (welche Podcast-Folge nachgeschlagen wird — deckt sowohl den Lookup-Dienst als auch den Abruf der Folgenseite ab)
+- [x] Stellt klar, dass dabei keine Geraete- oder Nutzerkennungen uebertragen werden und Still Moment selbst keine Server betreibt und nichts erfasst
+- [x] Stellt klar, dass Meditieren (Timer, Wiedergabe der Bibliothek) vollstaendig ohne Internet funktioniert
+- [x] Enthaelt keine Aussage mehr, die dem tatsaechlichen Verhalten widerspricht ("keine Daten an externe Server" (Datenerfassung), "completely offline" (TL;DR), "entirely offline" (Kinder-Abschnitt))
+- [x] Abschnitt "Dateizugriff" beschreibt alle Importwege (Dateiauswahl, Teilen an die App, Link-Import), nicht nur die System-Dateiauswahl
+- [x] Widerspruch "Wir laden deine Dateien niemals hoch, kopieren oder uebertragen sie" vs. "werden in den App-Speicher kopiert" aufgeloest; veraltete Angaben (z.B. "security-scoped bookmarks", falls nicht mehr zutreffend) gegen den aktuellen Code geprueft
+- [x] Aktualisierungsdatum angepasst
 
 ### Weitere oeffentliche Aussagen
-- [ ] App-Store-Beschreibung (iOS, alle Sprachen) und Play-Store-Beschreibung (Android, alle Sprachen): "100% offline — kein Internet erforderlich" und der Einstieg "Offline und ohne Tracking" / "Offline and tracking-free" durch zutreffende Aussagen ersetzt (z.B. Meditieren ohne Internet)
-- [ ] `docs/app-store/APP_STORE_METADATA.md`: Beschreibungen, Feature-Listen und vor allem die **App-Review-Notes** ("operates entirely offline", "No data is sent to external servers") korrigiert — die Review-Notes liest Apples Pruefer
-- [ ] Website: FAQ in `docs/support.html` ("Kein Internet erforderlich" / "No internet required") korrigiert
-- [ ] README: Offline-Aussagen auf dieselbe zutreffende Formulierung gebracht
-- [ ] Formulierungen in nicht-technischer Sprache, DE und EN inhaltlich deckungsgleich
+- [x] App-Store-Beschreibung (iOS, alle Sprachen) und Play-Store-Beschreibung (Android, alle Sprachen): "100% offline — kein Internet erforderlich" und der Einstieg "Offline und ohne Tracking" / "Offline and tracking-free" durch zutreffende Aussagen ersetzt (z.B. Meditieren ohne Internet)
+- [x] `docs/app-store/APP_STORE_METADATA.md`: Beschreibungen, Feature-Listen und vor allem die **App-Review-Notes** ("operates entirely offline", "No data is sent to external servers") korrigiert — die Review-Notes liest Apples Pruefer
+- [x] Website: FAQ in `docs/support.html` ("Kein Internet erforderlich" / "No internet required") korrigiert
+- [x] README: Offline-Aussagen auf dieselbe zutreffende Formulierung gebracht
+- [x] Formulierungen in nicht-technischer Sprache, DE und EN inhaltlich deckungsgleich
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
