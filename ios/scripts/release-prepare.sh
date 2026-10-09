@@ -144,6 +144,7 @@ if [ -n "$CHANGED_FILES" ]; then
     echo "$CHANGED_FILES"
     echo ""
     echo "Please commit, stash or remove them before preparing release"
+    echo "Tip: commit the release notes of both platforms together with CHANGELOG.md first (the /release-notes commit)."
     exit 1
 fi
 
@@ -257,7 +258,9 @@ print_success "Release notes found (de-DE, en-GB)"
 # RUN CHECKS
 # ============================================================================
 
-run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
+# CI=1: check only (format-check instead of format) — prepare must not change code;
+# unformatted code makes prepare fail here, before anything is committed.
+run_logged "Running code quality checks" make -C "$PROJECT_DIR" check CI=1
 run_logged "Running tests" make -C "$PROJECT_DIR" test
 run_logged "Building release configuration" make -C "$PROJECT_DIR" build-release
 
@@ -295,7 +298,7 @@ if [ -z "$DRY_RUN" ]; then
         print_warning "WARNING: These changes are NOT part of the release commit:"
         echo "$LEFTOVER_FILES"
         echo ""
-        print_warning "Check them before pushing (e.g. formatting changes from 'make check')."
+        print_warning "release-prepare should not create these — check where they come from before pushing."
     fi
 fi
 
