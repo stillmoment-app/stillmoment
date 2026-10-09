@@ -102,9 +102,8 @@ Was danach passiert:
 ### iOS
 
 1. Testplan [`TEST_PLAN_IOS.md`](TEST_PLAN_IOS.md) mit dem TestFlight-Build durchführen.
-2. App Store Connect → Version 2.6.0: prüfen, dass der neue Build ausgewählt ist, sonst auswählen.
-   (Die Fastfile meldet „automatically assigned“; im fastlane-Code ordnet `deliver` den Build aber
-   nur beim Einreichen zu, das hier abgeschaltet ist — nicht an einem echten Release verifiziert.)
+2. App Store Connect → Version 2.6.0: den neuen Build auswählen. `deliver` ordnet ihn nur beim
+   Einreichen zu (`deliver/submit_for_review.rb#select_build`), und das macht die Lane nicht.
 3. „Zur Prüfung einreichen“. Nach Apples Freigabe geht die Version automatisch an alle.
 
 ### Android

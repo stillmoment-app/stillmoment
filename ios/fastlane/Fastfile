@@ -232,8 +232,9 @@ platform :ios do
 
     UI.success("Release #{app_version} uploaded to App Store Connect!")
     if include_build
-      UI.message("Build #{build_number} automatically assigned to version #{app_version}.")
-      UI.message("Ready for review in App Store Connect.")
+      # deliver only attaches the build to the version when submitting for review,
+      # which this lane does not do (deliver/submit_for_review.rb#select_build).
+      UI.message("Next in App Store Connect: select build #{build_number} for version #{app_version}, then submit for review.")
     else
       UI.message("Metadata + screenshots uploaded (no build).")
     end
