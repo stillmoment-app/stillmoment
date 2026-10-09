@@ -11,6 +11,7 @@ DRY_RUN="${DRY_RUN:-}"
 SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
 LOG_FILE="$PROJECT_DIR/release-prepare.log"
 
 # Colors for output
@@ -163,6 +164,38 @@ if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
 fi
 
 print_success "Tag '$TAG_NAME' is available"
+
+# ============================================================================
+# PREFLIGHT CHECKS (fail fast, before the long test/screenshot steps)
+# ============================================================================
+
+print_step "Checking CHANGELOG.md and release notes..."
+
+if ! command -v uv >/dev/null 2>&1; then
+    print_error "uv not found (needed for scripts/release/preflight.py). Install with: brew install uv"
+    exit 1
+fi
+
+# CHANGELOG.md has '## [VERSION]' and an empty [Unreleased]; App Store limit 4000 characters
+if ! uv run --quiet "$REPO_DIR/scripts/release/preflight.py" --version "$VERSION" --max-chars 4000 \
+    "$PROJECT_DIR/fastlane/metadata/de-DE/changelogs/$VERSION.txt" \
+    "$PROJECT_DIR/fastlane/metadata/en-GB/changelogs/$VERSION.txt"; then
+    print_error "Release preflight failed (see above)"
+    exit 1
+fi
+
+print_step "Checking App Store Connect credentials..."
+
+# Same lookup as api_key in fastlane/Fastfile
+API_KEY_PATH="${APP_STORE_CONNECT_API_KEY_PATH:-$HOME/.fastlane/stillmoment-appstore.json}"
+
+if [ ! -f "$API_KEY_PATH" ]; then
+    print_warning "Missing: App Store Connect API key $API_KEY_PATH (setup: dev-docs/guides/fastlane-ios.md)"
+    print_error "App Store Connect credentials incomplete"
+    exit 1
+fi
+
+print_success "App Store Connect API key found"
 
 # ============================================================================
 # COPY VERSIONED CHANGELOGS TO RELEASE NOTES

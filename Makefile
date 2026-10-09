@@ -1,4 +1,4 @@
-.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all tickets-index tickets-check test-tickets
+.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all tickets-index tickets-check test-tickets test-release-tooling
 
 help: ## Show this help message
 	@echo "Still Moment - Project Commands"
@@ -62,3 +62,11 @@ tickets-check: ## Validate tickets, fail if INDEX.md is outdated (no write)
 test-tickets: ## Run tests for the ticket tooling (pytest)
 	@PYTHONDONTWRITEBYTECODE=1 uv run --quiet --no-project --with pytest --with pyyaml \
 		pytest -p no:cacheprovider -q scripts/tickets/tests
+
+# =============================================================================
+# Release tooling (scripts/release/)
+# =============================================================================
+
+test-release-tooling: ## Run tests for the release preflight tooling (pytest)
+	@PYTHONDONTWRITEBYTECODE=1 uv run --quiet --no-project --with pytest \
+		pytest -p no:cacheprovider -q scripts/release/tests

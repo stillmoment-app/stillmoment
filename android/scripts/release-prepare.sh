@@ -11,6 +11,7 @@ DRY_RUN="${DRY_RUN:-}"
 SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
 LOG_FILE="$PROJECT_DIR/release-prepare.log"
 GRADLE_FILE="$PROJECT_DIR/app/build.gradle.kts"
 
@@ -166,36 +167,66 @@ fi
 print_success "Tag '$TAG_NAME' is available"
 
 # ============================================================================
-# CHECK RELEASE NOTES
+# PREFLIGHT CHECKS (fail fast, before the long test/screenshot steps)
 # ============================================================================
 
-print_step "Checking release notes..."
+print_step "Checking CHANGELOG.md and release notes..."
+
+if ! command -v uv >/dev/null 2>&1; then
+    print_error "uv not found (needed for scripts/release/preflight.py). Install with: brew install uv"
+    exit 1
+fi
 
 # Play Store changelogs are named after the versionCode bump-version.sh will set
 CURRENT_VERSION_CODE=$(grep -E '^\s*versionCode\s*=' "$GRADLE_FILE" | head -1 | sed 's/.*= *//' | tr -d ' ')
 NEXT_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
+echo "Release notes for versionCode $NEXT_VERSION_CODE"
 
-MISSING_NOTES=0
-
-for locale in de-DE en-US; do
-    CHANGELOG="$PROJECT_DIR/fastlane/metadata/android/$locale/changelogs/$NEXT_VERSION_CODE.txt"
-    if [ ! -f "$CHANGELOG" ]; then
-        print_warning "Missing: $locale/changelogs/$NEXT_VERSION_CODE.txt"
-        MISSING_NOTES=1
-    elif [ ! -s "$CHANGELOG" ]; then
-        print_warning "Empty: $locale/changelogs/$NEXT_VERSION_CODE.txt"
-        MISSING_NOTES=1
-    fi
-done
-
-if [ "$MISSING_NOTES" -eq 1 ]; then
-    print_error "Release notes missing or empty for versionCode $NEXT_VERSION_CODE"
-    echo ""
-    echo "Run '/release-notes android' to generate release notes first"
+# CHANGELOG.md has '## [VERSION]' and an empty [Unreleased]; Play Store limit 500 characters
+if ! uv run --quiet "$REPO_DIR/scripts/release/preflight.py" --version "$VERSION" --max-chars 500 \
+    "$PROJECT_DIR/fastlane/metadata/android/de-DE/changelogs/$NEXT_VERSION_CODE.txt" \
+    "$PROJECT_DIR/fastlane/metadata/android/en-US/changelogs/$NEXT_VERSION_CODE.txt"; then
+    print_error "Release preflight failed (see above)"
     exit 1
 fi
 
-print_success "Release notes found for versionCode $NEXT_VERSION_CODE (de-DE, en-US)"
+print_step "Checking Play Store credentials..."
+
+MISSING_CREDENTIALS=0
+
+# Upload keystore: keystore.properties + the storeFile it references.
+# storeFile is resolved like Gradle's file() in app/build.gradle.kts, i.e. relative to app/.
+KEYSTORE_PROPERTIES="$PROJECT_DIR/keystore.properties"
+if [ ! -f "$KEYSTORE_PROPERTIES" ]; then
+    print_warning "Missing: $KEYSTORE_PROPERTIES (release would be signed with the debug key)"
+    MISSING_CREDENTIALS=1
+else
+    STORE_FILE=$(grep -E '^[[:space:]]*storeFile[[:space:]]*=' "$KEYSTORE_PROPERTIES" | head -1 | sed -E 's/^[^=]*=[[:space:]]*//' | tr -d '\r' || true)
+    if [ -z "$STORE_FILE" ]; then
+        print_warning "No storeFile entry in $KEYSTORE_PROPERTIES"
+        MISSING_CREDENTIALS=1
+    else
+        [[ "$STORE_FILE" = /* ]] || STORE_FILE="$PROJECT_DIR/app/$STORE_FILE"
+        if [ ! -f "$STORE_FILE" ]; then
+            print_warning "Missing: upload keystore $STORE_FILE (storeFile in keystore.properties)"
+            MISSING_CREDENTIALS=1
+        fi
+    fi
+fi
+
+# Play Console service account: same lookup as json_key_file in fastlane/Appfile
+PLAY_JSON_KEY="${SUPPLY_JSON_KEY:-$HOME/.fastlane/stillmoment-play-console.json}"
+if [ ! -f "$PLAY_JSON_KEY" ]; then
+    print_warning "Missing: Play Console service account key $PLAY_JSON_KEY"
+    MISSING_CREDENTIALS=1
+fi
+
+if [ "$MISSING_CREDENTIALS" -eq 1 ]; then
+    print_error "Play Store credentials incomplete"
+    exit 1
+fi
+
+print_success "Upload keystore and Play Console key found"
 
 # ============================================================================
 # RUN CHECKS
