@@ -42,6 +42,7 @@ struct MockedAppDependencies {
             guidedSettingsRepository: MockGuidedMeditationSettingsRepository(),
             waveformProvider: waveformProvider,
             downloadService: MockAudioDownloadService(),
+            episodeResolver: MockPodcastEpisodeResolver(),
             makeGongPlayer: { MockMeditationGongPlayer() },
             // Deliberately the one shared mock, so tests can observe the player's playback.
             // Production creates a fresh service per player — tested on `live()` in AppDependenciesTests.

@@ -21,6 +21,8 @@ final class InboxHandlerTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockDownloadService: MockAudioDownloadService!
     // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockEpisodeResolver: MockPodcastEpisodeResolver!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
@@ -43,10 +45,12 @@ final class InboxHandlerTests: XCTestCase {
             metadataService: self.mockMetadataService
         )
         self.mockDownloadService = MockAudioDownloadService()
+        self.mockEpisodeResolver = MockPodcastEpisodeResolver()
 
         self.sut = InboxHandler(
             fileOpenHandler: self.mockFileOpenHandler,
             downloadService: self.mockDownloadService,
+            episodeResolver: self.mockEpisodeResolver,
             fileManager: .default,
             inboxDirectoryURL: self.inboxDirectory
         )
@@ -56,6 +60,7 @@ final class InboxHandlerTests: XCTestCase {
         try? FileManager.default.removeItem(at: self.inboxDirectory)
         self.sut = nil
         self.mockDownloadService = nil
+        self.mockEpisodeResolver = nil
         self.mockFileOpenHandler = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil
@@ -471,6 +476,7 @@ final class InboxHandlerTests: XCTestCase {
         let handler = InboxHandler(
             fileOpenHandler: self.mockFileOpenHandler,
             downloadService: self.mockDownloadService,
+            episodeResolver: self.mockEpisodeResolver,
             fileManager: .default,
             inboxDirectoryURL: nonExistentDir
         )

@@ -50,6 +50,7 @@ final class InboxHandlerImportFailureTests: XCTestCase {
         self.sut = InboxHandler(
             fileOpenHandler: self.mockFileOpenHandler,
             downloadService: self.mockDownloadService,
+            episodeResolver: MockPodcastEpisodeResolver(),
             fileManager: .default,
             inboxDirectoryURL: self.inboxDirectory
         )
