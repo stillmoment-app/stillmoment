@@ -25,6 +25,7 @@ import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.Praxis
+import com.stillmoment.domain.services.WaveformProviderProtocol
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
@@ -87,6 +88,9 @@ class ScreengrabScreenshotTests {
 
     @Inject
     lateinit var praxisDataStore: PraxisDataStore
+
+    @Inject
+    lateinit var waveformProvider: WaveformProviderProtocol
 
     private lateinit var scenario: ActivityScenario<MainActivity>
 
@@ -285,7 +289,7 @@ class ScreengrabScreenshotTests {
         // Compose reports the nodes as displayed before the system-level (UiAutomator) capture
         // sees the painted frame, especially on a cold start. A short settle avoids capturing an
         // empty/half-painted list.
-        Thread.sleep(LIBRARY_SETTLE_MS)
+        Thread.sleep(FRAME_SETTLE_MS)
 
         takeScreenshot("03_LibraryList")
     }
@@ -372,6 +376,17 @@ class ScreengrabScreenshotTests {
         // assertIsDisplayed throw.
         waitForNodeDisplayed(localizedText("under your session", "unter deine Sitzung"))
 
+        // The intro text is static, but the sound list is loaded asynchronously from the
+        // DataStore by the ViewModel — capturing right after the intro appears can show an
+        // empty list. The volume slider only exists once the saved (non-silent) "forest"
+        // selection has been loaded, together with the sound list, so it marks "loaded".
+        waitForNode(hasTestTag("selectBackground.slider.volume"), timeoutMs = 10_000)
+        composeRule.waitForIdle()
+
+        // Semantics reflect the loaded list before the system-level (UiAutomator) capture sees
+        // the painted frame; without a settle the en-US capture still showed the empty list.
+        Thread.sleep(FRAME_SETTLE_MS)
+
         takeScreenshot("06_Soundscape")
     }
 
@@ -412,11 +427,26 @@ class ScreengrabScreenshotTests {
             localizedText("Where to find meditations", "Wo finde ich Meditationen")
         )
 
+        // The sheet's semantics are "displayed" before the system-level capture sees the
+        // painted, fully slid-in sheet; without a settle the capture can show only the scrim.
+        Thread.sleep(FRAME_SETTLE_MS)
+
         takeScreenshot("08_ImportGuide")
     }
 
     @Test
     fun screenshot09_trimEditor() {
+        // Generate (and cache) the Body Scan waveform up front. The fixture IDs are random, so
+        // there is never a cached waveform, and a cold generation of a 15-minute MP3 can take
+        // tens of seconds on the emulator. With the cache warm, the editor's loadWaveform() is a
+        // synchronous cache hit when the screen appears, so the waveform is in the UI state by
+        // the first idle — no fixed sleep racing against background decoding.
+        runBlocking {
+            val bodyScan = dataStore.meditationsFlow.first()
+                .first { it.name.startsWith("Body Scan") }
+            waveformProvider.waveform(bodyScan)
+        }
+
         navigateToLibraryTab()
         waitForLibraryLoaded()
 
@@ -439,10 +469,11 @@ class ScreengrabScreenshotTests {
         // The trim editor does not auto-play (no per-frame loop), so it settles to idle.
         waitForNodeDisplayed(hasTestTag("trimEditor.screen"))
 
-        // The waveform loads asynchronously (sampled → fast). waitForIdle returns while it is
-        // still generating in the background, so give it a moment to render before capturing,
-        // otherwise the trim track is empty.
-        Thread.sleep(TRIM_WAVEFORM_MS)
+        // Let the painted frame catch up, then sync once more: the test clock only advances
+        // during idle waits, so any late state change is rendered by this final waitForIdle
+        // (a bare Thread.sleep right before capturing would not draw a new frame).
+        Thread.sleep(FRAME_SETTLE_MS)
+        composeRule.waitForIdle()
 
         takeScreenshot("09_TrimEditor")
     }
@@ -459,13 +490,10 @@ class ScreengrabScreenshotTests {
         const val PLAYER_CLOCK_STEP_MS = 1_000L
         const val PLAYER_REAL_STEP_MS = 1_000L
 
-        // The trim editor loads its (sampled) waveform asynchronously after the screen appears.
-        const val TRIM_WAVEFORM_MS = 12_000L
-
         // Let the soft keyboard finish hiding before capturing the search results.
         const val KEYBOARD_DISMISS_MS = 1_000L
 
-        // Let the library's painted frame catch up to the Compose semantics before capturing.
-        const val LIBRARY_SETTLE_MS = 2_000L
+        // Let the painted frame catch up to the Compose semantics before capturing.
+        const val FRAME_SETTLE_MS = 2_000L
     }
 }
