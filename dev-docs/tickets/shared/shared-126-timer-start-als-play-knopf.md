@@ -10,7 +10,7 @@ priority: niedrig
 
 # Ticket shared-126: Timer-Start als runder Play-Knopf
 
-**Komplexitaet**: Kleine Aenderung mit zwei Stolpersteinen: die Beschriftung faellt nur sichtbar weg, nicht fuer die Sprachausgabe, und bestehende automatisierte Tests tippen den Knopf heute ueber seinen Text an.
+**Komplexitaet**: Kleine Aenderung. Die Ansage fuer VoiceOver/TalkBack ist auf beiden Plattformen schon heute unabhaengig von der sichtbaren Beschriftung gesetzt, und die automatisierten Tests finden den Knopf nicht ueber seinen Text (iOS ueber `timer.button.start`, Android ueber die Ansage). Der Hauptaufwand liegt in der Optik und im Aufraeumen.
 
 ---
 
@@ -22,8 +22,13 @@ der nur noch das Play-Zeichen zeigt.
 ## Warum
 
 Der Bildschirm wird ruhiger, und das Play-Zeichen erklaert sich ohne Worte. Ausserdem startet
-man eine Meditation damit ueberall in der App auf dieselbe Weise — in der Bibliothek loest
-bereits ein runder Play-Knopf die Wiedergabe aus.
+man eine Meditation damit ueberall in der App auf dieselbe Weise — in der Bibliothek fuehrt
+bereits ein runder Play-Knopf zur Meditation.
+
+Damit wird eine Entscheidung aus shared-097 bewusst aufgegeben: Dort sahen der Start-Knopf und
+der "Fertig"-Knopf auf dem Danke-Screen gleich aus, damit Anfang und Ende der Praxis dasselbe
+Vokabular sprechen. Die Einheitlichkeit des Startens (Bibliothek und Timer) wiegt hier schwerer.
+Der "Fertig"-Knopf bleibt unveraendert.
 
 ---
 
@@ -32,11 +37,11 @@ bereits ein runder Play-Knopf die Wiedergabe aus.
 <!-- Kriterien gelten fuer BEIDE Plattformen -->
 
 ### Feature (beide Plattformen)
-- [ ] Der Start-Knopf ist rund und zeigt allein das Play-Zeichen, ohne sichtbare Beschriftung
-- [ ] Die Tippflaeche ist mindestens 44 Punkt gross
-- [ ] Mit VoiceOver und TalkBack wird der Knopf weiterhin als "Meditation beginnen" angesagt — der Wegfall der sichtbaren Beschriftung aendert daran nichts
-- [ ] Der Knopf sitzt sichtbar ueber der Tab-Leiste und wird von ihr nicht ueberdeckt
-- [ ] Es bleiben keine ungenutzten Texte zurueck
+- [ ] Der Start-Knopf ist rund (68 Punkt Durchmesser, wie im Entwurf) und zeigt allein das Play-Zeichen, ohne sichtbare Beschriftung
+- [ ] Er traegt dieselbe Farbgebung wie der runde Play-Knopf der Bibliothek
+- [ ] Mit VoiceOver und TalkBack wird der Knopf weiterhin als "Meditation starten" (EN: "Start meditation") angesagt — der Wegfall der sichtbaren Beschriftung aendert daran nichts
+- [ ] Der Knopf sitzt sichtbar ueber der Tab-Leiste und wird von ihr nicht ueberdeckt — auch nicht auf kleinen Geraeten, obwohl er hoeher ist als der heutige Knopf
+- [ ] Es bleiben keine ungenutzten Texte, Parameter oder veralteten Kommentare zurueck (u.a. die sichtbare Start-Beschriftung, das Play-Icon des warmen Primaerknopfs auf Android, Kommentare zum "Beginnen-Button")
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests
@@ -52,19 +57,22 @@ bereits ein runder Play-Knopf die Wiedergabe aus.
 1. Timer-Tab oeffnen
 2. Den Bildschirm mit VoiceOver bzw. TalkBack abfahren, bis der Start-Knopf erreicht ist
 3. Knopf antippen
-4. Erwartung: Ein runder Knopf mit Play-Zeichen ueber der Tab-Leiste, angesagt als "Meditation beginnen", und die Meditation startet — auf beiden Plattformen gleich.
+4. Erwartung: Ein runder Knopf mit Play-Zeichen ueber der Tab-Leiste, angesagt als "Meditation starten", und die Meditation startet — auf beiden Plattformen gleich.
+5. Dasselbe auf dem kleinsten unterstuetzten Geraet: Knopf vollstaendig sichtbar, nichts ueberlappt.
 
 ---
 
 ## Referenz
 
-- Entwurf: Claude Design, Projekt "Still Moment", `prototypen/timer-dauer/Zeitauswahl.html` — der Knopf ist dort in allen Varianten gleich
-- Vorbild in der App: der runde Play-Knopf in der Bibliothek
-- iOS: `ios/StillMoment/Presentation/Views/Timer/`
-- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/timer/`
+- Entwurf: Claude Design, Projekt "Still Moment", `prototypen/timer-dauer/Zeitauswahl.html` — der Knopf ist dort in allen Varianten gleich; Masse in `prototypen/timer-dauer/dauer.css` (`.startbtn`: 68px, Verlauf `#d68a6e` → `#b06a4f`, weicher Schein statt Schlagschatten)
+- Vorbild in der App: `PlayButtonCircle` (iOS `Presentation/Views/Shared/`, Android `presentation/ui/components/`), in der Bibliothek mit 36 Punkt
+- iOS: `ios/StillMoment/Presentation/Views/Timer/TimerView.swift` (`controlButtons`)
+- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/TimerScreen.kt` (`StartButton`)
 
 ---
 
 ## Hinweise
 
 - Der Entwurf zeigt den Knopf auch neben dem heutigen Atemkreis. Die Aenderung haengt damit nicht an shared-125 und kann unabhaengig davon umgesetzt werden — wenn beide zusammen laufen, wird der Bildschirm nur einmal visuell geprueft.
+- Der Knopf im Entwurf ist fast doppelt so gross wie der Bibliotheks-Knopf. Auf Android hat `PlayButtonCircle` bereits einen Parameter fuer den Durchmesser, auf iOS ist er fest eingebaut. Ob der Start-Knopf `PlayButtonCircle` wiederverwendet oder eine eigene Komponente bekommt, entscheidet die Planung.
+- Den Ansagetext bewusst nicht aendern: Der Android-Screengrab-Test sucht den Knopf ueber "Start meditation" / "Meditation starten".
