@@ -7,7 +7,7 @@ A warmhearted meditation timer with Tibetan singing bowl gongs, guided meditatio
 
 **Platforms**: iOS (SwiftUI) + Android (Jetpack Compose)
 **Languages**: Deutsch, English
-**Privacy**: 100% offline, no data collection
+**Privacy**: No data collection, no tracking, works without internet
 
 ## Quick Start
 
@@ -42,7 +42,7 @@ Clean Architecture Light + MVVM on both platforms.
 
 ## Privacy
 
-No data collection. 100% offline. [Privacy Policy](https://stillmoment-app.github.io/stillmoment/privacy)
+No data collection, no tracking, no servers of our own. Meditating works without the internet; the app only goes online when you import a recording from a link. [Privacy Policy](https://stillmoment-app.github.io/stillmoment/privacy)
 
 ## Contributing
 
