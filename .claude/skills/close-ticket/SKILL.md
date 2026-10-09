@@ -124,8 +124,9 @@ Suche nach einer Zeile mit `(Ticket: {ticket-id})`.
 
 1. `git checkout main`
 2. `git merge --no-ff <branch>` — Default-Merge-Message (`Merge branch '<branch>'`) ist ok
-3. **Bei Merge-Konflikt:** STOP. Zeige Konflikt-Files, frage User wie weiter (Konflikt manuell loesen, dann erneut). Skill selbst loest keine Konflikte.
-4. **Bei erfolgreichem Merge:** `git branch -d <branch>` (kein `-D` — falls da noch was nicht gemerged ist, soll's failen und der User entscheidet)
+3. **Bei Merge-Konflikt nur in `dev-docs/tickets/INDEX.md`:** Normalfall, wenn auf main zwischendurch Tickets angelegt/geschlossen wurden. Die Datei ist generiert — nicht von Hand aufloesen, sondern im Merge-Zustand `make tickets-index` ausfuehren, `git add dev-docs/tickets/INDEX.md`, `git commit --no-edit`. Ohne Rueckfrage, im Abschluss erwaehnen.
+4. **Bei jedem anderen Merge-Konflikt:** STOP. Zeige Konflikt-Files, frage User wie weiter (Konflikt manuell loesen, dann erneut). Skill selbst loest keine anderen Konflikte.
+5. **Bei erfolgreichem Merge:** `git branch -d <branch>` (kein `-D` — falls da noch was nicht gemerged ist, soll's failen und der User entscheidet)
 
 ### Schritt 8: Zusammenfassung
 
