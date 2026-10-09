@@ -1,6 +1,6 @@
 # Feature-Konzept: Podcast-Import
 
-**Status**: Entschieden, in Tickets ueberfuehrt (shared-127, shared-128, shared-129, ios-053)
+**Status**: Entschieden, in Tickets ueberfuehrt (shared-127, shared-128, shared-129, shared-133)
 **Erstellt**: 2026-01-02
 **Aktualisiert**: 2026-10-08 (Design-Interview; ersetzt die Fassung vom 2026-01-04)
 
@@ -30,7 +30,7 @@ Eine importierte Folge ist danach eine ganz normale Meditation — offline abspi
 | Herkunft speichern | Nein (kein Podcast-Name, kein Deep-Link, kein Artwork) | Fairness ist durch Download direkt beim Anbieter erfuellt; kein neues Datenfeld ohne Nutzen fuer die meditierende Person |
 | Fehlermeldungen | Genau drei, nach Handlungsmoeglichkeit: "einzelne Folge teilen" / "keine Verbindung, spaeter erneut" / "kann leider nicht uebernommen werden" | Ursache (Bezahl-Folge, Video, nicht gefunden) aendert fuer den Nutzer nichts und ist technisch oft nicht unterscheidbar |
 | Ladeanzeige | Bestehendes Ladefenster (shared-082) unveraendert; Abbrechen stoppt auch die Suche | Suchschritte sind fuer den Nutzer ein technisches Detail; Fortschrittsanzeige wurde in shared-082 bewusst verworfen |
-| Sichtbarkeit | iOS-Anleitung "So importierst du aus Apple Podcasts" in "Wo finde ich Meditationen?" | Feature beginnt in einer anderen App und ist sonst unauffindbar |
+| Sichtbarkeit | Anleitung "So importierst du aus Apple Podcasts" (iOS + Android, Ausgangspunkt podcasts.apple.com) in "Wo finde ich Meditationen?" | Feature beginnt in einer anderen App und ist sonst unauffindbar |
 
 ## Tickets
 
@@ -39,7 +39,7 @@ Eine importierte Folge ist danach eine ganz normale Meditation — offline abspi
 | shared-127 | Datenschutzerklaerung, Store-Texte, Website, README: ehrlich zu Netzwerkzugriffen (inkl. Apple-Abruf) |
 | shared-128 | Podcast-Import ueber den Lookup-Dienst (neueste Folgen), iOS + Android — umgesetzt 2026-10 |
 | shared-129 | Rueckfallweg fuer aeltere Folgen (og:title + Feed) |
-| ios-053 | Anleitung "So importierst du aus Apple Podcasts" |
+| shared-133 | Anleitung "So importierst du aus Apple Podcasts", iOS + Android, Ausgangspunkt podcasts.apple.com |
 
 ## Spaeter (noch keine Tickets)
 
