@@ -94,8 +94,9 @@ screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
 	@bundle exec fastlane screenshots
 	@echo "Screenshots generated in fastlane/metadata/android/*/images/phoneScreenshots/"
 
-release: ## Upload to Play Store (Production)
-	@echo "Building and uploading to Play Store (Production)..."
+release: ## Upload to Play Store (Production) (VERSION=x.y.z required; checks tag/version/screenshots first)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh android
+	@echo "Building and uploading version $(VERSION) to Play Store (Production)..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
@@ -110,8 +111,9 @@ release-dry: ## Validate release without uploading (dry run)
 	fi
 	@bundle exec fastlane release_dry
 
-release-production: ## Upload to Production (with confirmation)
-	@echo "Preparing production release..."
+release-production: ## Upload to Production with confirmation prompt (VERSION=x.y.z required; same checks as release)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh android
+	@echo "Preparing production release of version $(VERSION)..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \

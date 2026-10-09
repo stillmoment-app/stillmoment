@@ -147,11 +147,8 @@ screenshot-single: ## Run single screenshot (TEST=... MODE=dark optional)
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
 	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh
 
-release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional)
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Usage: make release VERSION=x.y.z [SKIP_BUILD=1]"; \
-		exit 1; \
-	fi
+release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional; checks tag/version/screenshots first)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh ios
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
