@@ -7,7 +7,7 @@ A warmhearted meditation timer with Tibetan singing bowl gongs, guided meditatio
 
 **Platforms**: iOS (SwiftUI) + Android (Jetpack Compose)
 **Languages**: Deutsch, English
-**Privacy**: No data collection, no tracking, works without internet
+**Privacy**: No data collection, no tracking, meditating works without internet
 
 ## Quick Start
 

@@ -52,7 +52,7 @@ Baue deine eigene Meditations-Bibliothek. Importiere Audio-Dateien, organisiere 
 ### Description (English - 4000 characters max)
 
 ```
-Still Moment combines a beautiful meditation timer with your personal guided meditation library. Import your own audio files, organize them by teacher, and enjoy your practice - all in one elegant app that works offline.
+Still Moment combines a beautiful meditation timer with your personal guided meditation library. Import your own audio files, organize them by teacher, and enjoy your practice - all in one elegant app that lets you meditate offline.
 
 KEY FEATURES
 
