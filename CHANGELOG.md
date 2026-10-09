@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (Android)
+- **Build-Werkzeuge auf aktuellem Stand** - Die Android-App wird jetzt mit dem Android Gradle Plugin 9.4.1, Gradle 9.6.0, Kotlin 2.2.10 und KSP 2.3.6 gebaut, Hilt ist auf 2.60.1 angehoben. Kotlin kommt jetzt direkt aus AGP, das separate Kotlin-Android-Plugin entfällt. Die Übergangs-Schalter, die der Upgrade-Assistent gesetzt hatte, sind entfernt, AGP-Standards gelten. Ausnahme sind die beiden R8-Schalter, die Umstellung dort folgt separat (android-090), weil sie die Store-Version verändern kann. Drei Stolperstellen sind dabei behoben: Das alte Hilt-Plugin passte nicht zu KSP 2.3 und brach den Build ab. Gradle 9 lädt die JUnit-Plattform nicht mehr selbst, sie ist jetzt ausdrücklich eingetragen. Und das ktlint-Plugin prüfte ohne das Kotlin-Android-Plugin nur noch die Build-Skripte, nicht mehr den App-Code. Es ist deshalb auf 14.2.0 angehoben, die ktlint-Version selbst bleibt auf 1.0.1 festgeschrieben, damit sich die Stilregeln nicht still ändern. Für Nutzer ändert sich nichts.
+
 ## [2.6.0] - 2026-10-09
 
 ### Added (iOS + Android)

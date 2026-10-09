@@ -19,7 +19,7 @@ check: ## Run all code quality checks (ktlint, lint, detekt) - same as CI
 	@./gradlew ktlintCheck lint detekt
 	@echo "All checks passed!"
 
-test: ## Run all tests (debug + release variants)
+test: ## Run all unit tests (debug variant; release-only breakage: make build-release)
 	@echo "Running all tests..."
 	@./gradlew test
 
