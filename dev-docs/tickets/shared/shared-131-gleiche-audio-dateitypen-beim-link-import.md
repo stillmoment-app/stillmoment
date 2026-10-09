@@ -12,6 +12,7 @@ depends_on: [shared-128]
 # Ticket shared-131: Gleiche Audio-Dateitypen beim Link- und Podcast-Import
 
 **Plan (iOS)**: `dev-docs/tickets/plans/shared-131-ios.md`
+**Plan (Android)**: `dev-docs/tickets/plans/shared-131-android.md`
 
 **Komplexitaet**: Android gering (Liste um zwei Typen ergaenzen). iOS mittel: iOS prueft den Dateityp heute erst, wenn die Datei schon vollstaendig geladen ist — fuer "ablehnen, bevor die Datei vollstaendig geladen ist" muss iOS frueher pruefen, ohne Abbrechen und den Import langer Folgen (shared-128) zu brechen. Risiko: iOS wird strenger — Dateien, die heute (zufaellig) klappen, koennten abgelehnt werden.
 
