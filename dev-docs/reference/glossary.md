@@ -1068,6 +1068,17 @@ sie nach.
 `AudioMetadataServiceProtocol` vs. `AudioMetadataService`). Gemeint ist dieselbe Sache; das
 Glossar nennt sie ohne Suffix.
 
+Ebenso Plattform-Konvention sind die View-Suffixe: iOS `*View` / `*Sheet`, Android
+`*Screen` / `*Sheet` (`TimerView` ↔ `TimerScreen`). Darüber hinaus weichen View-Namen an
+diesen Stellen ab — wer per Namen sucht, stolpert sonst:
+
+- **Wortstellung:** iOS `*Selection*` ↔ Android `Select*`
+  (`GongSelectionView` ↔ `SelectGongScreen`, `BackgroundSoundSelectionView` ↔ `SelectBackgroundSoundScreen`).
+- **Laufender Timer:** iOS hat keinen eigenen Screen — der Running-State lebt in `TimerView`.
+  Android trennt ihn als `TimerFocusScreen` ab.
+- **„Guided"-Präfix:** iOS `GuidedMeditationEditSheet` ↔ Android `MeditationEditSheet`;
+  bei Liste und Player tragen beide das Präfix.
+
 ---
 
 ## Wartungshinweise
