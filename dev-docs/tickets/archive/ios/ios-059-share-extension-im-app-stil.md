@@ -1,7 +1,7 @@
 ---
 id: ios-059
 title: "Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert"
-status: in-progress
+status: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
