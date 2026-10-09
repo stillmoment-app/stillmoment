@@ -18,8 +18,8 @@ final class TimerViewModel: ObservableObject {
     @Published var settings: MeditationSettings = .default
 
     init(
-        timerService: TimerServiceProtocol = TimerService(),
-        audioService: AudioServiceProtocol = AudioService()
+        timerService: TimerServiceProtocol,
+        audioService: AudioServiceProtocol
     ) { ... }
 }
 ```
@@ -41,6 +41,11 @@ final class AudioService: AudioServiceProtocol { ... }
 ```
 
 Constructor injection everywhere — no service locators, no singletons (except `AudioSessionCoordinator.shared`).
+
+### Composition Root (ios-055)
+
+Services are created only in `AppDependencies.live()` and handed down through initializers. The full rules
+live in `.claude/rules/ios-dependency-injection.md` (loads automatically for app and unit-test Swift files).
 
 ### Combine Bindings
 

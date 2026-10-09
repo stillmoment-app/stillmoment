@@ -32,7 +32,11 @@ final class PlayerViewModelCompletionTests: XCTestCase {
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService,
-            meditationService: self.mockMeditationService
+            meditationService: self.mockMeditationService,
+            waveformProvider: MockWaveformProvider(),
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
     }
 
@@ -59,7 +63,10 @@ final class PlayerViewModelCompletionTests: XCTestCase {
             meditation: meditation,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,
-            clock: mockClock
+            waveformProvider: MockWaveformProvider(),
+            clock: mockClock,
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
         await self.sut.loadAudio()
 

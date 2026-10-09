@@ -15,7 +15,7 @@ import SwiftUI
 struct GuidedMeditationSettingsSection: View {
     // MARK: Lifecycle
 
-    init(settingsRepository: GuidedSettingsRepository = GuidedMeditationSettingsRepository()) {
+    init(settingsRepository: GuidedSettingsRepository) {
         self.settingsRepository = settingsRepository
         let settings = settingsRepository.load()
         _preparationTimeEnabled = State(initialValue: settings.preparationTimeSeconds != nil)
@@ -83,33 +83,5 @@ struct GuidedMeditationSettingsSection: View {
             preparationTimeSeconds: enabled ? seconds : nil
         )
         self.settingsRepository.save(settings)
-    }
-}
-
-// MARK: - Previews
-
-@available(iOS 17.0, *)
-#Preview("Preparation Disabled") {
-    NavigationStack {
-        Form {
-            GuidedMeditationSettingsSection()
-        }
-        .scrollContentBackground(.hidden)
-    }
-}
-
-@available(iOS 17.0, *)
-#Preview("Preparation Enabled") {
-    NavigationStack {
-        Form {
-            GuidedMeditationSettingsSection(
-                settingsRepository: {
-                    let repo = GuidedMeditationSettingsRepository()
-                    repo.save(GuidedMeditationSettings(preparationTimeSeconds: 15))
-                    return repo
-                }()
-            )
-        }
-        .scrollContentBackground(.hidden)
     }
 }

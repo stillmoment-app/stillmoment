@@ -26,7 +26,10 @@ final class TimerViewModelZenModeTests: XCTestCase {
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
     }
 

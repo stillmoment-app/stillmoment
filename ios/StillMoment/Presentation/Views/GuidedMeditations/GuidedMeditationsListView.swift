@@ -21,21 +21,13 @@ struct GuidedMeditationsListView: View {
 
     init(
         navigationPath: Binding<NavigationPath> = .constant(NavigationPath()),
-        viewModel: GuidedMeditationsListViewModel? = nil,
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        settingsRepository: GuidedSettingsRepository = GuidedMeditationSettingsRepository()
+        viewModel: GuidedMeditationsListViewModel,
+        dependencies: AppDependencies
     ) {
         _navigationPath = navigationPath
-        self.meditationService = meditationService
-        if let viewModel {
-            _viewModel = StateObject(wrappedValue: viewModel)
-        } else {
-            _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel(
-                meditationService: meditationService
-            ))
-        }
-        self.settingsRepository = settingsRepository
-        _settings = State(initialValue: settingsRepository.load())
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.dependencies = dependencies
+        _settings = State(initialValue: dependencies.guidedSettingsRepository.load())
     }
 
     // MARK: Internal
@@ -112,7 +104,7 @@ struct GuidedMeditationsListView: View {
             GuidedMeditationPlayerView(
                 meditation: meditation,
                 preparationTimeSeconds: self.settings.preparationTimeSeconds,
-                meditationService: self.meditationService
+                dependencies: self.dependencies
             )
         }
         .alert(
@@ -151,7 +143,7 @@ struct GuidedMeditationsListView: View {
             }
         }
         .onAppear {
-            self.settings = self.settingsRepository.load()
+            self.settings = self.dependencies.guidedSettingsRepository.load()
         }
         .task {
             await self.viewModel.loadMeditations()
@@ -181,8 +173,7 @@ struct GuidedMeditationsListView: View {
     @State private var settings: GuidedMeditationSettings
     @Binding private var navigationPath: NavigationPath
 
-    private let meditationService: GuidedMeditationServiceProtocol
-    private let settingsRepository: GuidedSettingsRepository
+    private let dependencies: AppDependencies
 
     private var currentLanguageCode: String {
         Locale.current.language.languageCode?.identifier ?? "en"
@@ -198,8 +189,10 @@ struct GuidedMeditationsListView: View {
                     meditation: meditation,
                     mode: isImport ? .importMode : .edit,
                     availableTeachers: self.viewModel.uniqueTeachers,
-                    audioService: self.viewModel.editorAudioService,
-                    waveformProvider: self.viewModel.editorWaveformProvider,
+                    audioService: self.dependencies.audioService,
+                    waveformProvider: self.dependencies.waveformProvider,
+                    meditationService: self.dependencies.meditationService,
+                    praxisRepository: self.dependencies.praxisRepository,
                     onSave: { updated in
                         self.viewModel.handleEditSheetSave(updated)
                     },

@@ -19,19 +19,13 @@ final class AudioService: AudioServiceProtocol {
 
     init(
         coordinator: AudioSessionCoordinatorProtocol,
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
-        customAudioRepository: CustomAudioRepositoryProtocol? = nil,
-        soundscapeResolver: SoundscapeResolverProtocol? = nil,
+        soundRepository: BackgroundSoundRepositoryProtocol,
+        soundscapeResolver: SoundscapeResolverProtocol,
         fadeOutDuration: TimeInterval = 0.5
     ) {
         self.coordinator = coordinator
         self.soundRepository = soundRepository
-        self.customAudioRepository = customAudioRepository
-        let customRepo = customAudioRepository ?? CustomAudioRepository()
-        self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
-            soundRepository: soundRepository,
-            customAudioRepository: customRepo
-        )
+        self.soundscapeResolver = soundscapeResolver
         self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
             gongCompletionSubject.send()
@@ -44,13 +38,6 @@ final class AudioService: AudioServiceProtocol {
 
     /// Duration for fade in effect (10 seconds for smooth meditation experience after start gong)
     private static let fadeInDuration: TimeInterval = 10.0
-
-    convenience init() {
-        self.init(
-            coordinator: AudioSessionCoordinator.shared,
-            customAudioRepository: CustomAudioRepository()
-        )
-    }
 
     // MARK: - Deinit
 
@@ -261,9 +248,9 @@ final class AudioService: AudioServiceProtocol {
         self.stopBackgroundAudio()
 
         // Only release the timer session if THIS instance activated it.
-        // Other AudioService instances (e.g. GuidedMeditationsListViewModel) share the same
-        // coordinator but must never release a session they didn't own — doing so deactivates
-        // the shared AVAudioSession and kills the timer's keep-alive on lock screen.
+        // The app holds a single AudioService (ios-055), but other instances (previews, tests)
+        // share the same coordinator and must never release a session they didn't own — doing
+        // so deactivates the shared AVAudioSession and kills the timer's keep-alive on lock screen.
         let wasActive = self.timerSessionActive
         self.timerSessionActive = false
         if wasActive {
@@ -275,7 +262,6 @@ final class AudioService: AudioServiceProtocol {
 
     let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
-    let customAudioRepository: CustomAudioRepositoryProtocol?
     let soundscapeResolver: SoundscapeResolverProtocol
     let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()

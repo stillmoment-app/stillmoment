@@ -52,9 +52,10 @@ struct GuidedMeditationEditSheet: View {
         meditation: GuidedMeditation,
         mode: GuidedMeditationEditSheetMode = .edit,
         availableTeachers: [String] = [],
-        audioService: AudioServiceProtocol = AudioService(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
-        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
+        audioService: AudioServiceProtocol,
+        waveformProvider: WaveformProviderProtocol,
+        meditationService: GuidedMeditationServiceProtocol,
+        praxisRepository: PraxisRepository,
         onSave: @escaping (GuidedMeditation) -> Void,
         onCancel: @escaping () -> Void
     ) {
@@ -63,6 +64,7 @@ struct GuidedMeditationEditSheet: View {
         self.availableTeachers = availableTeachers
         self.audioService = audioService
         self.waveformProvider = waveformProvider
+        self.meditationService = meditationService
         self.praxisRepository = praxisRepository
         self.onSave = onSave
         self.onCancel = onCancel
@@ -291,7 +293,8 @@ struct GuidedMeditationEditSheet: View {
             TrimEditorSheet(
                 meditation: self.meditationWithPendingTrim,
                 audioService: self.audioService,
-                waveformProvider: self.waveformProvider
+                waveformProvider: self.waveformProvider,
+                meditationService: self.meditationService
             ) { start, end in
                 // "Zurück" übernimmt die Auswahl in den Puffer (shared-112). Save/Discard
                 // entscheidet ausschliesslich der äussere Editor — eine geänderte Auswahl
@@ -355,6 +358,7 @@ struct GuidedMeditationEditSheet: View {
 
     private let audioService: AudioServiceProtocol
     private let waveformProvider: WaveformProviderProtocol
+    private let meditationService: GuidedMeditationServiceProtocol
     private let praxisRepository: PraxisRepository
 
     /// Plays a preview of the selected gong at the timer settings' gong volume.
@@ -433,54 +437,4 @@ private struct CompactSectionSpacingModifier: ViewModifier {
             content
         }
     }
-}
-
-// MARK: - Previews
-
-private let previewMeditation = GuidedMeditation(
-    fileBookmark: Data(),
-    fileName: "test.mp3",
-    duration: 600,
-    teacher: "Jon Kabat-Zinn",
-    name: "Body Scan Meditation"
-)
-
-@available(iOS 17.0, *)
-#Preview("Edit") {
-    GuidedMeditationEditSheet(
-        meditation: previewMeditation,
-        mode: .edit,
-        availableTeachers: ["Jon Kabat-Zinn", "Jack Kornfield", "Tara Brach", "Joseph Goldstein"],
-        onSave: { _ in },
-        onCancel: {}
-    )
-}
-
-@available(iOS 17.0, *)
-#Preview("Import (Prefilled)") {
-    GuidedMeditationEditSheet(
-        meditation: previewMeditation,
-        mode: .importMode,
-        availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
-        onSave: { _ in },
-        onCancel: {}
-    )
-}
-
-@available(iOS 17.0, *)
-#Preview("Import (Empty Prefill)") {
-    let draft = GuidedMeditation(
-        localFilePath: "",
-        fileName: "d067c0ea-2c04-b934.mp3",
-        duration: 600,
-        teacher: "",
-        name: ""
-    )
-    return GuidedMeditationEditSheet(
-        meditation: draft,
-        mode: .importMode,
-        availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
-        onSave: { _ in },
-        onCancel: {}
-    )
 }

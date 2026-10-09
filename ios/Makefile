@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent
+.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
 
 DEVICE ?= iPhone 17
 IOS_VERSION ?= latest
@@ -20,6 +20,9 @@ format-check: ## Check formatting without modifying files
 lint: ## Lint code with SwiftLint (strict mode)
 	@echo "🔍 Linting code..."
 	@swiftlint lint --strict
+
+lint-selftest: ## Prove the composition-root lint rule still catches service creation (ios-055)
+	@./scripts/lint-selftest.sh
 
 check-localization: ## Check for hardcoded UI strings in code (should be localized)
 	@./scripts/check-localization.sh
@@ -66,9 +69,9 @@ setup: ## Setup development environment (one-time setup)
 	@./scripts/setup-hooks.sh
 
 ifdef CI
-check: format-check lint check-localization validate-localization ## Run all static code checks (format, lint, localization)
+check: format-check lint lint-selftest check-localization validate-localization ## Run all static code checks (format, lint, localization)
 else
-check: format lint check-localization validate-localization
+check: format lint lint-selftest check-localization validate-localization
 endif
 	@echo "✅ All checks passed!"
 

@@ -21,8 +21,7 @@ enum DurationConfigurer {
     ///
     /// Call this when the app receives `-DurationMinutes <n>` launch argument.
     /// The new duration is clamped to the valid range by `Praxis.validateDuration`.
-    static func setDuration(_ minutes: Int) {
-        let repository = UserDefaultsPraxisRepository()
+    static func setDuration(_ minutes: Int, repository: PraxisRepository) {
         let updated = repository.load().withDurationMinutes(minutes)
         repository.save(updated)
         Logger.infrastructure.info(

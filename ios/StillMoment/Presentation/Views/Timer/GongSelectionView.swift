@@ -151,7 +151,7 @@ struct GongSelectionView: View {
 @available(iOS 17.0, *)
 #Preview("Gong Selection") {
     NavigationStack {
-        GongSelectionView(viewModel: PraxisSettingsViewModel(praxis: .default) { _ in })
+        GongSelectionView(viewModel: .preview())
     }
 }
 #endif

@@ -29,7 +29,8 @@ final class PraxisSettingsViewModelLiveSaveTests: XCTestCase {
             praxis: .default,
             repository: self.mockRepository,
             audioService: self.mockAudioService,
-            soundRepository: self.mockSoundRepository
+            soundRepository: self.mockSoundRepository,
+            customAudioRepository: MockCustomAudioRepository()
         ) { _ in }
     }
 

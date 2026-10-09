@@ -15,7 +15,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService()
+        self.sut = AudioService.makeForTesting()
     }
 
     override func tearDown() {
@@ -27,7 +27,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
 
     func testFullAudioFlow() async {
         // Given - Fresh service
-        let service = AudioService()
+        let service = AudioService.makeForTesting()
 
         // When - Complete flow: configure -> play -> stop
         XCTAssertNoThrow(try service.configureAudioSession())
@@ -50,7 +50,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
 
     func testFullMeditationFlow() async throws {
         // Given - Fresh service
-        let service = AudioService()
+        let service = AudioService.makeForTesting()
 
         // When - Simulate full meditation cycle with always-on keep-alive
         try service.activateTimerSession()

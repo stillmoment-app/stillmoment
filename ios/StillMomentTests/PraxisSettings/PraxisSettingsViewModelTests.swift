@@ -66,7 +66,8 @@ final class PraxisSettingsViewModelTests: XCTestCase {
             praxis: praxis,
             repository: self.mockRepository,
             audioService: self.mockAudioService,
-            soundRepository: self.mockSoundRepository
+            soundRepository: self.mockSoundRepository,
+            customAudioRepository: MockCustomAudioRepository()
         ) { [weak self] praxis in
             self?.savedPraxis = praxis
         }

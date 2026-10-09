@@ -19,8 +19,9 @@ struct TrimEditorSheet: View {
 
     init(
         meditation: GuidedMeditation,
-        audioService: AudioServiceProtocol = AudioService(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
+        audioService: AudioServiceProtocol,
+        waveformProvider: WaveformProviderProtocol,
+        meditationService: GuidedMeditationServiceProtocol,
         onBack: @escaping (TimeInterval?, TimeInterval?) -> Void
     ) {
         self.fileDuration = meditation.duration
@@ -30,7 +31,8 @@ struct TrimEditorSheet: View {
         self._viewModel = StateObject(wrappedValue: TrimEditorViewModel(
             meditation: meditation,
             audioService: audioService,
-            waveformProvider: waveformProvider
+            waveformProvider: waveformProvider,
+            meditationService: meditationService
         ))
     }
 
@@ -156,7 +158,8 @@ struct TrimEditorSheet: View {
             name: "Evening Wind Down"
         ),
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider()
+        waveformProvider: PreviewWaveformProvider(),
+        meditationService: PreviewMeditationService()
     ) { _, _ in }
 }
 
@@ -173,7 +176,8 @@ struct TrimEditorSheet: View {
     return TrimEditorSheet(
         meditation: meditation,
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider()
+        waveformProvider: PreviewWaveformProvider(),
+        meditationService: PreviewMeditationService()
     ) { _, _ in }
 }
 
@@ -187,7 +191,8 @@ struct TrimEditorSheet: View {
             name: "Evening Wind Down"
         ),
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider(shouldFail: true)
+        waveformProvider: PreviewWaveformProvider(shouldFail: true),
+        meditationService: PreviewMeditationService()
     ) { _, _ in }
 }
 #endif

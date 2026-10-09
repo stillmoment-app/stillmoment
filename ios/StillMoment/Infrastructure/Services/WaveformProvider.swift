@@ -21,11 +21,11 @@ final class WaveformProvider: WaveformProviderProtocol {
     ///   - generationService: Decodes an audio file into a waveform (expensive, off-main).
     ///   - cacheService: Persists/loads waveforms per meditation id.
     ///   - meditationService: Resolves a meditation to its local audio file URL via
-    ///     `fileURL(for:)`. Defaults to the shared `GuidedMeditationService`.
-    nonisolated init(
-        generationService: WaveformGenerationServiceProtocol = WaveformGenerationService(),
-        cacheService: WaveformCacheServiceProtocol = WaveformCacheService(),
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService()
+    ///     `fileURL(for:)`. Must be the app's shared `GuidedMeditationService`.
+    init(
+        generationService: WaveformGenerationServiceProtocol,
+        cacheService: WaveformCacheServiceProtocol,
+        meditationService: GuidedMeditationServiceProtocol
     ) {
         self.generationService = generationService
         self.cacheService = cacheService
@@ -86,17 +86,9 @@ final class WaveformProvider: WaveformProviderProtocol {
 
     // MARK: Private
 
-    // The injected dependencies are immutable and assigned once by the `nonisolated init`
-    // (required so `WaveformProvider()` works as a default argument, which Swift always
-    // evaluates in a nonisolated context). They are only ever read from this type's
-    // @MainActor methods, so `nonisolated(unsafe)` is safe: there is no concurrent access.
-    // SwiftLint's modifier_order wants `nonisolated` before `private`; SwiftFormat's
-    // modifierOrder disagrees, so it is disabled for this block to break the tie.
-    // swiftformat:disable modifierOrder
-    nonisolated(unsafe) private let generationService: WaveformGenerationServiceProtocol
-    nonisolated(unsafe) private let cacheService: WaveformCacheServiceProtocol
-    nonisolated(unsafe) private let meditationService: GuidedMeditationServiceProtocol
-    // swiftformat:enable modifierOrder
+    private let generationService: WaveformGenerationServiceProtocol
+    private let cacheService: WaveformCacheServiceProtocol
+    private let meditationService: GuidedMeditationServiceProtocol
 
     /// Active generation tasks keyed by meditation id; entries are removed when finished.
     private var inFlight: [UUID: Task<MeditationWaveform, Error>] = [:]

@@ -28,6 +28,16 @@
 ## Layout-Bugs ohne Unit-Test
 
 - [iOS-Layout visuell verifizieren](feedback_ios_visual_verification.md) — Screenshots-Scheme seedet Fixtures, Simulator-Koordinaten sind Punkte (nicht Screenshot-Pixel), Vorher-Bild via gezieltem `git stash push -- <pfade>`.
+- [Simulator-Verifikation einrichten](feedback_simulator_verification_setup.md) — App mit `-AppleLanguages "(de)"` starten (DE-only-Features); Hell/Dunkel kommt aus den App-Einstellungen; Lade-/Fehlerbild per gepatchtem Bundle.
+- [Fester Kopf über ScrollView](feedback_fixed_header_scrollview.md) — `VStack { kopf; ScrollView }` statt `.safeAreaInset`; nur `List` clippt am Kopf.
+
+## iOS Build, Lint, Tests
+
+- [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen.
+- [SwiftLint trailing_closure bei Closure als letztem Parameter](feedback_trailing_closure_last_param.md) — benannte Konstante oder Methodenreferenz statt Closure-Literal.
+- [View in Type+Topic.swift aufteilen](feedback_view_extension_file_split.md) — verschachtelter `ViewModifier` mit Bindings, statt `private` zu lockern.
+- [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
+- [Test-Fixtures liegen flach im Bundle](project_test_fixtures_bundle_flat.md) — `url(forResource:withExtension:)` ohne `subdirectory:`.
 
 ## Cross-Platform-Migration (iOS Pendant existiert)
 

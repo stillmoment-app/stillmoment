@@ -24,7 +24,9 @@ final class ContentGuideViewModelTests: XCTestCase {
             meditationService: MockGuidedMeditationService(),
             metadataService: MockAudioMetadataService(),
             audioService: MockAudioService(),
-            meditationSourceRepository: self.mockMeditationSourceRepository
+            meditationSourceRepository: self.mockMeditationSourceRepository,
+            searchHistoryStore: MockSearchHistoryStore(),
+            waveformProvider: MockWaveformProvider()
         )
     }
 

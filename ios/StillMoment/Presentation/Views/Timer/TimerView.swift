@@ -15,12 +15,8 @@ import SwiftUI
 struct TimerView: View {
     // MARK: Lifecycle
 
-    init(viewModel: TimerViewModel? = nil) {
-        if let viewModel {
-            _viewModel = StateObject(wrappedValue: viewModel)
-        } else {
-            _viewModel = StateObject(wrappedValue: TimerViewModel())
-        }
+    init(viewModel: TimerViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     // MARK: Internal
@@ -321,7 +317,7 @@ struct TimerView: View {
 #if DEBUG
 @available(iOS 17.0, *)
 #Preview("Idle") {
-    TimerView()
+    TimerView(viewModel: TimerViewModel.preview())
 }
 
 @available(iOS 17.0, *)
@@ -341,16 +337,16 @@ struct TimerView: View {
 
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
-    TimerView()
+    TimerView(viewModel: TimerViewModel.preview())
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    TimerView()
+    TimerView(viewModel: TimerViewModel.preview())
 }
-#endif
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    TimerView()
+    TimerView(viewModel: TimerViewModel.preview())
 }
+#endif

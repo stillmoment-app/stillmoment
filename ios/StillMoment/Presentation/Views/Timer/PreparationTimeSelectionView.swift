@@ -192,7 +192,7 @@ struct PreparationTimeSelectionView: View {
 #Preview("Preparation Time Selection") {
     NavigationStack {
         PreparationTimeSelectionView(
-            viewModel: PraxisSettingsViewModel(praxis: .default) { _ in }
+            viewModel: .preview()
         )
     }
 }

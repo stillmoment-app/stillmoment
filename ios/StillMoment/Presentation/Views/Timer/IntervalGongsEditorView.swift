@@ -304,7 +304,7 @@ struct IntervalGongsEditorView: View {
 @available(iOS 17.0, *)
 #Preview("Interval Gongs Editor") {
     NavigationStack {
-        IntervalGongsEditorView(viewModel: PraxisSettingsViewModel(praxis: .default) { _ in })
+        IntervalGongsEditorView(viewModel: .preview())
     }
 }
 #endif

@@ -19,6 +19,9 @@ final class UserDefaultsPraxisRepository: PraxisRepository {
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
+        // Implementation detail, not a standalone service: the legacy reader for the one-time
+        // MeditationSettings migration must read from exactly these userDefaults (ios-055).
+        // swiftlint:disable:next service_created_outside_composition_root
         self.settingsRepository = UserDefaultsTimerSettingsRepository(userDefaults: userDefaults)
     }
 

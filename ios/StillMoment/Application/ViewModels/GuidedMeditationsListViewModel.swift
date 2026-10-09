@@ -23,12 +23,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     // MARK: - Initialization
 
     init(
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
-        audioService: AudioServiceProtocol = AudioService(),
-        meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository(),
-        searchHistoryStore: SearchHistoryStore = UserDefaultsSearchHistoryStore(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider()
+        meditationService: GuidedMeditationServiceProtocol,
+        metadataService: AudioMetadataServiceProtocol,
+        audioService: AudioServiceProtocol,
+        meditationSourceRepository: MeditationSourceRepositoryProtocol,
+        searchHistoryStore: SearchHistoryStore,
+        waveformProvider: WaveformProviderProtocol
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
@@ -178,17 +178,6 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     var uniqueTeachers: [String] {
         let teachers = Set(meditations.map(\.teacher))
         return teachers.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-    }
-
-    /// Shared audio service for the trim editor, so editor preview and library preview use
-    /// the same instance (shared-107). Read-only — the editor receives it via constructor injection.
-    var editorAudioService: AudioServiceProtocol {
-        self.audioService
-    }
-
-    /// Shared waveform provider for the trim editor and the edit-sheet mini waveform (shared-107).
-    var editorWaveformProvider: WaveformProviderProtocol {
-        self.waveformProvider
     }
 
     // MARK: - Public Methods

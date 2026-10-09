@@ -161,7 +161,11 @@ final class LibrarySearchViewModelTests: XCTestCase {
     private func makeSUT() -> GuidedMeditationsListViewModel {
         GuidedMeditationsListViewModel(
             meditationService: self.mockMeditationService,
-            searchHistoryStore: self.mockHistoryStore
+            metadataService: MockAudioMetadataService(),
+            audioService: MockAudioService(),
+            meditationSourceRepository: MockMeditationSourceRepository(),
+            searchHistoryStore: self.mockHistoryStore,
+            waveformProvider: MockWaveformProvider()
         )
     }
 

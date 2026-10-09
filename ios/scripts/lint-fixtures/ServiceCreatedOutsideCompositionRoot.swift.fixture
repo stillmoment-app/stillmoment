@@ -1,0 +1,37 @@
+//
+//  ServiceCreatedOutsideCompositionRoot.swift
+//  Still Moment
+//
+//  Lint fixture for scripts/lint-selftest.sh (ios-055). Not compiled.
+//  Lines marked EXPECT must trigger `service_created_outside_composition_root`,
+//  lines marked ALLOWED must not.
+//
+
+import AVFoundation
+import SwiftUI
+
+final class FixtureViewModel {
+    init(
+        waveformProvider: WaveformProviderProtocol = WaveformProvider(), // EXPECT: default argument
+        preview: WaveformProviderProtocol = PreviewWaveformProvider(), // ALLOWED: preview double
+        mock: AudioServiceProtocol = MockAudioService(), // ALLOWED: test double
+        fadeOutDuration: TimeInterval = 0.5 // ALLOWED: plain value
+    ) {
+        self.waveformProvider = waveformProvider
+        self.repository = UserDefaultsPraxisRepository() // EXPECT: creation in body
+        self.cache = WaveformCacheService.init() // EXPECT: explicit .init
+        let typed: WaveformCacheService = .init() // EXPECT: implicit member .init
+        let dependencies = AppDependencies.live() // EXPECT: second dependency graph
+        let theme = ThemeManager() // EXPECT: manager
+        self.player = AVPlayer() // ALLOWED: framework object
+        let stop = Gradient.Stop.init(color: .clear, location: 0) // ALLOWED: not a service
+        let label = "AudioService()" // ALLOWED: string
+        // ALLOWED: `AudioService()` and `AppDependencies.live()` in a comment are not code
+        _ = (typed, dependencies, theme, stop, label)
+    }
+
+    let waveformProvider: WaveformProviderProtocol
+    let repository: PraxisRepository
+    let cache: WaveformCacheServiceProtocol
+    let player: AVPlayer
+}

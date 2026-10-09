@@ -18,7 +18,7 @@ noch nicht eingeplant.
 
 | # | Befund | Staerke | Ticket |
 |---|--------|---------|--------|
-| 1 | Dependency-Identitaet hat keinen Ort | Strong | — |
+| 1 | Dependency-Identitaet hat keinen Ort | Strong | ios-055 (Ursache) umgesetzt: `AppDependencies` als Composition Root + Lint-Regel `service_created_outside_composition_root`; ios-054 (Waveform-Nachweis) offen |
 | 2 | Theme-Modul gibt den Zustand nicht weiter (Android) | Strong | verwandt: android-083 |
 | 3 | Import ist eine Zustandsmaschine ueber sieben Module | Strong | blockiert shared-043/044 |
 | 4 | `AudioServiceProtocol`: 21 Member, drei disjunkte Rollen | Strong | — |
@@ -328,7 +328,7 @@ lohnen: Wo kein Seam gebraucht wird, kostet er trotzdem einen Adapter, einen Moc
 | 33 Z. | iOS `MeditationTimer+Display.swift` | `formattedTime` null Produktionsleser, `isRunning` nur von `TimerViewModel.isRunning`, das selbst keinen Leser hat. Uebrig: `isPreparation` |
 | 2 Member | iOS `configureAudioSession()`, `stop()` | null Produktionsaufrufer; `configureAudioSession` ist die erste Haelfte von `activateTimerSession` |
 | 13 Z. | iOS `TrimGeometry.draggedTime` | dokumentiert die Anker-Falle, produktiv nie aufgerufen; der echte Drag loest sie in `TrimWaveformSection.applyDrag:268-281` — dort ohne Test |
-| 2 Z. | iOS `AudioService.customAudioRepository` | `:29`, `:278` — nirgends gelesen, Rueckstand des shared-065-Fixes |
+| 2 Z. | iOS `AudioService.customAudioRepository` | `:29`, `:278` — nirgends gelesen, Rueckstand des shared-065-Fixes. **Entfernt mit ios-055.** |
 | 6 Z. | iOS `IncomingFileImport` | strukturgleich zu `PendingImport` minus `draftId`, wird Feld fuer Feld umkopiert |
 
 **Achtung, umgekehrter Fall:** `PlayheadWindowGeometry.x(forSec:)`/`sec(forX:)` sind getestet und

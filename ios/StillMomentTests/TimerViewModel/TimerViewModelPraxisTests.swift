@@ -28,7 +28,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
     }
 
@@ -51,7 +54,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: currentPraxis matches what was in repository
@@ -72,7 +78,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: settings reflect the stored praxis
@@ -89,7 +98,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then
@@ -249,7 +261,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: sessionEditor starts with the same values
@@ -284,7 +299,10 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: wheel shows 30 minutes

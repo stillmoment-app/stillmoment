@@ -278,6 +278,7 @@ final class PlayerViewModelGongTests: XCTestCase {
             preparationTimeSeconds: preparationTimeSeconds,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,
+            waveformProvider: MockWaveformProvider(),
             clock: self.mockClock,
             gongPlayer: self.mockGongPlayer,
             praxisRepository: self.mockPraxisRepository

@@ -41,7 +41,10 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
             meditation: meditation,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,
-            waveformProvider: self.mockWaveformProvider
+            waveformProvider: self.mockWaveformProvider,
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
     }
 
@@ -110,7 +113,11 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: legacyMeditation,
             playerService: self.mockPlayerService,
-            meditationService: self.mockMeditationService
+            meditationService: self.mockMeditationService,
+            waveformProvider: MockWaveformProvider(),
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
 
         // When
