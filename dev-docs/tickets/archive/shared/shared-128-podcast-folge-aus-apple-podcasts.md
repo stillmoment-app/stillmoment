@@ -2,8 +2,8 @@
 id: shared-128
 title: Podcast-Folge aus Apple Podcasts importieren
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 3-Feature
 priority: mittel
 depends_on: [shared-127]
