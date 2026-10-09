@@ -1,8 +1,2 @@
 - Podcast-Folgen aus Apple Podcasts in die Bibliothek übernehmen
 - Neue Anleitung: So importierst du aus Apple Podcasts
-- Quellen für Meditationen: Lehrer:innen vorne, alle Sprachen
-- Neu in den Einstellungen: App bewerten und Schreib uns
-- Der Timer startet mit einem runden Play-Knopf
-- Der Timer passt jetzt auch auf kleine Telefone
-- Klarere Meldung, wenn die Internetverbindung fehlt
-- Verbesserungen beim Import über Links

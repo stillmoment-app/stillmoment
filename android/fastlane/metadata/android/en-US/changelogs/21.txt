@@ -1,8 +1,2 @@
 - Add podcast episodes from Apple Podcasts to your library
 - New guide: how to import from Apple Podcasts
-- Meditation sources: teachers first, all languages
-- New in Settings: Rate the app and Write to us
-- The timer now starts with a round play button
-- The timer now fits on small phones too
-- Clearer message when the internet connection is missing
-- Improvements when importing via links
