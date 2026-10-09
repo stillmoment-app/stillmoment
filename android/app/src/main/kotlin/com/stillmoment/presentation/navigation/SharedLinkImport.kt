@@ -4,11 +4,13 @@ import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.domain.models.LinkImportFailure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** A failed link import plus the shared address, so "Retry" can run the whole import again. */
 data class FailedLinkImport(val sharedUrl: String, val failure: LinkImportFailure)
@@ -65,17 +67,44 @@ class SharedLinkImport(
         _failure.value = null
     }
 
-    /** "Cancel" in the loading window — ends quietly, no message. */
+    /**
+     * "Cancel" in the loading window — ends quietly, no message, nothing is
+     * imported. Also holds when the newest import is still waiting for a
+     * replaced download to end.
+     */
     fun cancel() {
+        if (!_isLoading.value) {
+            return
+        }
         cancelRunning()
+        job?.cancel()
+        loadingUrl = null
+        _isLoading.value = false
     }
 
+    /**
+     * Replaces whatever runs with an import of [url].
+     *
+     * The previous download is stopped via [cancelRunning] — cancelling the
+     * coroutine alone does not end a blocking connection — and the new import
+     * only starts once the previous one has really ended. So there is never more
+     * than one download, and the replaced one can neither show a message nor
+     * reset the state the newer one relies on.
+     */
     private fun start(url: String) {
         _failure.value = null
-        job?.cancel()
+        val previous = job
+        if (previous?.isActive == true) {
+            cancelRunning()
+            previous.cancel()
+        }
         loadingUrl = url
         _isLoading.value = true
         job = scope.launch {
+            // Even when this import is replaced in turn, wait for the previous one:
+            // otherwise a third share could start while the first still downloads.
+            withContext(NonCancellable) { previous?.join() }
+            ensureActive()
             val outcome = import(url)
             ensureActive()
             loadingUrl = null
