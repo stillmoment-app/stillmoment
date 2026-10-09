@@ -9,6 +9,7 @@
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
 - [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren.
+- [Doppelte Scaffold-Insets auf Android-Tabs](project_android_double_scaffold_insets.md) — innere Scaffold zieht Status-/Systemleiste nochmal ab (~65-70 dp); Timer gefixt, Library nicht.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 
