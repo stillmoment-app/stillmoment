@@ -71,7 +71,7 @@
 
     <!-- Content Guide Sheet -->
     <string name="guided_meditations_guide_title">Where to find meditations?</string>
-    <string name="guided_meditations_guide_intro">These sites offer high-quality meditations as free downloads.</string>
+    <string name="guided_meditations_guide_intro">Good meditations are freely available on websites and in podcasts. You\'ll find a few recommendations below.</string>
     <string name="guided_meditations_guide_open_source">Open source in browser</string>
     <string name="guided_meditations_guide_info">Content guide</string>
 
@@ -80,6 +80,8 @@
     <string name="guided_meditations_guide_banner_browser_subtitle">Touch and hold link → Share → Still Moment.</string>
     <string name="guided_meditations_guide_banner_files_title">How to import from your files</string>
     <string name="guided_meditations_guide_banner_files_subtitle">Tap “+” → Pick a recording.</string>
+    <string name="guided_meditations_guide_banner_podcasts_title">How to import from Apple Podcasts</string>
+    <string name="guided_meditations_guide_banner_podcasts_subtitle">Episode → Share → Still Moment.</string>
     <string name="guided_meditations_guide_howto_eyebrow">How-to</string>
     <string name="guided_meditations_guide_howto_step_count">Step %1$d of 3</string>
     <string name="guided_meditations_guide_howto_back">Back</string>
@@ -88,9 +90,9 @@
     <string name="guided_meditations_guide_howto_browser_step1_title">Share from the browser</string>
     <string name="guided_meditations_guide_howto_browser_step1_body">Touch and hold the link to the recording until a menu appears. Choose “Share…”.</string>
     <string name="guided_meditations_guide_howto_browser_step2_title">Pick Still Moment</string>
-    <string name="guided_meditations_guide_howto_browser_step2_body">Pick Still Moment from the suggested apps. A short confirmation appears — tap “OK”.</string>
+    <string name="guided_meditations_guide_howto_browser_step2_body">Pick Still Moment from the suggested apps.</string>
     <string name="guided_meditations_guide_howto_browser_step3_title">Finish in the app</string>
-    <string name="guided_meditations_guide_howto_browser_step3_body">Open Still Moment. The import starts automatically — enter title, teacher and type.</string>
+    <string name="guided_meditations_guide_howto_browser_step3_body">Still Moment opens and the import starts — adjust the details if you like.</string>
     <string name="guided_meditations_guide_howto_files_title">How to import from your files</string>
     <string name="guided_meditations_guide_howto_files_intro">If the recording is already on your device, you can add it directly from the library.</string>
     <string name="guided_meditations_guide_howto_files_step1_title">Tap “+” in the library</string>
@@ -98,7 +100,16 @@
     <string name="guided_meditations_guide_howto_files_step2_title">Pick a recording</string>
     <string name="guided_meditations_guide_howto_files_step2_body">Find the recording, e.g. in the Downloads folder, and tap it.</string>
     <string name="guided_meditations_guide_howto_files_step3_title">Finish</string>
-    <string name="guided_meditations_guide_howto_files_step3_body">The import starts automatically — enter title, teacher and type.</string>
+    <string name="guided_meditations_guide_howto_files_step3_body">The import starts automatically — adjust the details if you like.</string>
+    <string name="guided_meditations_guide_howto_podcasts_title">How to import from Apple Podcasts</string>
+    <string name="guided_meditations_guide_howto_podcasts_intro">Many teachers publish their meditations as a podcast. Here\'s how to add an episode to your library.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step1_title">Find the episode</string>
+    <string name="guided_meditations_guide_howto_podcasts_step1_body">Open podcasts.apple.com in your browser and find the episode you\'d like to hear.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step2_title">Share the episode</string>
+    <string name="guided_meditations_guide_howto_podcasts_step2_body">Open the episode and tap the share icon. Pick Still Moment.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step3_title">Finish in the app</string>
+    <string name="guided_meditations_guide_howto_podcasts_step3_body">Still Moment opens and loads the episode — adjust the details if you like.</string>
+    <string name="guided_meditations_guide_howto_podcasts_note">You can only add single episodes, not whole podcasts.</string>
 
     <string name="guided_meditations_delete_title">Delete Meditation</string>
     <string name="guided_meditations_delete_message">Are you sure you want to delete \"%1$s\"?</string>

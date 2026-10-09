@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,8 +76,9 @@ private const val GUIDE_SLIDE_FRACTION = 8
  * library top app bar. Source content lives in `assets/meditation_sources.json`;
  * taps open the URL in the system browser.
  *
- * Since shared-104 the sheet also hosts two how-to banners directly below the
- * intro that lead into a three-step import guide (Browser-Share or Files-Picker).
+ * Since shared-104 the sheet also hosts how-to banners directly below the
+ * intro that lead into a three-step import guide (Browser-Share, Files-Picker
+ * and, since shared-133, Apple Podcasts).
  * Sub-navigation is state-based inside the same sheet via [AnimatedContent] —
  * the sheet itself stays open while only its content slides horizontally.
  */
@@ -211,6 +213,12 @@ private fun ImportBannerStack(onBannerClick: (HowToImportGuideKind) -> Unit) {
             title = stringResource(R.string.guided_meditations_guide_banner_files_title),
             subtitle = stringResource(R.string.guided_meditations_guide_banner_files_subtitle),
             onClick = { onBannerClick(HowToImportGuideKind.FILES) }
+        )
+        ImportBannerCard(
+            icon = Icons.Filled.Podcasts,
+            title = stringResource(R.string.guided_meditations_guide_banner_podcasts_title),
+            subtitle = stringResource(R.string.guided_meditations_guide_banner_podcasts_subtitle),
+            onClick = { onBannerClick(HowToImportGuideKind.PODCASTS) }
         )
     }
 }
@@ -408,6 +416,18 @@ private fun HowToImportBrowserPreview() {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
             Column(modifier = Modifier.padding(22.dp)) {
                 HowToImportGuideScreen(kind = HowToImportGuideKind.BROWSER)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "How-to Podcasts (DE)")
+@Composable
+private fun HowToImportPodcastsPreview() {
+    StillMomentTheme {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+            Column(modifier = Modifier.padding(22.dp)) {
+                HowToImportGuideScreen(kind = HowToImportGuideKind.PODCASTS)
             }
         }
     }
