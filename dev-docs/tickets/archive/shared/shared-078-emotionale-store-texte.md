@@ -2,8 +2,8 @@
 id: shared-078
 title: App Store + Website – Emotionaler Ton
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 4-Polish
 priority: mittel
 ---
@@ -12,6 +12,16 @@ priority: mittel
 
 **Aufwand**: ~3h (kein Code, nur Texte)
 **Abhaengigkeit**: shared-040 (App Store Narrativ + Screenshots) – kann unabhaengig umgesetzt werden
+
+---
+
+## WONTFIX
+
+Ueberholt: Die Store-Texte wurden mit v2.2.0 (bb848063, dd8a1756) bewusst in eine andere
+Richtung geschrieben ("Dein Meditationsbegleiter", Features im Promotional Text statt Zitat).
+Die Website ist weitgehend angeglichen (4dec5e77: Zitat-Abschnitt, neue Tagline). Offen
+geblieben sind der Keyword-Abschnitt in der Android-Description und der Hero-Untertitel —
+bei Bedarf als neues Ticket. Store- und Website-Texte zum Offline-Versprechen deckt shared-127 ab.
 
 ---
 

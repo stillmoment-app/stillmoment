@@ -2,17 +2,28 @@
 id: shared-040
 title: App Store Narrativ und Screenshots
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 4-Polish
 priority: hoch
 ---
 
 # Ticket shared-040: App Store Screenshots und Visuals
 
-**Plan**: [Implementierungsplan](../plans/shared-040.md)
+**Plan**: [Implementierungsplan](../../plans/shared-040.md)
 **Aufwand**: iOS ~2d | Android ~2d
 **Abhaengigkeit**: shared-078 (Texte und Ton), shared-079 (Pipeline Hardening)
+
+---
+
+## WONTFIX
+
+Ueberholt durch spaetere Entscheidungen zur Store-Darstellung: Das Screenshot-Framing mit
+Headlines wurde mit shared-079 abgeschaltet (a6f5f397). Seit bdbfc22f werden schlichte
+Screenshots ohne Headline kuratiert (App Store 10, Play Store 8, Bibliothek zuerst;
+`*/scripts/curate-store-screenshots.sh`). Kategorie, Dark Mode als Basis und realistische
+Library-Fixtures sind umgesetzt. Offen geblieben sind Headlines, Bild 5 (Zitat) und
+Long-Tail-Keywords — bei Bedarf als neues Ticket auf Basis der heutigen Pipeline.
 
 ---
 
