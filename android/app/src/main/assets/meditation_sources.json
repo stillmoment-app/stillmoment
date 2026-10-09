@@ -2,50 +2,50 @@
   "de": [
     {
       "id": "koeln",
-      "name": "Zentrum für Achtsamkeit Köln",
-      "author": null,
-      "description": "Mini-Übungen für den Einstieg. MBSR, MSC, Alltagsachtsamkeit. Von Kirsten Tofahrn.",
+      "name": "Kirsten Tofahrn",
+      "offer": "Zentrum für Achtsamkeit Köln",
+      "description": "Mini-Übungen für den Einstieg. MBSR, MSC, Alltagsachtsamkeit.",
       "host": "zentrum-fuer-achtsamkeit.koeln",
       "url": "https://zentrum-fuer-achtsamkeit.koeln/gratis-downloads-gefuehrte-meditationen/"
     },
     {
       "id": "braehler",
       "name": "Christine Brähler",
-      "author": null,
-      "description": "Selbstmitgefühl mit Tiefe: MSC, Internal Family Systems, Herzmeditationen. Von Dr. Christine Brähler.",
+      "offer": null,
+      "description": "Selbstmitgefühl mit Tiefe: MSC, Internal Family Systems, Herzmeditationen.",
       "host": "christinebraehler.com",
       "url": "https://www.christinebraehler.com/de/meditationen/"
     },
     {
       "id": "mangold",
-      "name": "Achtsamkeit & Selbstmitgefühl",
-      "author": "Jörg Mangold",
+      "name": "Jörg Mangold",
+      "offer": "Achtsamkeit & Selbstmitgefühl",
       "description": "Achtsamkeit und Selbstmitgefühl als Ressourcen. MBSR, MSC, MCP — kurz bis lang.",
       "host": "achtsamkeitundselbstmitgefuehl.de",
       "url": "https://achtsamkeitundselbstmitgefuehl.de/downloads/"
     },
     {
       "id": "gein",
-      "name": "Einfach meditieren",
-      "author": "Melissa Gein",
-      "description": "Einfach achtsam leben — großes Archiv mit kurzen und langen Übungen. Achtsamkeit, Selbstmitgefühl, MBSR, Entspannung.",
-      "host": "podcast.de",
-      "url": "https://www.podcast.de/podcast/2608917/einfach-meditieren-einfach-achtsam-leben"
+      "name": "Melissa Gein",
+      "offer": "Podcast „Einfach meditieren“",
+      "description": "Großes Archiv mit kurzen und langen Übungen. Achtsamkeit, Selbstmitgefühl, MBSR, Entspannung.",
+      "host": "podcasts.apple.com",
+      "url": "https://podcasts.apple.com/de/podcast/einfach-meditieren-einfach-achtsam-leben/id1588419775"
     }
   ],
   "en": [
     {
       "id": "audio-dharma",
-      "name": "Audio Dharma — Guided Meditations",
-      "author": "Various",
-      "description": "Guided meditations library, multiple teachers. Vipassana tradition. Insight Meditation Center.",
+      "name": "Audio Dharma",
+      "offer": "Insight Meditation Center",
+      "description": "Guided meditations library, multiple teachers. Vipassana tradition.",
       "host": "audiodharma.org",
       "url": "https://www.audiodharma.org/playables/search?query=guided+meditation&title=Guided+Meditations"
     },
     {
       "id": "tara-brach",
       "name": "Tara Brach",
-      "author": null,
+      "offer": null,
       "description": "Guided meditations, RAIN practice. Compassion, presence, sleep.",
       "host": "tarabrach.com",
       "url": "https://www.tarabrach.com/guided-meditations/"
@@ -53,15 +53,15 @@
     {
       "id": "ucla-mindful",
       "name": "UCLA Mindful",
-      "author": null,
-      "description": "Research-based mindfulness from UCLA Health. Available in many languages.",
+      "offer": "UCLA Health",
+      "description": "Research-based mindfulness. Available in many languages.",
       "host": "uclahealth.org",
       "url": "https://www.uclahealth.org/uclamindful/free-guided-meditations"
     },
     {
       "id": "free-mindfulness",
       "name": "Free Mindfulness Project",
-      "author": null,
+      "offer": null,
       "description": "Body scans, breathing, sitting meditations. Creative-commons licensed.",
       "host": "freemindfulness.org",
       "url": "https://www.freemindfulness.org/download"

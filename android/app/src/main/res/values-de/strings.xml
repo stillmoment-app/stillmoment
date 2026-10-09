@@ -72,8 +72,16 @@
     <!-- Content Guide Sheet -->
     <string name="guided_meditations_guide_title">Wo finde ich Meditationen?</string>
     <string name="guided_meditations_guide_intro">Gute Meditationen gibt es frei verfügbar auf Webseiten und in Podcasts. Ein paar Empfehlungen findest du unten.</string>
-    <string name="guided_meditations_guide_open_source">Quelle im Browser öffnen</string>
+    <string name="guided_meditations_guide_open_source">Öffnet außerhalb der App</string>
     <string name="guided_meditations_guide_info">Inhalts-Guide</string>
+    <!-- shared-137: Weitere Sprachen in der Quellenliste -->
+    <string name="guided_meditations_guide_other_language_title">Auch auf %1$s</string>
+    <plurals name="guided_meditations_guide_other_language_count">
+        <item quantity="one">%1$d weitere Quelle</item>
+        <item quantity="other">%1$d weitere Quellen</item>
+    </plurals>
+    <string name="guided_meditations_guide_other_language_collapsed">eingeklappt</string>
+    <string name="guided_meditations_guide_other_language_expanded">aufgeklappt</string>
 
     <!-- shared-104: Import how-to banners + step-by-step guides -->
     <string name="guided_meditations_guide_banner_browser_title">So importierst du aus dem Browser</string>

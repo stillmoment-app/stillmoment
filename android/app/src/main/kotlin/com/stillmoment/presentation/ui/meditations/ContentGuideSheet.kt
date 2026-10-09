@@ -11,7 +11,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,14 +21,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Public
@@ -60,17 +56,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationSourceGroup
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableSet
 
 private const val GUIDE_ANIMATION_DURATION_MS = 250
 private const val GUIDE_SLIDE_FRACTION = 8
 
 /**
- * Modal bottom sheet listing curated, free meditation sources for the current locale.
+ * Modal bottom sheet listing curated, free meditation sources — the user's own
+ * language expanded, every other language as a collapsed row (shared-137).
  *
  * Reachable from the empty-state secondary CTA and from the info icon in the
  * library top app bar. Source content lives in `assets/meditation_sources.json`;
@@ -85,7 +86,7 @@ private const val GUIDE_SLIDE_FRACTION = 8
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentGuideSheet(
-    sources: ImmutableList<MeditationSource>,
+    sourceGroups: ImmutableList<MeditationSourceGroup>,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenUrl: ((String) -> Unit)? = null
@@ -104,7 +105,7 @@ fun ContentGuideSheet(
         modifier = modifier
     ) {
         ContentGuideSheetContent(
-            sources = sources,
+            sourceGroups = sourceGroups,
             onSourceClick = { source ->
                 openHandler(source.url)
                 onDismiss()
@@ -115,11 +116,16 @@ fun ContentGuideSheet(
 
 @Composable
 internal fun ContentGuideSheetContent(
-    sources: ImmutableList<MeditationSource>,
+    sourceGroups: ImmutableList<MeditationSourceGroup>,
     onSourceClick: (MeditationSource) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var activeGuide by remember { mutableStateOf<HowToImportGuideKind?>(null) }
+
+    // Held above AnimatedContent so expanded languages survive opening a how-to guide
+    // and coming back (same as iOS). The sheet itself leaves the composition when
+    // closed, so every new opening starts collapsed again.
+    var expandedLanguageCodes by remember { mutableStateOf<ImmutableSet<String>>(persistentSetOf()) }
 
     BackHandler(enabled = activeGuide != null) {
         activeGuide = null
@@ -148,7 +154,15 @@ internal fun ContentGuideSheetContent(
     ) { guide ->
         if (guide == null) {
             GuideListContent(
-                sources = sources,
+                sourceGroups = sourceGroups,
+                expandedLanguageCodes = expandedLanguageCodes,
+                onToggleLanguage = { code ->
+                    expandedLanguageCodes = if (code in expandedLanguageCodes) {
+                        (expandedLanguageCodes - code).toImmutableSet()
+                    } else {
+                        (expandedLanguageCodes + code).toImmutableSet()
+                    }
+                },
                 onSourceClick = onSourceClick,
                 onBannerClick = { activeGuide = it }
             )
@@ -163,7 +177,9 @@ internal fun ContentGuideSheetContent(
 
 @Composable
 private fun GuideListContent(
-    sources: ImmutableList<MeditationSource>,
+    sourceGroups: ImmutableList<MeditationSourceGroup>,
+    expandedLanguageCodes: ImmutableSet<String>,
+    onToggleLanguage: (String) -> Unit,
     onSourceClick: (MeditationSource) -> Unit,
     onBannerClick: (HowToImportGuideKind) -> Unit
 ) {
@@ -195,7 +211,12 @@ private fun GuideListContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        SourceCard(sources = sources, onSourceClick = onSourceClick)
+        GuideSourceList(
+            groups = sourceGroups,
+            expandedLanguageCodes = expandedLanguageCodes,
+            onToggleLanguage = onToggleLanguage,
+            onSourceClick = onSourceClick
+        )
     }
 }
 
@@ -266,113 +287,6 @@ private fun GuideDetailHeader(onBack: () -> Unit) {
     }
 }
 
-@Composable
-private fun SourceCard(sources: ImmutableList<MeditationSource>, onSourceClick: (MeditationSource) -> Unit) {
-    val borderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-            .border(0.5.dp, borderColor, RoundedCornerShape(24.dp))
-    ) {
-        sources.forEachIndexed { index, source ->
-            if (index > 0) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .height(0.5.dp)
-                        .background(borderColor)
-                )
-            }
-            SourceRow(source = source, onClick = { onSourceClick(source) })
-        }
-    }
-}
-
-@Composable
-private fun SourceRow(source: MeditationSource, onClick: () -> Unit) {
-    val rowDescription = buildString {
-        append(source.name)
-        source.author?.let {
-            append(", ")
-            append(it)
-        }
-        append(", ")
-        append(source.description)
-    }
-    val openLabel = stringResource(R.string.guided_meditations_guide_open_source)
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics {
-                role = Role.Button
-                contentDescription = "$rowDescription. $openLabel"
-            }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            SourceTitleLine(source = source)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = source.description,
-                style = TextStyle.caption.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = source.host,
-                style = TextStyle.micro.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
-    }
-}
-
-@Composable
-private fun SourceTitleLine(source: MeditationSource) {
-    val author = source.author
-    if (author == null) {
-        Text(
-            text = source.name,
-            style = TextStyle.body.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    } else {
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = source.name,
-                style = TextStyle.body.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = "·",
-                style = TextStyle.caption.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = author,
-                style = TextStyle.caption.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
 // MARK: - Locale helper
 
 /** Returns the language code (`"de"`, `"en"`, ...) for the active app configuration. */
@@ -384,27 +298,45 @@ fun currentLanguageCode(): String = LocalConfiguration.current.locales[0].langua
 @Preview(showBackground = true, name = "Guide Sheet (DE)")
 @Composable
 private fun ContentGuideSheetPreview() {
-    val sources = persistentListOf(
-        MeditationSource(
-            id = "tara-brach",
-            name = "Tara Brach",
-            author = null,
-            description = "Guided meditations, RAIN practice. Direct MP3.",
-            host = "tarabrach.com",
-            url = "https://www.tarabrach.com/guided-meditations/"
+    val groups = persistentListOf(
+        MeditationSourceGroup(
+            languageCode = "de",
+            sources = listOf(
+                MeditationSource(
+                    id = "koeln",
+                    name = "Kirsten Tofahrn",
+                    offer = "Zentrum für Achtsamkeit Köln",
+                    description = "Mini-Übungen für den Einstieg. MBSR, MSC, Alltagsachtsamkeit.",
+                    host = "zentrum-fuer-achtsamkeit.koeln",
+                    url = "https://zentrum-fuer-achtsamkeit.koeln/"
+                ),
+                MeditationSource(
+                    id = "braehler",
+                    name = "Christine Brähler",
+                    offer = null,
+                    description = "Selbstmitgefühl mit Tiefe: MSC, Internal Family Systems, Herzmeditationen.",
+                    host = "christinebraehler.com",
+                    url = "https://www.christinebraehler.com/de/meditationen/"
+                )
+            )
         ),
-        MeditationSource(
-            id = "audio-dharma",
-            name = "Audio Dharma",
-            author = "Gil Fronsdal",
-            description = "Vipassana tradition. Direct MP3.",
-            host = "audiodharma.org",
-            url = "https://www.audiodharma.org/"
+        MeditationSourceGroup(
+            languageCode = "en",
+            sources = listOf(
+                MeditationSource(
+                    id = "tara-brach",
+                    name = "Tara Brach",
+                    offer = null,
+                    description = "Guided meditations, RAIN practice. Compassion, presence, sleep.",
+                    host = "tarabrach.com",
+                    url = "https://www.tarabrach.com/guided-meditations/"
+                )
+            )
         )
     )
     StillMomentTheme {
         Box(modifier = Modifier.background(Color.Black)) {
-            ContentGuideSheetContent(sources = sources, onSourceClick = {})
+            ContentGuideSheetContent(sourceGroups = groups, onSourceClick = {})
         }
     }
 }

@@ -2,6 +2,7 @@ package com.stillmoment.data.repositories
 
 import android.content.Context
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationSourceCatalog
 import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,18 +17,18 @@ import kotlinx.serialization.json.Json
 internal data class MeditationSourceDto(
     val id: String,
     val name: String,
-    val author: String? = null,
+    val offer: String? = null,
     val description: String,
     val host: String,
     val url: String
 ) {
     fun toDomainOrNull(): MeditationSource? {
         if (!url.startsWith("http")) return null
-        val cleanedAuthor = author?.trim().takeUnless { it.isNullOrEmpty() }
+        val cleanedOffer = offer?.trim().takeUnless { it.isNullOrEmpty() }
         return MeditationSource(
             id = id,
             name = name,
-            author = cleanedAuthor,
+            offer = cleanedOffer,
             description = description,
             host = host,
             url = url
@@ -40,7 +41,7 @@ internal data class MeditationSourceDto(
  *
  * Reads curated sources from `assets/meditation_sources.json`. The JSON is keyed
  * by language code (`"de"`, `"en"`). Missing or unparseable files fall back to an
- * empty list so the Content Guide remains functional but unobtrusive.
+ * empty catalog so the Content Guide remains functional but unobtrusive.
  */
 @Singleton
 class MeditationSourceRepositoryImpl
@@ -50,8 +51,12 @@ constructor(
     private val logger: LoggerProtocol
 ) : MeditationSourceRepository {
 
-    private val catalog: Map<String, List<MeditationSource>> by lazy {
-        try {
+    private val catalog: MeditationSourceCatalog by lazy {
+        MeditationSourceCatalog(loadSources())
+    }
+
+    private fun loadSources(): Map<String, List<MeditationSource>> {
+        return try {
             val jsonString = context.assets
                 .open(SOURCES_JSON_PATH)
                 .bufferedReader()
@@ -66,9 +71,7 @@ constructor(
         }
     }
 
-    override fun sources(languageCode: String): List<MeditationSource> {
-        return catalog[languageCode] ?: catalog["en"].orEmpty()
-    }
+    override fun catalog(): MeditationSourceCatalog = catalog
 
     companion object {
         private const val TAG = "MeditationSources"
