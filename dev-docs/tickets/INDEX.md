@@ -49,6 +49,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-079](android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [ ] | - |
 | [android-082](android/android-082-instrumented-tests-android-16.md) | Instrumented Tests auf Android 16 wieder gruen | 5-QA | [ ] | [android-081](archive/android/android-081-target-sdk-36-android-16.md) |
 | [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
+| [android-084](android/android-084-timer-idle-kleine-bildschirme.md) | Timer-Startbildschirm auf kleinen Bildschirmen abgeschnitten | 4-Polish | [ ] | - |
 
 ## Archiv
 
