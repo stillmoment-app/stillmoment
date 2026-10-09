@@ -5,25 +5,26 @@ package com.stillmoment.domain.models
  *
  * Form: `https://podcasts.apple.com/<country>/podcast/<short-name>/id<podcastId>?i=<episodeId>`.
  * With a numeric `i` the link points to a single episode, without it to the
- * whole podcast. The short name is ignored. The country segment is kept
- * (lowercased) so the lookup can search the matching store.
+ * whole podcast. The short name is ignored. The country segment is optional;
+ * when present it is kept (lowercased) so the lookup can search the matching
+ * store, otherwise [country] is `null` and the lookup uses Apple's default store.
  *
  * IDs are [Long]: episode IDs like `1000792422344` exceed `Int.MAX_VALUE`.
  *
  * 1:1 counterpart of the iOS `ApplePodcastsLink`.
  */
 sealed class ApplePodcastsLink {
-    abstract val country: String
+    abstract val country: String?
     abstract val podcastId: Long
 
     data class Episode(
-        override val country: String,
+        override val country: String?,
         override val podcastId: Long,
         val episodeId: Long
     ) : ApplePodcastsLink()
 
     data class Podcast(
-        override val country: String,
+        override val country: String?,
         override val podcastId: Long
     ) : ApplePodcastsLink()
 
@@ -33,7 +34,7 @@ sealed class ApplePodcastsLink {
         private const val GROUP_QUERY = 3
 
         private val LINK_REGEX = Regex(
-            """^https?://podcasts\.apple\.com/([a-z]{2})/podcast/(?:[^/?#]+/)?id(\d+)/?(?:\?([^#]*))?(?:#.*)?$""",
+            """^https?://podcasts\.apple\.com/(?:([a-z]{2})/)?podcast/(?:[^/?#]+/)?id(\d+)/?(?:\?([^#]*))?(?:#.*)?$""",
             RegexOption.IGNORE_CASE
         )
 
@@ -44,7 +45,7 @@ sealed class ApplePodcastsLink {
          */
         fun parse(url: String): ApplePodcastsLink? {
             val match = LINK_REGEX.matchEntire(url.trim()) ?: return null
-            val country = match.groupValues[GROUP_COUNTRY].lowercase()
+            val country = match.groupValues[GROUP_COUNTRY].lowercase().ifEmpty { null }
             val podcastId = match.groupValues[GROUP_PODCAST_ID].toLongOrNull() ?: return null
             val episodeId = episodeIdFromQuery(match.groupValues[GROUP_QUERY])
             return if (episodeId != null) {

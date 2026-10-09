@@ -59,8 +59,11 @@ class ApplePodcastsEpisodeResolver @Inject constructor(
         private const val HTTP_TOO_MANY_REQUESTS = 429
         private val RATE_LIMIT_CODES = setOf(HttpURLConnection.HTTP_FORBIDDEN, HTTP_TOO_MANY_REQUESTS)
 
-        internal fun lookupUrl(country: String, podcastId: Long): String =
-            "https://itunes.apple.com/lookup?id=$podcastId&entity=podcastEpisode&limit=$EPISODE_LIMIT&country=$country"
+        /** Without a country segment in the shared link, `country` is omitted (Apple's default store). */
+        internal fun lookupUrl(country: String?, podcastId: Long): String {
+            val base = "https://itunes.apple.com/lookup?id=$podcastId&entity=podcastEpisode&limit=$EPISODE_LIMIT"
+            return if (country != null) "$base&country=$country" else base
+        }
     }
 
     override suspend fun resolveEpisode(link: ApplePodcastsLink.Episode): Result<PodcastEpisode> =

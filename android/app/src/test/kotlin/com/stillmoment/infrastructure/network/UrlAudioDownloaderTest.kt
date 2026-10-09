@@ -273,6 +273,28 @@ class UrlAudioDownloaderTest {
                 "Expected Network error, got ${result.exceptionOrNull()?.javaClass}"
             }
         }
+
+        @Test
+        fun `connection lost mid-download leaves no partial file behind`() = kotlinx.coroutines.test.runTest {
+            // shared-128: lange Podcast-Folgen — eine halbe Datei darf nicht im Cache liegen bleiben
+            val breakingStream = object : InputStream() {
+                private var sent = 0
+
+                override fun read(): Int {
+                    if (sent >= 1024) throw IOException("Connection reset")
+                    sent++
+                    return 0
+                }
+            }
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.inputStream).thenReturn(breakingStream)
+
+            val result = sut.download("https://example.com/long-episode.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.Network)
+            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+        }
     }
 
     @Nested
@@ -429,6 +451,8 @@ class UrlAudioDownloaderTest {
                 exception is CancellationException,
                 "Expected CancellationException but got ${exception?.javaClass?.simpleName}"
             )
+            // shared-128: abgebrochener Download hinterlaesst weder Datei noch Verzeichnis
+            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)

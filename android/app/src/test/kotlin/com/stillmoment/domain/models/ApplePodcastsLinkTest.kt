@@ -65,6 +65,15 @@ class ApplePodcastsLinkTest {
         }
 
         @Test
+        fun `episode link without country segment is recognised without country`() {
+            val link = ApplePodcastsLink.parse(
+                "https://podcasts.apple.com/podcast/achtsam/id1528936478?i=1000792422344"
+            )
+
+            assertEquals(ApplePodcastsLink.Episode(country = null, podcastId = podcastId, episodeId = episodeId), link)
+        }
+
+        @Test
         fun `episode ids beyond Int range are kept exactly`() {
             val link = ApplePodcastsLink.parse("https://podcasts.apple.com/us/podcast/x/id9999999999?i=9000000000001")
 
@@ -85,6 +94,13 @@ class ApplePodcastsLinkTest {
             )
 
             assertEquals(ApplePodcastsLink.Podcast(country = "de", podcastId = podcastId), link)
+        }
+
+        @Test
+        fun `whole podcast link without country segment is recognised without country`() {
+            val link = ApplePodcastsLink.parse("https://podcasts.apple.com/podcast/achtsam/id1528936478")
+
+            assertEquals(ApplePodcastsLink.Podcast(country = null, podcastId = podcastId), link)
         }
 
         @Test

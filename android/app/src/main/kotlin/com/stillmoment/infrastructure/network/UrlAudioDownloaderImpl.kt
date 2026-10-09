@@ -110,31 +110,7 @@ class UrlAudioDownloaderImpl @Inject constructor(
                 return@withContext Result.failure(UrlAudioDownloadError.NotAudio)
             }
 
-            val filename = resolveFilename(
-                url = url,
-                contentDisposition = connection.getHeaderField("Content-Disposition"),
-                contentType = contentType
-            )
-            // Use a per-download sub-directory so the file keeps its original name
-            // (e.g. "Moment-mal-01Atem.mp3") while still avoiding collisions across
-            // repeated downloads of the same URL.
-            val downloadDir = File(context.cacheDir, "dl_${System.currentTimeMillis()}")
-            downloadDir.mkdirs()
-            val tempFile = File(downloadDir, filename)
-
-            connection.inputStream.use { input ->
-                tempFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
-
-            if (cancelled) {
-                tempFile.delete()
-                return@withContext Result.failure(CancellationException("Download cancelled"))
-            }
-
-            logger.d(TAG, "Downloaded ${tempFile.length()} bytes from $url to ${tempFile.name}")
-            Result.success(uriFromFile(tempFile))
+            saveBody(connection, url, contentType)
         } catch (e: IOException) {
             // When cancel() disconnects the underlying connection, the input stream
             // throws an IOException. Translate that to CancellationException so callers
@@ -155,6 +131,45 @@ class UrlAudioDownloaderImpl @Inject constructor(
         } finally {
             connection?.disconnect()
             currentConnection = null
+        }
+    }
+
+    /**
+     * Streams the response body into `cacheDir/dl_<ts>/<filename>`.
+     *
+     * The directory is removed again unless the download succeeds — a cancelled or
+     * broken download (long podcast episodes, shared-128) must not leave a partial
+     * file behind. IO errors propagate to [download] for mapping.
+     */
+    private fun saveBody(connection: HttpURLConnection, url: String, contentType: String?): Result<Uri> {
+        val filename = resolveFilename(
+            url = url,
+            contentDisposition = connection.getHeaderField("Content-Disposition"),
+            contentType = contentType
+        )
+        // Use a per-download sub-directory so the file keeps its original name
+        // (e.g. "Moment-mal-01Atem.mp3") while still avoiding collisions across
+        // repeated downloads of the same URL.
+        val downloadDir = File(context.cacheDir, "dl_${System.currentTimeMillis()}")
+        downloadDir.mkdirs()
+        val tempFile = File(downloadDir, filename)
+        var succeeded = false
+        try {
+            connection.inputStream.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            if (cancelled) {
+                return Result.failure(CancellationException("Download cancelled"))
+            }
+            logger.d(TAG, "Downloaded ${tempFile.length()} bytes from $url to ${tempFile.name}")
+            succeeded = true
+            return Result.success(uriFromFile(tempFile))
+        } finally {
+            if (!succeeded) {
+                downloadDir.deleteRecursively()
+            }
         }
     }
 

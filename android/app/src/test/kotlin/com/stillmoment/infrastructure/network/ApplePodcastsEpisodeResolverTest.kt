@@ -85,6 +85,18 @@ class ApplePodcastsEpisodeResolverTest {
         }
 
         @Test
+        fun `link without country asks without store country`() = runTest {
+            answerWith(HttpURLConnection.HTTP_OK)
+
+            sut.resolveEpisode(link.copy(country = null))
+
+            assertEquals(
+                listOf("https://itunes.apple.com/lookup?id=1528936478&entity=podcastEpisode&limit=200"),
+                requestedUrls
+            )
+        }
+
+        @Test
         fun `sends no identifying headers besides the app name`() = runTest {
             answerWith(HttpURLConnection.HTTP_OK)
 
