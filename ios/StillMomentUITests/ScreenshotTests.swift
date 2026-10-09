@@ -45,6 +45,18 @@ final class ScreenshotTests: XCTestCase {
         // Disable preparation time for faster screenshots (timer starts immediately)
         self.app.launchArguments += ["-DisablePreparation"]
 
+        // Pin the session duration on every launch. DurationConfigurer persists it, and the
+        // Screenshots scheme runs tests in random order — without this, TimerIdle inherited
+        // the 1-minute session of TimerRunning/Completion.
+        self.app.launchArguments += ["-DurationMinutes", String(Self.sessionMinutes(forTest: self.name))]
+
+        // The keyboard is a simulator-wide setting (AppleKeyboards) that fastlane does not
+        // localize, so the English search screenshot showed a German keyboard. Override it
+        // per run language via the argument domain.
+        if let keyboard = Self.keyboard(forLanguage: Snapshot.deviceLanguage) {
+            self.app.launchArguments += ["-AppleKeyboards", "(\"\(keyboard)\")"]
+        }
+
         // The empty-library screenshot needs a cleared library; a later launch without
         // the flag re-seeds via seedIfNeeded, so order between tests does not matter.
         if self.name.contains("emptyLibrary") {
@@ -70,6 +82,25 @@ final class ScreenshotTests: XCTestCase {
     }
 
     // MARK: - Helper Methods
+
+    /// Session duration for a screenshot test. TimerRunning and Completion need a short
+    /// session (visible moon-phase progress within ~15 s, natural end within ~60 s);
+    /// every other screen shows the 10-minute default.
+    private static func sessionMinutes(forTest testName: String) -> Int {
+        let needsShortSession = testName.contains("timerRunning") || testName.contains("completion")
+        return needsShortSession ? 1 : 10
+    }
+
+    /// Keyboard identifier matching the Fastlane run language (e.g. "en-GB", "de-DE").
+    private static func keyboard(forLanguage language: String) -> String? {
+        if language.hasPrefix("de") {
+            return "de_DE@sw=QWERTZ-German;hw=Automatic"
+        }
+        if language.hasPrefix("en") {
+            return "en_GB@sw=QWERTY;hw=Automatic"
+        }
+        return nil
+    }
 
     /// Navigate to Timer tab
     private func navigateToTimerTab() {
@@ -128,16 +159,10 @@ final class ScreenshotTests: XCTestCase {
 
     /// Screenshot 2: Timer running state with visible moon-phase progress (ios-047).
     ///
-    /// Uses `-DurationMinutes 1` to shorten the session so ~25 % progress is reached
+    /// Uses a 1-minute session (see `sessionMinutes(forTest:)`) so ~25 % progress is reached
     /// within ~15 s of wall-clock time. Waits for the display to count down into the
     /// 00:43 – 00:45 range (shadow visibly moved, halo dezent, not yet half-moon).
     func testScreenshot02_timerRunning() {
-        // ios-047: relaunch with a short session so the moon-phase visualisation has
-        // moved noticeably by the time the snapshot is taken.
-        self.app.terminate()
-        self.app.launchArguments += ["-DurationMinutes", "1"]
-        self.app.launch()
-
         self.navigateToTimerTab()
 
         let startButton = self.app.buttons["timer.button.start"]
@@ -429,13 +454,9 @@ final class ScreenshotTests: XCTestCase {
 
     /// Screenshot 15: Completion screen (Danke lotus mandala) after a session ends.
     ///
-    /// Uses `-DurationMinutes 1` plus disabled preparation so the timer finishes
+    /// Uses a 1-minute session (see `sessionMinutes(forTest:)`) plus disabled preparation so the timer finishes
     /// within ~60 s and the completion view appears.
     func testScreenshot15_completion() {
-        self.app.terminate()
-        self.app.launchArguments += ["-DurationMinutes", "1"]
-        self.app.launch()
-
         self.navigateToTimerTab()
 
         let startButton = self.app.buttons["timer.button.start"]
