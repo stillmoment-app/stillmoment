@@ -13,8 +13,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 |----|--------|-------|-----|---------|
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
-| [shared-043](shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [ ] | [ ] |
-| [shared-044](shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [ ] | [ ] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
 | [shared-058](shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [ ] | [ ] |
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
@@ -97,6 +95,8 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-039b](archive/shared/shared-039b-import-anleitungen.md) | Import-Anleitungen im Content Guide | 4-Polish | [x] | - |
 | [shared-041](archive/shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [x] |
 | [shared-042](archive/shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [x] |
+| [shared-043](archive/shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [-] | [-] |
+| [shared-044](archive/shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [-] | [-] |
 | [shared-045](archive/shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [x] |
 | [shared-046](archive/shared/shared-046-share-extension.md) | Share Extension ("Teilen") | 3-Feature | [x] | [x] |
 | [shared-048](archive/shared/shared-048-timer-remove-pause.md) | Timer Pause-Button entfernen | 4-Polish | [x] | [x] |

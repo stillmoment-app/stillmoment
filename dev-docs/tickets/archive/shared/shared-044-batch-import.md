@@ -2,8 +2,8 @@
 id: shared-044
 title: Batch Import (Mehrfachauswahl)
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 3-Feature
 priority: hoch
 depends_on: [shared-043]
@@ -15,6 +15,17 @@ depends_on: [shared-043]
 
 ---
 
+## WONTFIX
+
+Das Ticket setzte einen stillen Import ohne Edit Sheet voraus (shared-043): Mehrere Dateien
+sollten in einem Vorgang importiert werden, der Dateiname dient als Titel. Der Import wurde
+inzwischen bewusst anders gebaut (ios-042/043/044, shared-103): Das Edit Sheet oeffnet sich
+bei jedem Import, vorbefuellt aus ID3-Tags und Dateiname (`ImportPrefill`), Lehrer:in und
+Titel sind Pflicht, gespeichert wird erst beim Sichern. Ein Batch Import ohne Bestaetigung
+pro Datei passt nicht zu dieser Entscheidung.
+
+---
+
 ## Was
 
 Mehrere Audio-Dateien gleichzeitig importieren. Der Document Picker erlaubt Mehrfachauswahl, alle Dateien werden mit automatischer Metadaten-Uebernahme importiert.
@@ -23,7 +34,7 @@ Mehrere Audio-Dateien gleichzeitig importieren. Der Document Picker erlaubt Mehr
 
 Bei 10 Retreat-Aufnahmen bedeutet der aktuelle Import 10 einzelne Zyklen (Picker oeffnen, Datei waehlen, Sheet bestaetigen). Das macht den USP "Bring Your Own Meditation" praktisch schwach. Batch Import reduziert das auf einen einzigen Vorgang.
 
-Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
+Kontext: [BYOM-Strategie](../../../concepts/byom-strategy.md)
 
 ---
 
