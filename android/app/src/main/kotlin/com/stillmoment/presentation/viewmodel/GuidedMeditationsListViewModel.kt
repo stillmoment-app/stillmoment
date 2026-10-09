@@ -266,8 +266,10 @@ constructor(
      * in IMPORT mode. Persistence happens on save (see [saveImportedMeditation]).
      *
      * @param uri Content URI from the share intent
+     * @param suggestion Podcast import (shared-128): episode title / podcast
+     *        author; wins field-wise over ID3 tags and filename
      */
-    fun importMeditation(uri: Uri) {
+    fun importMeditation(uri: Uri, suggestion: ImportPrefill? = null) {
         viewModelScope.launch {
             _uiState.update { it.copy(error = null) }
             val result = fileOpenHandler.validateAndPrepareImport(uri)
@@ -278,7 +280,7 @@ constructor(
                     metadata = pending.metadata,
                     fileName = pending.fileName,
                     knownTeachers = _uiState.value.availableTeachers
-                )
+                ).preferring(suggestion)
                 val refined = pending.copy(prefill = refinedPrefill)
                 val draft = GuidedMeditation(
                     fileUri = refined.uri,

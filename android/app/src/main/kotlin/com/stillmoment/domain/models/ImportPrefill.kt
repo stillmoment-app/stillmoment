@@ -14,6 +14,23 @@ data class ImportPrefill(
     val teacher: String?,
     val name: String?
 ) {
+    /**
+     * Field-wise precedence of [suggestion] over these values (shared-128).
+     *
+     * Used for the podcast import: episode title and podcast author beat the
+     * downloaded file's ID3 tags / filename. A missing or blank suggestion field
+     * keeps this field's value.
+     */
+    fun preferring(suggestion: ImportPrefill?): ImportPrefill {
+        if (suggestion == null) {
+            return this
+        }
+        return ImportPrefill(
+            teacher = suggestion.teacher?.takeIf { it.isNotBlank() } ?: teacher,
+            name = suggestion.name?.takeIf { it.isNotBlank() } ?: name
+        )
+    }
+
     companion object {
         /**
          * Computes prefill suggestions for `teacher` and `name` from ID3
