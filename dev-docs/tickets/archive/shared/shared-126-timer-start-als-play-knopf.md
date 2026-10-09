@@ -2,8 +2,8 @@
 id: shared-126
 title: Timer-Start als runder Play-Knopf
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 ---
