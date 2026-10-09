@@ -14,7 +14,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
-| [shared-058](shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [ ] | [ ] |
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
 | [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
 | [shared-078](shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [ ] | [ ] |
@@ -109,6 +108,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-055](archive/shared/shared-055-endgong-phase.md) | endGong als eigene Phase | 2-Architektur | [x] | [x] |
 | [shared-056](archive/shared/shared-056-tick-emittiert-events.md) | tick() emittiert Domain Events | 2-Architektur | [x] | [x] |
 | [shared-057](archive/shared/shared-057-display-state-eliminieren.md) | TimerDisplayState eliminieren | 2-Architektur | [x] | [x] |
+| [shared-058](archive/shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [x] | [x] |
 | [shared-059](archive/shared/shared-059-keep-alive-invariante.md) | Keep-Alive strukturell absichern | 2-Architektur | [x] | [x] |
 | [shared-061](archive/shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [x] | [x] |
 | [shared-062](archive/shared/shared-062-praxis-datenmodell.md) | Praxis-Datenmodell und Persistenz | 2-Architektur | [x] | [x] |

@@ -2,7 +2,7 @@
 
 ## Status
 
-Akzeptiert
+Akzeptiert (Abschnitt 2 aktualisiert 2026-10-09: seit shared-057 gibt der Reducer keinen State mehr zurueck, nur Effects; bestaetigt in shared-058)
 
 ## Kontext
 
@@ -61,17 +61,20 @@ struct MeditationTimer: Equatable {
 
 ### 2. Reducer Pattern
 
-Zustandsaenderungen erfolgen ueber eine **pure function**, die neuen State und Side Effects zurueckgibt.
+Aktionen werden ueber eine **pure function** in Side Effects uebersetzt. Den Zustand haelt das ViewModel direkt als `MeditationTimer?`; einen eigenen Display-State gibt es nicht mehr (entfernt in shared-057).
 
 ```swift
 enum TimerReducer {
     static func reduce(
-        state: TimerDisplayState,
         action: TimerAction,
+        timerState: TimerState,
+        selectedMinutes: Int,
         settings: MeditationSettings
-    ) -> (TimerDisplayState, [TimerEffect])
+    ) -> [TimerEffect]
 }
 ```
+
+Ob der Reducer ins Domain-Modell absorbiert werden soll, wurde in shared-058 geprueft: Er bleibt, weil er mehrere Effects in fester Reihenfolge buendelt. Begruendung: `../architecture-review-2026-09.md`, Abschnitt 5.
 
 ### 3. Explicit Effects
 
@@ -105,12 +108,13 @@ func testTick_DecrementsRemainingSeconds() {
 }
 
 func testStartPressed_ReturnsCorrectEffects() {
-    let (_, effects) = TimerReducer.reduce(
-        state: .idle,
+    let effects = TimerReducer.reduce(
         action: .startPressed,
+        timerState: .idle,
+        selectedMinutes: 10,
         settings: defaultSettings
     )
-    XCTAssertTrue(effects.contains(.playStartGong))
+    XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
 }
 ```
 

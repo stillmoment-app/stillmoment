@@ -2,8 +2,8 @@
 id: shared-058
 title: Entscheidungspunkt Aggregate
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 2-Architektur
 priority: niedrig
 depends_on: [shared-057]
@@ -45,10 +45,24 @@ Das inkrementelle Refactoring (shared-054 bis shared-057) loest die identifizier
 
 ## Akzeptanzkriterien
 
-- [ ] Reducer-Code reviewt (Zeilenanzahl, verbleibende Logik)
-- [ ] Entscheidung dokumentiert als ADR in `dev-docs/architecture/decisions/`
-- [ ] Falls Aggregate: Neues Ticket fuer die Transformation erstellen
-- [ ] Falls Reducer behalten: Ticket schliessen, Architektur ist fertig
+- [x] Reducer-Code reviewt (Zeilenanzahl, verbleibende Logik)
+- [x] Entscheidung dokumentiert — statt eigenem ADR im Architektur-Review, ADR-002 aktualisiert
+- [ ] ~~Falls Aggregate: Neues Ticket fuer die Transformation erstellen~~ (entfaellt)
+- [x] Falls Reducer behalten: Ticket schliessen, Architektur ist fertig
+
+---
+
+## Entscheidung
+
+**Reducer behalten.** Er hat zwar < 100 Zeilen, buendelt aber in 5 von 7 Faellen mehrere
+Effects in fester Reihenfolge; eine Absorption ins Modell waere nicht mechanisch. Begruendung
+und Zahlen: `dev-docs/architecture/architecture-review-2026-09.md`, Abschnitt 5 ("Antwort auf
+shared-058"). ADR-002 Abschnitt 2 beschreibt den heutigen Reducer.
+
+Die dort ebenfalls beschriebene doppelte Timer-Kopie (iOS `TimerService`, Android
+`TimerRepository`) wird bewusst hingenommen: kein bestaetigter Fehler fuer Nutzer. Angefasst wird
+sie erst, wenn die Timer-Logik ohnehin geaendert wird — dann zuerst ein Clock-Seam mit
+End-to-End-Tests auf Android.
 
 ---
 
