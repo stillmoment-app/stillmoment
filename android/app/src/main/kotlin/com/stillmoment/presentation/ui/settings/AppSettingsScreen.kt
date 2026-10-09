@@ -172,11 +172,7 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
             Column {
                 SoundAttributionsRow(onClick = onSoundAttributionsClick)
 
-                HorizontalDivider(
-                    color = colors.cardBorder,
-                    thickness = 0.5.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                InfoRowDivider()
 
                 PrivacyPolicyRow(
                     onClick = {
@@ -185,11 +181,7 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
                     }
                 )
 
-                HorizontalDivider(
-                    color = colors.cardBorder,
-                    thickness = 0.5.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                InfoRowDivider()
 
                 VersionRow()
             }
@@ -200,6 +192,15 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
 // endregion
 
 // region Info Rows
+
+@Composable
+private fun InfoRowDivider(modifier: Modifier = Modifier) {
+    HorizontalDivider(
+        color = LocalStillMomentColors.current.cardBorder,
+        thickness = 0.5.dp,
+        modifier = modifier.padding(horizontal = 16.dp)
+    )
+}
 
 @Composable
 private fun SoundAttributionsRow(onClick: () -> Unit, modifier: Modifier = Modifier) {
