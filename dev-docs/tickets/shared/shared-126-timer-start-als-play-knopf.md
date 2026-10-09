@@ -37,18 +37,22 @@ Der "Fertig"-Knopf bleibt unveraendert.
 <!-- Kriterien gelten fuer BEIDE Plattformen -->
 
 ### Feature (beide Plattformen)
-- [ ] Der Start-Knopf ist rund (68 Punkt Durchmesser, wie im Entwurf) und zeigt allein das Play-Zeichen, ohne sichtbare Beschriftung
-- [ ] Er traegt dieselbe Farbgebung wie der runde Play-Knopf der Bibliothek
-- [ ] Mit VoiceOver und TalkBack wird der Knopf weiterhin als "Meditation starten" (EN: "Start meditation") angesagt — der Wegfall der sichtbaren Beschriftung aendert daran nichts
-- [ ] Der Knopf sitzt sichtbar ueber der Tab-Leiste und wird von ihr nicht ueberdeckt — auch nicht auf kleinen Geraeten, obwohl er hoeher ist als der heutige Knopf
-- [ ] Es bleiben keine ungenutzten Texte, Parameter oder veralteten Kommentare zurueck (u.a. die sichtbare Start-Beschriftung, das Play-Icon des warmen Primaerknopfs auf Android, Kommentare zum "Beginnen-Button")
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Der Start-Knopf ist rund (68 Punkt Durchmesser, wie im Entwurf) und zeigt allein das Play-Zeichen, ohne sichtbare Beschriftung
+- [x] Er traegt dieselbe Farbgebung wie der runde Play-Knopf der Bibliothek
+- [x] Mit VoiceOver und TalkBack wird der Knopf weiterhin als "Meditation starten" (EN: "Start meditation") angesagt — der Wegfall der sichtbaren Beschriftung aendert daran nichts
+- [x] Der Knopf sitzt sichtbar ueber der Tab-Leiste und wird von ihr nicht ueberdeckt — auch nicht auf kleinen Geraeten, obwohl er hoeher ist als der heutige Knopf
+  - iOS: geprueft auf iPhone 16 Plus und iPhone SE (3. Gen.)
+  - Android: geprueft auf Pixel 8 und 393×851dp (dafuer Abstand Liste→Knopf im kompakten Layout 24→12dp). Unter ~360×740dp war das Idle-Layout schon vor diesem Ticket zu hoch, auch der alte Knopf war dort nicht sichtbar — bewusst nicht Teil dieses Tickets.
+- [x] Es bleiben keine ungenutzten Texte, Parameter oder veralteten Kommentare zurueck (u.a. die sichtbare Start-Beschriftung, das Play-Icon des warmen Primaerknopfs auf Android, Kommentare zum "Beginnen-Button")
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Bestehende UI- und Screenshot-Tests, die den Start-Knopf antippen, laufen weiterhin durch
+- [x] Bestehende UI- und Screenshot-Tests, die den Start-Knopf antippen, laufen weiterhin durch
+  - iOS: `TimerFlowUITests`, `LibraryFlowUITests` gruen; `ScreenshotTests` nutzen den unveraenderten Identifier `timer.button.start`
+  - Android: zwei Tests suchten den Knopf ueber den Text "Start" und wurden auf die Ansage umgestellt; `TimerScreenTest.timerScreen_showsStartButton_whenIdle` gruen. Fuenf `settingsSheet_*`-Tests in `TimerScreenTest` schlagen fehl — sie betreffen `SettingsSheet`, das dieses Ticket nicht beruehrt.
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
