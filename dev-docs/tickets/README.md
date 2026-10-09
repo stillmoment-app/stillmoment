@@ -32,7 +32,7 @@ Plattform-Ticket (`ios-NNN`, `android-NNN`):
 ```yaml
 ---
 id: ios-053
-title: Anleitung "So importierst du aus Apple Podcasts"
+title: "Anleitung \"So importierst du aus Apple Podcasts\""
 status: todo
 phase: 4-Polish
 priority: niedrig        # optional
@@ -45,7 +45,7 @@ Shared-Ticket (`shared-NNN`):
 ```yaml
 ---
 id: shared-026
-title: iOS Store Publishing
+title: "iOS Store Publishing"
 status:
   ios: done
   android: n/a
@@ -58,7 +58,7 @@ depends_on: []           # optional
 | Feld | Werte |
 |------|-------|
 | `id` | muss zum Dateinamen-Prefix passen (`<id>-<slug>.md`) |
-| `title` | Einzeiler (erscheint so im Index) |
+| `title` | Einzeiler (erscheint so im Index), immer in `"..."` — sonst brechen `:` und `#` das YAML |
 | `status` (Plattform) | `todo` \| `in-progress` \| `done` \| `wontfix` |
 | `status` (Shared) | Map mit genau `ios` und `android`; Werte wie oben plus `n/a` (Plattform nicht betroffen) |
 | `phase` | `1-Quick Fix` \| `2-Architektur` \| `3-Feature` \| `4-Polish` \| `5-QA` |

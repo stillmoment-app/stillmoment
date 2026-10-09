@@ -1,6 +1,6 @@
 ---
 id: shared-{NNN}
-title: {Titel}              # mit ":" oder fuehrendem Anfuehrungszeichen: in "..." setzen
+title: "{Titel}"            # immer in "..." (sonst brechen ":" und "#" das YAML)
 status:
   ios: todo                 # todo | in-progress | done | wontfix | n/a
   android: todo             # n/a = Plattform nicht betroffen

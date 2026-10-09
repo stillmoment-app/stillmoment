@@ -41,6 +41,7 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
 6. **Cross-Platform-Lookup (Pflicht):** Existiert das Feature schon auf der anderen Plattform? Wenn ja, dortige Implementierung lesen, bevor Code geschrieben wird. Sichert identisches Verhalten.
 7. **Bestehenden Code verstehen**, bevor du aenderst.
 8. **Mock-Verfuegbarkeit pruefen:** Fuer geplante ViewModel-/Service-Tests pruefen, ob entsprechende Mocks/Test-Doubles in `ios/StillMomentTests/Mocks/` bzw. dem Android-Pendant existieren. Fehlende Mocks zuerst anlegen — sonst scheitert der Red-Schritt.
+9. **Status auf in Arbeit setzen:** Im Frontmatter `status: todo` → `status: in-progress` (shared: nur der Wert der gerade umgesetzten Plattform, z.B. `status.ios`). Dann `make tickets-index` im Repo-Root. Beides kommt mit dem ersten Commit (Schritt 5).
 
 ### Schritt 3: Akzeptanzkriterien abarbeiten
 

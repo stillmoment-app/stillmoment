@@ -115,6 +115,7 @@ Suche nach einer Zeile mit `(Ticket: {ticket-id})`.
 1. **Frontmatter:** `status: todo|in-progress` → `status: done` (shared: nur `status.ios` bzw. `status.android`, siehe Sonderfall Shared-Tickets)
 2. **Archivieren, falls jetzt abgeschlossen:** Plattform-Ticket mit `done|wontfix`; Shared-Ticket, wenn alle Plattformwerte in `done|wontfix|n/a` liegen und mindestens einer nicht `n/a` ist.
    `git mv dev-docs/tickets/<bereich>/<datei>.md dev-docs/tickets/archive/<bereich>/<datei>.md`
+   Danach in der verschobenen Datei jeden relativen Link, der mit `../` beginnt, um ein weiteres `../` ergaenzen (die Datei liegt jetzt eine Ebene tiefer, z.B. `../plans/x.md` → `../../plans/x.md`).
    Noch nicht abgeschlossen (shared mit offener Plattform) → Datei bleibt liegen.
 3. **Index neu erzeugen:** `make tickets-index` im Repo-Root. INDEX.md nie von Hand editieren. Fertig, wenn Exit 0; bei Fehler das gemeldete Problem beheben und erneut ausfuehren.
 4. Commit (Ticket-Datei inkl. Verschiebung + INDEX.md): `docs(<ticket-id>): Ticket abschliessen`

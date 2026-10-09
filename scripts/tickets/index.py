@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     if errors:
         for rel_path, problem in errors:
             print(f"{prefix}/{rel_path}: {problem}", file=sys.stderr)
-        print(f"{len(errors)} Fehler — INDEX.md nicht geschrieben.", file=sys.stderr)
+        print(f"{len(errors)} Fehler — INDEX.md {'nicht geprueft' if args.check else 'nicht geschrieben'}.", file=sys.stderr)
         return 1
 
     index_path = root / "INDEX.md"
