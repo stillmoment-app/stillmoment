@@ -17,7 +17,6 @@ Last Updated: 2026-10-09
 | `AppTab` | Enum | App-weit | Die drei Tabs und ihre Reihenfolge |
 | `AudioMetadata` | Value Object | Bibliothek | Metadaten aus den ID3-Tags einer Audiodatei |
 | `BackgroundSound` | Value Object | Timer | Eingebauter Soundscape aus dem Katalog |
-| `ColorTheme` | Enum | App-weit | Farbthema (Kerzenschein, Wald, Mond) |
 | `CustomAudioFile` | Value Object | Timer | Selbst importierter Soundscape |
 | `CustomAudioType` | Enum | Timer | Art einer importierten Audiodatei (aktuell nur Soundscape) |
 | `DurationFilter` | Enum | Bibliothek | Die fünf Dauer-Stufen des Bibliotheksfilters |
@@ -1054,40 +1053,15 @@ Der Typ liegt auf iOS in der Anwendungsschicht, auf Android im Domänen-Paket.
 
 ---
 
-### ColorTheme
-
-**Typ:** Enum
-**Muster:** Einstellungswert
-
-**Beschreibung:**
-Die Farbthema-Auswahl. Jedes Thema hat eine helle und eine dunkle Fassung.
-
-| Wert | Bedeutung |
-|------|-----------|
-| `candlelight` | Kerzenschein — warm/sandfarben (Standard) |
-| `forest` | Wald — warm-neutral, natürlich |
-| `moon` | Mond — silber/indigo, nächtlich |
-
-**Ablage:** `@AppStorage("selectedTheme")` über den `ThemeManager`
-
-**Kette:**
-```
-ColorTheme (Domäne) → ThemeManager (Präsentation) → ThemeRootView → ThemeColors → @Environment(\.themeColors)
-```
-
-**Dateireferenzen:**
-- iOS: `ios/StillMoment/Domain/Models/ColorTheme.swift`
-- Farbsystem: `dev-docs/reference/color-system.md`
-
----
-
 ### AppearanceMode
 
 **Typ:** Enum
 **Muster:** Einstellungswert
 
 **Beschreibung:**
-Erlaubt es, helle oder dunkle Darstellung unabhängig vom Gerät zu erzwingen.
+Erlaubt es, helle oder dunkle Darstellung unabhängig vom Gerät zu erzwingen. In den
+Einstellungen heißt die Auswahl „Darstellung" (EN „Appearance") mit den Werten „System",
+„Hell", „Dunkel" (EN „System", „Light", „Dark").
 
 | Wert | Bedeutung |
 |------|-----------|
@@ -1095,16 +1069,24 @@ Erlaubt es, helle oder dunkle Darstellung unabhängig vom Gerät zu erzwingen.
 | `light` | Erzwingt helle Darstellung |
 | `dark` | Erzwingt dunkle Darstellung (Standard seit shared-122) |
 
-**Ablage:** `@AppStorage("appearanceMode")` über den `ThemeManager`
+Es gibt nur **eine** Farbpalette in einer hellen und einer dunklen Fassung; `AppearanceMode`
+wählt lediglich zwischen diesen beiden. Eine Farbthemen-Auswahl gibt es seit shared-093
+nicht mehr.
+
+**Ablage:**
+- iOS: `@AppStorage("appearanceMode")` über den `ThemeManager`
+- Android: DataStore-Schlüssel `appearance_mode` im `SettingsDataStore`
 
 **Kette:**
 ```
-AppearanceMode (Domäne) → ThemeManager (Präsentation) → ThemeRootView → .preferredColorScheme()
+iOS:     AppearanceMode (Domäne) → ThemeManager (Präsentation) → ThemeRootView → .preferredColorScheme() + ThemeColors → @Environment(\.themeColors)
+Android: AppearanceMode (Domäne) → SettingsDataStore → MainActivity → StillMomentTheme(darkTheme)
 ```
 
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/AppearanceMode.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/AppearanceMode.kt`
+- Farbsystem: `dev-docs/reference/color-system.md`
 
 ---
 

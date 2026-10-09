@@ -29,11 +29,11 @@ Image(systemName: "play.circle")
 ## Architektur
 
 ```
-ColorTheme (Domain)          - Enum: .candlelight, .forest, .moon
+AppearanceMode (Domain)      - Enum: .system, .light, .dark
     |
 ThemeManager (Presentation)  - ObservableObject, @AppStorage-Persistierung
     |
-ThemeRootView (Presentation) - Liest colorScheme + Theme, injiziert ThemeColors
+ThemeRootView (Presentation) - Liest colorScheme, injiziert ThemeColors, setzt preferredColorScheme
     |
 ThemeColors (Presentation)   - Struct mit allen aufgeloesten Farbwerten
     |
@@ -49,16 +49,15 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 
 | Datei | Inhalt |
 |-------|--------|
-| `Domain/Models/ColorTheme.swift` | Theme-Enum (candlelight, forest, moon) |
+| `Domain/Models/AppearanceMode.swift` | Darstellungsmodus-Enum (system, light, dark) |
 | `Presentation/Theme/ThemeColors.swift` | ThemeColors struct + EnvironmentKey + resolve() |
-| `Presentation/Theme/ThemeColors+Palettes.swift` | 6 Paletten mit konkreten RGB-Werten (3 light + 3 dark) |
+| `Presentation/Theme/ThemeColors+Palettes.swift` | Die eine Palette mit konkreten RGB-Werten (`light` + `dark`) |
 | `Presentation/Theme/ThemeManager.swift` | ObservableObject mit @AppStorage |
 | `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar + Tint |
-| `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
 | `Presentation/Views/Shared/Font+Theme.swift` | Typography System: TypographyRole + ThemeTypographyModifier |
 | `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
 | `Presentation/Views/Shared/ToggleStyles.swift` | Toggle Style mit ViewModifier-Bridge (WCAG controlTrack) |
-| `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
+| `Presentation/Views/Shared/GeneralSettingsSection.swift` | Darstellungs-Picker UI (System/Hell/Dunkel) |
 | `Presentation/Views/Shared/CardRowBackground.swift` | Card-Hintergrund mit Shadow/Border je nach Color Scheme |
 | `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
 | `Presentation/Theme/AppearanceMode+Localization.swift` | Lokalisierte Modus-Namen (System/Hell/Dunkel) |
@@ -87,7 +86,7 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 
 ### Computed Tokens (abgeleitet)
 
-Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrimary` / `backgroundPrimary`. Wirken automatisch in allen Themes × Light/Dark.
+Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrimary` / `backgroundPrimary`. Wirken automatisch in Light und Dark.
 
 | Token | Ableitung | Verwendung |
 |-------|-----------|------------|
@@ -178,15 +177,14 @@ Views muessen nichts tun — die Kompensation ist in `ThemeTypographyModifier` g
 
 ---
 
-## Themes
+## Palette
 
-3 Themes, jedes mit Light + Dark Variante. Light/Dark folgt automatisch dem System-Setting.
+Eine einzige Palette („Kerzenschein 2.0", shared-094) in einer hellen und einer dunklen Fassung. Eine Themen-Auswahl gibt es seit shared-093 nicht mehr. Welche Fassung gilt, bestimmt der Appearance Mode (siehe unten); `ThemeColors.resolve(colorScheme:)` liefert die passende.
 
-| Theme | Light | Dark | Typ |
-|-------|-------|------|-----|
-| Candlelight (Default) | `candlelightLight` | `candlelightDark` | Warm/Sand |
-| Forest | `forestLight` | `forestDark` | Warm-neutral Natur |
-| Moon | `moonLight` | `moonDark` | Silber/Indigo Nacht |
+| Fassung | Wert | Charakter |
+|---------|------|-----------|
+| Hell | `ThemeColors.light` | Sunrise Confident — Creme/Pfirsich/Apricot, warme Tinte |
+| Dunkel | `ThemeColors.dark` | Lifted Warm — Karten heben sich warm vom Verlauf ab, warmer Rand |
 
 ---
 
