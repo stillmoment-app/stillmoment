@@ -28,7 +28,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-127](shared/shared-127-datenschutz-netzwerkzugriffe-ehrlich.md) | Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren | 1-Quick Fix | [ ] | [ ] |
 | [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [ ] | [ ] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
-| [shared-130](shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [~] | [~] |
 
 ### iOS
 
@@ -169,6 +168,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-120](archive/shared/shared-120-intervall-gong-master-karte-modus-hinweis.md) | Intervall-Gong-Screen — Master-Karte, Modus-Hinweis & Off-Zustand (Handoff intervall-gongs) | 4-Polish | [x] | [x] |
 | [shared-121](archive/shared/shared-121-hintergrundklang-screen-redesign.md) | Hintergrundklang-Screen an Klang-Auswahl-Vorlage angleichen (Handoff soundscape) | 4-Polish | [x] | [x] |
 | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) | Dunkle Darstellung als Standard | 1-Quick Fix | [x] | [x] |
+| [shared-130](archive/shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [x] | [x] |
 
 ### iOS
 

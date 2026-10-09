@@ -2,8 +2,8 @@
 id: shared-130
 title: Ticket-System mit Archiv, Frontmatter und generiertem Index
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 2-Architektur
 priority: mittel
 ---
