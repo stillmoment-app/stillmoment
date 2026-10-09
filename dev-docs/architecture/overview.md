@@ -49,17 +49,14 @@ stillmoment/
 
 **Vorteil:** Production-App hat keinen Test-Code und keine Test-Daten.
 
-```swift
-// StillMomentApp.swift
-#if SCREENSHOTS_BUILD
-TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
-#endif
-```
+Bei `SCREENSHOTS_BUILD` befuellt `TestFixtureSeeder` die Library beim Start, siehe `StillMomentApp.init()`.
 
 ### Source Code Layers (Clean Architecture)
 
 ```
 StillMoment/
+├── StillMomentApp.swift   # App-Einstieg
+├── AppDependencies.swift  # Composition Root: erzeugt alle Dienste
 ├── Domain/           # Reine Business-Logik (keine Abhaengigkeiten)
 │   ├── Models/       # Entities, Value Objects
 │   ├── Protocols/    # Service-Interfaces
@@ -81,6 +78,11 @@ Presentation → Application → Domain ← Infrastructure
                     ↓
               Infrastructure implementiert Domain-Protocols
 ```
+
+**Composition Root (ios-055):** Alle Dienste entstehen an genau einer Stelle, in `AppDependencies.live()`, und
+werden von `StillMomentApp` per Initializer nach unten gereicht. Kein ViewModel, keine View und kein Dienst
+erzeugt Dienste selbst, so laufen zustandsbehaftete Dienste nie unbemerkt doppelt. Regeln:
+`.claude/rules/ios-dependency-injection.md`, durchgesetzt von `make check`.
 
 ---
 

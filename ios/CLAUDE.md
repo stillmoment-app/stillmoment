@@ -42,44 +42,10 @@ final class AudioService: AudioServiceProtocol { ... }
 
 Constructor injection everywhere — no service locators, no singletons (except `AudioSessionCoordinator.shared`).
 
-### Composition Root: services are created only at the app entry (ios-055)
+### Composition Root (ios-055)
 
-All services (Services, Repositories, Providers, Clock) are created in exactly one place:
-`AppDependencies.live()` (`StillMoment/AppDependencies.swift`), called once in `StillMomentApp.init`.
-Everything below receives its dependencies through initializers (Pure DI, no container library).
-
-- **No default argument that creates a service.** `waveformProvider: WaveformProviderProtocol = WaveformProvider()`
-  is forbidden — a forgotten hand-over silently creates a second instance, and stateful services break
-  (duplicate waveform decoding, overwritten audio conflict handler). Without the default, the build fails.
-  Default arguments for plain values (numbers, flags, configuration) are fine.
-- **No service creation inside ViewModels, Views or other services.** A new screen that needs a service
-  gets it handed down by its caller, across several views if necessary.
-- **Who gets what:** Only views that build a ViewModel, or pass the struct on to such a view, receive the
-  `AppDependencies` struct (e.g. `GuidedMeditationsListView` → `GuidedMeditationPlayerView`). ViewModels and
-  services never receive the struct, only their individual dependencies.
-- **Wiring:** The ViewModels with shared services are built by the `make…` functions on `AppDependencies`
-  (`makeTimerViewModel()`, `makeGuidedListViewModel()`, `makeFileOpenHandler()`, `makePlayerViewModel(…)`);
-  `AppDependenciesTests` proves the shared instances with `MockedAppDependencies`. Some call sites still pick
-  fields directly: `GuidedMeditationsListView` hands `audioService`, `waveformProvider`, `meditationService` and
-  `praxisRepository` to the Edit-Sheet and reads `guidedSettingsRepository`; `StillMomentApp` passes
-  `downloadService` to the `InboxHandler`, `guidedSettingsRepository` to `AppSettingsView`, `praxisRepository`
-  to `DurationConfigurer` and `meditationService` to the screenshot seeding. Those paths are not covered by
-  `AppDependenciesTests`.
-- **Lifetime:** Services with app-wide state (`AudioService`, `WaveformProvider`, `GuidedMeditationService`,
-  `TimerService`, repositories) exist once. Services whose state belongs to a single playback
-  (`AudioPlayerService`, the player's `MeditationGongPlayer`) are created per player through the
-  `makeAudioPlayerService` / `makeGongPlayer` factories — still only inside `AppDependencies`.
-- **Previews and tests** build their own doubles (`Preview…`, `Mock…`). `AppDependencies.live()` is allowed
-  only in `StillMomentApp`, tests and preview files `X+Previews.swift` (under `#if DEBUG`) — previews that
-  need it live there, not in the view file. Tests use `AudioService.makeForTesting()` and
-  `MockedAppDependencies` (`StillMomentTests/Helpers/`).
-- **Enforced by `make check`:** SwiftLint custom rule `service_created_outside_composition_root` flags
-  `X(`, `X.init(` and `: X = .init(` for any `…Service/Repository/Provider/Clock/GongPlayer/Resolver/Handler/
-  Store/Coordinator/Manager` type, plus `.live(`, outside `StillMomentApp.swift` / `AppDependencies.swift`
-  (tests, UI tests, Screenshots target and `*+Previews.swift` are exempt; `Preview…`/`Mock…`/`AV…` types are
-  allowed; comments and strings are ignored). The only justified `swiftlint:disable` exceptions are
-  `AudioSessionCoordinator.shared` and the internal legacy reader in `UserDefaultsPraxisRepository`.
-  `scripts/lint-selftest.sh` proves against a fixture that the rule still fires (exit 3 if SwiftLint itself fails).
+Services are created only in `AppDependencies.live()` and handed down through initializers. The full rules
+live in `.claude/rules/ios-dependency-injection.md` (loads automatically for app and unit-test Swift files).
 
 ### Combine Bindings
 
