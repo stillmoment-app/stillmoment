@@ -11,7 +11,7 @@ depends_on: [shared-128]
 
 # Ticket shared-131: Gleiche Audio-Dateitypen beim Link- und Podcast-Import
 
-**Komplexitaet**: Gering im Code, aber beide Plattformen und zwei Importwege (Link-Import, Podcast-Import) betroffen. Risiko: iOS wird strenger — Dateien, die heute (zufaellig) klappen, koennten abgelehnt werden.
+**Komplexitaet**: Android gering (Liste um zwei Typen ergaenzen). iOS mittel: iOS prueft den Dateityp heute erst, wenn die Datei schon vollstaendig geladen ist — fuer "ablehnen, bevor die Datei vollstaendig geladen ist" muss iOS frueher pruefen, ohne Abbrechen und den Import langer Folgen (shared-128) zu brechen. Risiko: iOS wird strenger — Dateien, die heute (zufaellig) klappen, koennten abgelehnt werden.
 
 ---
 
@@ -32,7 +32,10 @@ Heute nimmt iOS jeden Audio-Typ an, Android nur eine feste Liste. Eine echte MP3
 - [ ] Gross-/Kleinschreibung und Zusaetze nach `;` (z.B. `audio/mpeg; charset=…`) spielen keine Rolle
 - [ ] Meldet der Server keinen Dateityp, wird die Datei weiterhin angenommen
 - [ ] Jeder andere Dateityp (z.B. `audio/ogg`) wird abgelehnt, bevor die Datei vollstaendig geladen ist, mit der bestehenden Meldung des jeweiligen Importwegs: Link-Import „kein Audio“, Podcast-Import „Folge nicht verfuegbar“
+- [ ] Abgelehnt wird auch ein Typ, der nur mit einem erlaubten beginnt, z.B. `audio/mpegurl` / `audio/x-mpegurl` (Wiedergabelisten, keine Audiodatei)
 - [ ] Link-Import und Podcast-Import verhalten sich gleich
+- [ ] Abbrechen im Ladefenster beendet den Download weiterhin sofort
+- [ ] Lange Podcast-Folgen (mehrere Stunden) lassen sich weiterhin importieren
 - [ ] Keine neuen Texte
 
 ### Tests
@@ -63,4 +66,5 @@ Heute nimmt iOS jeden Audio-Typ an, Android nur eine feste Liste. Eine echte MP3
 ## Hinweise
 
 - Die Liste ist eine Annahme-Liste fuer den Download; welche Formate die Bibliothek abspielen kann (MP3, M4A), bleibt unveraendert.
+- iOS-Befund (geprueft 2026-10-09): iOS laedt die Datei heute vollstaendig und prueft den Dateityp erst danach, und zwar nur auf den Anfang (`audio/…`). Android prueft schon nach der Server-Antwort und vor dem Laden, mit exaktem Vergleich. Der Aufwand liegt daher vor allem auf iOS.
 - Der iOS-Zusatzcheck nach dem Download (`rejectedFileError` im InboxHandler) kann danach bleiben, greift aber praktisch nicht mehr.
