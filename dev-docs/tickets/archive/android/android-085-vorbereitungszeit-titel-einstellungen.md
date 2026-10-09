@@ -1,7 +1,7 @@
 ---
 id: android-085
 title: "Vorbereitungszeit in den Einstellungen mit Titel und Untertitel wie auf iOS"
-status: in-progress
+status: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
