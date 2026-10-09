@@ -1,13 +1,15 @@
 ---
 id: ios-059
 title: "Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert"
-status: todo
+status: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
 ---
 
 # Ticket ios-059: Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert
+
+**Plan**: `dev-docs/tickets/plans/ios-059.md`
 
 **Komplexitaet**: Die Bestaetigung selbst ist schlicht. Der Aufwand steckt darin, Farben (dunkle Palette), Schriften, App-Icon und Texte der App auch in der Share-Extension verfuegbar zu machen (eigenes Target). Die Darstellungs-Einstellung wird bewusst nicht durchgereicht (siehe Hinweise). Risiko: das knappe Speicherlimit von Extensions — keine aufwendigen Animationen oder grossen Bilder.
 
@@ -27,7 +29,7 @@ Der Moment des Teilens ist oft die erste Beruehrung mit der Bibliothek, dem Kern
 
 ### Feature
 - [ ] Nach erfolgreichem Teilen erscheint eine Bestaetigung in Farben und Schriften der App, immer in der dunklen Darstellung (unabhaengig von System und Einstellung in der App)
-- [ ] Die Bestaetigung ist eine Karte in der Mitte ueber der abgedunkelten fremden App, mit Absenderzeile (App-Icon + "Still Moment") ueber Titel, Text und Knopf
+- [ ] Die Bestaetigung erscheint im Teilen-Fenster des Systems (Sheet) auf dem dunklen App-Hintergrund, auf allen iOS-Versionen gleich; Inhalt mittig: Absenderzeile (App-Icon + "Still Moment") ueber Titel, Text und Knopf
 - [ ] Titel der Bestaetigung: "Fast geschafft" / "Almost there" (ersetzt "In Still Moment gespeichert" — die Aufnahme ist erst nach dem Oeffnen der App in der Bibliothek, und "Still Moment" steht schon in der Absenderzeile)
 - [ ] Die Bestaetigung sagt in einem Satz, was als Naechstes passiert: "Oeffne Still Moment, um die Aufnahme in deine Bibliothek zu uebernehmen."
 - [ ] Die Bestaetigung hat genau einen Knopf ("Fertig"), der das Teilen beendet
@@ -75,6 +77,7 @@ Der Moment des Teilens ist oft die erste Beruehrung mit der Bibliothek, dem Kern
 
 - Still Moment direkt aus der Extension zu oeffnen ist von Apple fuer Share-Extensions nicht vorgesehen. Keine Umwege ueber die Responder-Chain o.ae. — fragil und ein Risiko im App-Review. Der Hinweis "Still Moment oeffnen" bleibt deshalb noetig.
 - Immer dunkel ist eine bewusste Vereinfachung: Dunkel ist die Voreinstellung der App (shared-122) und so erscheint sie auch im Store. Die Darstellungs-Einstellung muesste sonst fuer die Extension lesbar abgelegt werden (App Group + Migration) — der Aufwand lohnt sich fuer diesen kurzen Moment nicht.
+- Keine Karte ueber der abgedunkelten fremden App: Ab iOS 26 zeigt das System Share-Extensions immer als undurchsichtiges Sheet, `NSExtensionActionWantsFullScreenPresentation` wird ignoriert (Spike 2026-10-09, iOS 18.4 vs. 26.5). Eine Darstellung fuer alle Versionen statt zwei; Apple raet vom Vollbild-Schalter ohnehin ab.
 - Fehler bewusst ohne Warnfarbe: gleicher Aufbau wie die Bestaetigung, nur der Text unterscheidet sich.
 - Ob ein Link auf einen ganzen Podcast statt eine Folge zeigt usw. (shared-128), entscheidet weiterhin die App — die Extension prueft nur, ob es eine Webadresse ist.
 - Android ist nicht betroffen: Dort gibt es keine Extension, die App oeffnet sich beim Teilen direkt.

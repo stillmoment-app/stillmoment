@@ -39,6 +39,7 @@
 - [View in Type+Topic.swift aufteilen](feedback_view_extension_file_split.md) — verschachtelter `ViewModifier` mit Bindings, statt `private` zu lockern.
 - [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
 - [Worktree-Build + UI-Test-Simulatorzustand](feedback_ios_worktree_and_ui_test_state.md) — Local.xcconfig in Worktree kopieren; LibraryFlowUITests-Empty-State-Fehler = alte Bibliothek auf Test-Simulator.
+- [Share-Extension auf iOS 26](project_share_extension_ios26_presentation.md) — Vollbild-Key ignoriert, Sheet opak; App-Dateien per Exception-Set ins Extension-Target; Simulator-Testwege.
 - [Test-Fixtures liegen flach im Bundle](project_test_fixtures_bundle_flat.md) — `url(forResource:withExtension:)` ohne `subdirectory:`.
 
 ## Cross-Platform-Migration (iOS Pendant existiert)
