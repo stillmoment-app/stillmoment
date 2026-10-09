@@ -8,7 +8,8 @@
 
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
-- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren.
+- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*.
+- [Screengrab-Einzeltest: Sprachmix](project_android_screengrab_single_test_locale.md) — Einzelner Screenshot-Test liefert DE-UI mit EN-Quellen; Store-Bilder nur über vollen Lauf.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 
@@ -33,7 +34,8 @@
 
 - [iOS-Layout visuell verifizieren](feedback_ios_visual_verification.md) — Screenshots-Scheme seedet Fixtures, Simulator-Koordinaten sind Punkte (nicht Screenshot-Pixel), Vorher-Bild via gezieltem `git stash push -- <pfade>`.
 - [Eigener Simulator bei Parallel-Agenten](feedback_dedicated_simulator_parallel_agents.md) — `simctl create` Wegwerf-Sim statt gebooteten fremden; danach löschen.
-- [Simulator-Verifikation einrichten](feedback_simulator_verification_setup.md) — App mit `-AppleLanguages "(de)"` starten (DE-only-Features); Hell/Dunkel kommt aus den App-Einstellungen; Lade-/Fehlerbild per gepatchtem Bundle.
+- [Simulator-Verifikation einrichten](feedback_simulator_verification_setup.md) — App mit `-AppleLanguages "(de)"` starten (DE-only-Features); Hell/Dunkel kommt aus den App-Einstellungen; Lade-/Fehlerbild per gepatchtem Bundle; Share-Import per ShareInbox + `openurl`.
+- [tap_by_id trifft Offscreen-Elemente nicht](feedback_tap_by_id_offscreen.md) — meldet Erfolg auch bei y > Bildschirm; erst scrollen, dann tippen.
 - [Fester Kopf über ScrollView](feedback_fixed_header_scrollview.md) — `VStack { kopf; ScrollView }` statt `.safeAreaInset`; nur `List` clippt am Kopf.
 
 ## iOS Build, Lint, Tests
@@ -45,6 +47,7 @@
 - [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
 - [Worktree-Build + UI-Test-Simulatorzustand](feedback_ios_worktree_and_ui_test_state.md) — Local.xcconfig in Worktree kopieren; LibraryFlowUITests-Empty-State-Fehler = alte Bibliothek auf Test-Simulator.
 - [Share-Extension auf iOS 26](project_share_extension_ios26_presentation.md) — Vollbild-Key ignoriert, Sheet opak; App-Dateien per Exception-Set ins Extension-Target; Simulator-Testwege.
+- [Fastlane-Screenshot im Worktree](feedback_worktree_fastlane_screenshot.md) — Gemfile.lock, .bundle/config, vendor-Symlink aus Main; Symlink danach löschen.
 - [Test-Fixtures liegen flach im Bundle](project_test_fixtures_bundle_flat.md) — `url(forResource:withExtension:)` ohne `subdirectory:`.
 
 ## Cross-Platform-Migration (iOS Pendant existiert)

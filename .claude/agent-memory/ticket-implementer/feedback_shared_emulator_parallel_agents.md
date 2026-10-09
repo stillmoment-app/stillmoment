@@ -16,3 +16,7 @@ Happened again in shared-132 (2026-10-09): a running download vanished because t
 Related device-test tips from shared-132:
 - `adb emu network speed gsm` causes 60 s read timeouts / "connection abort"; `edge` stalled a download at 20 KB. For "while loading" scenarios, fire shares back to back via `am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT <url> -f 0x18080000 -n com.stillmoment.dev/com.stillmoment.MainActivity` and count downloads via `run-as com.stillmoment.dev ls cache/` (`dl_*` dirs).
 - Chrome shares with `NEW_DOCUMENT | MULTIPLE_TASK`; without `singleTask` every share created its own MainActivity.
+
+From shared-133 (2026-10-09):
+- **The scratchpad is shared too.** Other agents' files (`a1.png`, `red.txt`, `dd/`) were in the same session scratchpad. Prefix your files with the ticket ID (`s133_*`) so you don't overwrite each other.
+- Instead of `connectedAndroidTest` (installs and uninstalls the app, which disrupts the other agent): `./gradlew assembleDebug assembleDebugAndroidTest`, `adb install -r` both APKs, then `adb shell am instrument -w -e class <FQCN>[#method] com.stillmoment.dev.test/com.stillmoment.HiltTestRunner`. Check the installed build: `adb shell md5sum $(pm path ...)` against `md5 -q app-debug.apk`.
