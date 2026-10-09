@@ -61,8 +61,11 @@ final class AudioDownloadServiceFileTests: XCTestCase {
             _ = try? await sut.download(from: remoteURL, filename: "weg.mp3")
         }
 
-        // Then
-        XCTAssertEqual(Self.sessionTempFiles(), leftoversBefore)
+        // Then — no downloaded data stays behind. A wrong file type is rejected while loading
+        // (shared-131); URLSession then leaves an empty placeholder of the cancelled task, exactly
+        // as after a user cancel. It holds no data and the system clears the temp folder.
+        let newFiles = Self.sessionTempFiles().subtracting(leftoversBefore)
+        XCTAssertEqual(newFiles.filter { Self.size(ofTempFile: $0) > 0 }, [])
     }
 
     func testDownloadSendsNoCookies() async throws {
@@ -106,5 +109,11 @@ final class AudioDownloadServiceFileTests: XCTestCase {
     private static func sessionTempFiles() -> Set<String> {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: NSTemporaryDirectory())) ?? []
         return Set(names.filter { $0.hasPrefix("CFNetworkDownload") })
+    }
+
+    private static func size(ofTempFile name: String) -> Int {
+        let path = (NSTemporaryDirectory() as NSString).appendingPathComponent(name)
+        let attributes = try? FileManager.default.attributesOfItem(atPath: path)
+        return (attributes?[.size] as? Int) ?? 0
     }
 }

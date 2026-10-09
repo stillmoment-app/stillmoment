@@ -81,12 +81,14 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
     private func fetch(url: URL) async throws -> (URL, HTTPURLResponse) {
         var request = URLRequest(url: url)
         request.httpShouldHandleCookies = false
+        // Rejects a wrong file type as soon as the server answers, not after the whole file (shared-131).
+        let contentTypeGate = AudioContentTypeGate()
         let fileURL: URL
         let response: URLResponse
         do {
-            (fileURL, response) = try await self.session.download(for: request)
+            (fileURL, response) = try await self.session.download(for: request, delegate: contentTypeGate)
         } catch let error as URLError where error.code == .cancelled {
-            throw AudioDownloadError.downloadCancelled
+            throw contentTypeGate.isRejected ? AudioDownloadError.unsupportedContentType : .downloadCancelled
         } catch {
             throw AudioDownloadError.networkError
         }
@@ -102,14 +104,11 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
         return (fileURL, httpResponse)
     }
 
-    /// Validates that the Content-Type (if present) is an audio type or generic octet-stream.
-    /// A missing Content-Type is accepted — many servers omit it.
+    /// Validates the raw Content-Type header against the accepted list (`AudioContentType`).
+    /// Usually `AudioContentTypeGate` has rejected a wrong type already while loading; this check
+    /// covers small answers that finished before the gate could cancel them.
     private static func validateContentType(_ contentType: String?) throws {
-        guard let contentType else {
-            return
-        }
-        let lowered = contentType.lowercased()
-        guard lowered.hasPrefix("audio/") || lowered.hasPrefix("application/octet-stream") else {
+        guard AudioContentType.isAccepted(contentType) else {
             throw AudioDownloadError.unsupportedContentType
         }
     }

@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
@@ -142,6 +144,40 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
+        fun `mp3 announced as audio-x-mpeg is accepted`() = runTest {
+            // shared-131: iOS und Android nehmen dieselben Dateitypen an
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/x-mpeg")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.isSuccess) { "Expected success, got ${result.exceptionOrNull()}" }
+        }
+
+        @Test
+        fun `mp3 announced as audio-mpeg3 is accepted`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg3")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.isSuccess) { "Expected success, got ${result.exceptionOrNull()}" }
+        }
+
+        @Test
+        fun `case and additions after semicolon do not matter`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("Audio/X-M4A; charset=binary")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://example.com/talk.m4a")
+
+            assertTrue(result.isSuccess) { "Expected success, got ${result.exceptionOrNull()}" }
+        }
+
+        @Test
         fun `accepts octet-stream content type as fallback`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("application/octet-stream")
@@ -237,6 +273,61 @@ class UrlAudioDownloaderTest {
             whenever(mockConnection.contentType).thenReturn("video/mp4")
 
             val result = sut.download("https://example.com/video.mp4")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
+        fun `ogg file is rejected without loading its content`() = runTest {
+            // shared-131: abgelehnt, bevor die Datei geladen ist — der Inhalt wird gar nicht angefasst
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/ogg")
+
+            val result = sut.download("https://example.com/talk.ogg")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+            verify(mockConnection, never()).inputStream
+            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+        }
+
+        @Test
+        fun `playlist audio-mpegurl is rejected`() = runTest {
+            // Wiedergabeliste, keine Audiodatei — beginnt nur zufaellig wie "audio/mpeg"
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpegurl")
+
+            val result = sut.download("https://example.com/stream.m3u")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
+        fun `empty announced type is rejected`() = runTest {
+            // shared-131: nur eine fehlende Kopfzeile gilt als "kein Typ gemeldet" — ein leerer Typ nicht
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("")
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
+        fun `announced type with only additions is rejected`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn(";charset=x")
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
+        fun `playlist audio-x-mpegurl is rejected`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/x-mpegurl")
+
+            val result = sut.download("https://example.com/stream.m3u")
 
             assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
         }

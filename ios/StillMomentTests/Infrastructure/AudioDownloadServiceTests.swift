@@ -236,8 +236,8 @@ final class AudioDownloadServiceTests: XCTestCase {
     func testDownloadFromURLWithoutExtension_nonStandardAudioMp3ContentType_savesAsMp3() async throws {
         // Given — URL ohne Endung, Server liefert das non-standard "audio/mp3"
         // (audiodharma.org → S3 / linodeobjects.com sendet diesen Content-Type
-        // statt des offiziellen "audio/mpeg"). Die `audio/`-Prefix-Pruefung in
-        // validateContentType muss das durchlassen, sonst sieht der User
+        // statt des offiziellen "audio/mpeg"). Die Annahme-Liste (AudioContentType)
+        // muss das durchlassen, sonst sieht der User
         // "Keine Aufnahme gefunden" fuer einen klar gueltigen MP3-Download.
         let sut = try XCTUnwrap(self.sut)
         let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25407/download"))
@@ -487,45 +487,5 @@ final class AudioDownloadServiceTests: XCTestCase {
         let error = AudioDownloadError.downloadCancelled
         XCTAssertNotNil(error.errorDescription)
         XCTAssertFalse(error.errorDescription?.isEmpty ?? true)
-    }
-}
-
-// MARK: - MockURLProtocol
-
-/// URLProtocol subclass that intercepts network requests for testing.
-/// Supports both sync and async request handlers.
-final class MockURLProtocol: URLProtocol {
-    /// Handler that receives the request and returns a response + data, or throws.
-    static var requestHandler: ((URLRequest) async throws -> (HTTPURLResponse, Data))?
-
-    override static func canInit(with request: URLRequest) -> Bool {
-        true
-    }
-
-    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
-        request
-    }
-
-    override func startLoading() {
-        guard let handler = MockURLProtocol.requestHandler else {
-            client?.urlProtocol(self, didFailWithError: URLError(.unknown))
-            return
-        }
-
-        let request = self.request
-        Task {
-            do {
-                let (response, data) = try await handler(request)
-                self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-                self.client?.urlProtocol(self, didLoad: data)
-                self.client?.urlProtocolDidFinishLoading(self)
-            } catch {
-                self.client?.urlProtocol(self, didFailWithError: error)
-            }
-        }
-    }
-
-    override func stopLoading() {
-        // No-op for mock
     }
 }

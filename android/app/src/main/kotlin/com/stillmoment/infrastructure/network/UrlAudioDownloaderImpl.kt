@@ -65,12 +65,17 @@ class UrlAudioDownloaderImpl @Inject constructor(
         private const val TAG = "UrlDownload"
         private const val TIMEOUT_MS = 60_000
 
-        // "audio/mp3" is non-standard but widely sent by CDNs (e.g. audiodharma's S3 backend
-        // at linodeobjects.com) instead of the official "audio/mpeg".
+        // Accept list shared with iOS (shared-131) — link import and podcast import both use it.
+        // Compared exactly (after dropping parameters and lowercasing), so playlists like
+        // "audio/mpegurl" / "audio/x-mpegurl" that merely start with an accepted type are rejected.
+        // "audio/mp3", "audio/x-mpeg", "audio/mpeg3" are non-standard but sent by real servers
+        // (e.g. audiodharma's S3 backend at linodeobjects.com) instead of the official "audio/mpeg".
         // "application/octet-stream" included as fallback: servers often don't set specific audio types
         private val SUPPORTED_CONTENT_TYPES = setOf(
             "audio/mpeg",
             "audio/mp3",
+            "audio/x-mpeg",
+            "audio/mpeg3",
             "audio/mp4",
             "audio/x-m4a",
             "audio/m4a",
@@ -104,6 +109,7 @@ class UrlAudioDownloaderImpl @Inject constructor(
                 return@withContext Result.failure(UrlAudioDownloadError.Http(responseCode))
             }
 
+            // Checked before the body is read: a rejected file is never loaded (shared-131).
             val contentType = connection.contentType?.substringBefore(";")?.trim()?.lowercase()
             if (contentType != null && contentType !in SUPPORTED_CONTENT_TYPES) {
                 logger.w(TAG, "Unsupported content type: $contentType for $url")
