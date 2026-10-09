@@ -159,6 +159,34 @@ final class AudioDownloadServiceTests: XCTestCase {
         XCTAssertEqual(localURL.pathExtension, "mp3")
     }
 
+    func testDownloadFromAnchorURL_filenameWithEmbeddedAddress_isStored() async throws {
+        // Given — Anchor (Spotify for Podcasters) haengt die eigentliche Audioadresse kodiert an.
+        // URL.lastPathComponent dekodiert das zu einem Namen mit Schraegstrichen (shared-128).
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string:
+            "https://anchor.fm/s/65fdc5f4/podcast/play/109108957/" +
+                "https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-9-2%2F1173e6ee.mp3"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "audio/mpeg"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: remoteURL.lastPathComponent)
+
+        // Then — Datei liegt direkt im Download-Ordner, Name ohne Pfadanteile
+        XCTAssertTrue(FileManager.default.fileExists(atPath: localURL.path))
+        XCTAssertEqual(localURL.lastPathComponent, "1173e6ee.mp3")
+        XCTAssertTrue(localURL.deletingLastPathComponent().lastPathComponent.hasPrefix("dl_"))
+    }
+
     func testDownloadFromURLWithoutExtension_audioMp4ContentType_savesAsM4a() async throws {
         // Given — URL ohne Endung, Server liefert audio/mp4
         let sut = try XCTUnwrap(self.sut)

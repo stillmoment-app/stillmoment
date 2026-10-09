@@ -127,8 +127,11 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
            Self.hasSupportedExtension(dispositionName) {
             return dispositionName
         }
-        if Self.hasSupportedExtension(parameterFilename) {
-            return parameterFilename
+        // Der Parameter stammt meist aus `URL.lastPathComponent`, das kodierte Schraegstriche
+        // dekodiert (Anchor: `…/https%3A%2F%2F…/folge.mp3`) — Pfadanteile entfernen.
+        let parameterName = Self.sanitizeFilename(parameterFilename)
+        if Self.hasSupportedExtension(parameterName) {
+            return parameterName
         }
         return Self.fallbackFilename(for: contentType)
     }
@@ -194,7 +197,7 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
         return nil
     }
 
-    /// Entfernt Pfad-Separatoren — der Header kommt vom Server und darf
+    /// Entfernt Pfad-Separatoren — Header und URL kommen von aussen und duerfen
     /// keinen Pfad ins Dateisystem schreiben koennen.
     private static func sanitizeFilename(_ name: String) -> String {
         (name as NSString).lastPathComponent
