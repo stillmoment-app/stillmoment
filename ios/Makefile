@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
+.PHONY: help build-release format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
 
 DEVICE ?= iPhone 17
 IOS_VERSION ?= latest
@@ -93,6 +93,18 @@ analyze: ## Run Xcode static analysis (fails on any warning)
 	else \
 		echo "✅ No static analysis warnings found"; \
 	fi
+
+build-release: ## Compile Release config for device without signing (catches release-only breakage before tagging)
+	@echo "🏗  Building Release configuration (generic iOS device, no code signing)..."
+	@xcodebuild build \
+		-quiet \
+		-project StillMoment.xcodeproj \
+		-scheme StillMoment \
+		-configuration Release \
+		-destination 'generic/platform=iOS' \
+		-derivedDataPath build/DerivedData-Release \
+		CODE_SIGNING_ALLOWED=NO
+	@echo "✅ Release build succeeded"
 
 screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
 	@echo "💎 Setting up Ruby/Fastlane environment..."

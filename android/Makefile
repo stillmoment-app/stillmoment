@@ -1,4 +1,4 @@
-.PHONY: help format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
+.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -41,6 +41,11 @@ test-failures: ## List failing tests from last run
 build: ## Build debug APK
 	@echo "Building debug APK..."
 	@./gradlew assembleDebug
+
+build-release: ## Build release bundle (minified; catches release-only breakage before tagging; debug-signed without keystore.properties)
+	@echo "Building release bundle..."
+	@./gradlew bundleRelease
+	@echo "Release build succeeded: app/build/outputs/bundle/release/app-release.aab"
 
 clean: ## Clean build artifacts
 	@echo "Cleaning..."

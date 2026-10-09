@@ -259,6 +259,7 @@ print_success "Release notes found (de-DE, en-GB)"
 
 run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
 run_logged "Running tests" make -C "$PROJECT_DIR" test
+run_logged "Building release configuration" make -C "$PROJECT_DIR" build-release
 
 if [ -n "$SKIP_SCREENSHOTS" ]; then
     print_warning "Skipping screenshots (SKIP_SCREENSHOTS=1)"
