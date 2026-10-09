@@ -21,6 +21,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
 | [shared-132](shared/shared-132-mehrfach-teilen-ohne-fehler.md) | Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt | 4-Polish | [ ] | [ ] |
 | [shared-133](shared/shared-133-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [ ] |
+| [shared-135](shared/shared-135-eigener-abschnitt-rueckmeldung.md) | Eigener Abschnitt Rückmeldung in den Einstellungen | 4-Polish | [~] | [~] |
 
 ### iOS
 
