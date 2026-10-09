@@ -3,14 +3,15 @@
 # Usage: VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1] ./release-prepare.sh
 # Or via Makefile: make release-prepare VERSION=1.9.1 SKIP_SCREENSHOTS=1
 
-set -e
+set -euo pipefail
 
 # Parse environment variables (set by Makefile)
-VERSION="${VERSION:-$1}"
+VERSION="${VERSION:-${1:-}}"
 DRY_RUN="${DRY_RUN:-}"
 SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
 LOG_FILE="$PROJECT_DIR/release-prepare.log"
 
 # Colors for output
@@ -106,9 +107,9 @@ print_step "Validating parameters..."
 # Validate VERSION parameter
 if [ -z "$VERSION" ]; then
     print_error "VERSION parameter required"
-    echo "Usage: $0 <VERSION> [DRY_RUN]"
-    echo "Example: $0 1.9.0"
-    echo "Example: $0 1.9.0 1  # Dry run"
+    echo "Usage: make release-prepare VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1]"
+    echo "Example: make release-prepare VERSION=1.9.0"
+    echo "Example: make release-prepare VERSION=1.9.0 DRY_RUN=1"
     exit 1
 fi
 
@@ -132,15 +133,18 @@ print_step "Checking working directory..."
 
 cd "$PROJECT_DIR"
 
-# Get list of changed files (excluding release notes)
-CHANGED_FILES=$(git status --porcelain | grep -v "fastlane/metadata" | grep -v "^??" || true)
+# Any change counts, untracked files included — except below ios/fastlane/metadata/,
+# where /release-notes writes the new changelog files.
+# (git status --porcelain prints paths relative to the repository root.)
+CHANGED_FILES=$(git status --porcelain --untracked-files=all | grep -v -E "^.. ios/fastlane/metadata/" || true)
 
 if [ -n "$CHANGED_FILES" ]; then
-    print_error "Working directory has uncommitted changes (excluding release notes)"
+    print_error "Working directory has uncommitted or untracked files (outside ios/fastlane/metadata/)"
     echo "Changed files:"
     echo "$CHANGED_FILES"
     echo ""
-    echo "Please commit or stash changes before preparing release"
+    echo "Please commit, stash or remove them before preparing release"
+    echo "Tip: commit the release notes of both platforms together with CHANGELOG.md first (the /release-notes commit)."
     exit 1
 fi
 
@@ -161,6 +165,38 @@ if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
 fi
 
 print_success "Tag '$TAG_NAME' is available"
+
+# ============================================================================
+# PREFLIGHT CHECKS (fail fast, before the long test/screenshot steps)
+# ============================================================================
+
+print_step "Checking CHANGELOG.md and release notes..."
+
+if ! command -v uv >/dev/null 2>&1; then
+    print_error "uv not found (needed for scripts/release/preflight.py). Install with: brew install uv"
+    exit 1
+fi
+
+# CHANGELOG.md has '## [VERSION]' and an empty [Unreleased]; App Store limit 4000 characters
+if ! uv run --quiet "$REPO_DIR/scripts/release/preflight.py" --version "$VERSION" --max-chars 4000 \
+    "$PROJECT_DIR/fastlane/metadata/de-DE/changelogs/$VERSION.txt" \
+    "$PROJECT_DIR/fastlane/metadata/en-GB/changelogs/$VERSION.txt"; then
+    print_error "Release preflight failed (see above)"
+    exit 1
+fi
+
+print_step "Checking App Store Connect credentials..."
+
+# Same lookup as api_key in fastlane/Fastfile
+API_KEY_PATH="${APP_STORE_CONNECT_API_KEY_PATH:-$HOME/.fastlane/stillmoment-appstore.json}"
+
+if [ ! -f "$API_KEY_PATH" ]; then
+    print_warning "Missing: App Store Connect API key $API_KEY_PATH (setup: dev-docs/guides/fastlane-ios.md)"
+    print_error "App Store Connect credentials incomplete"
+    exit 1
+fi
+
+print_success "App Store Connect API key found"
 
 # ============================================================================
 # COPY VERSIONED CHANGELOGS TO RELEASE NOTES
@@ -222,8 +258,11 @@ print_success "Release notes found (de-DE, en-GB)"
 # RUN CHECKS
 # ============================================================================
 
-run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
+# CI=1: check only (format-check instead of format) — prepare must not change code;
+# unformatted code makes prepare fail here, before anything is committed.
+run_logged "Running code quality checks" make -C "$PROJECT_DIR" check CI=1
 run_logged "Running tests" make -C "$PROJECT_DIR" test
+run_logged "Building release configuration" make -C "$PROJECT_DIR" build-release
 
 if [ -n "$SKIP_SCREENSHOTS" ]; then
     print_warning "Skipping screenshots (SKIP_SCREENSHOTS=1)"
@@ -243,11 +282,25 @@ run_cmd "$SCRIPT_DIR/bump-version.sh" "$VERSION"
 # ============================================================================
 
 print_step "Creating git commit..."
-run_cmd git add -A
+# Stage only what this script changes: version (bump-version.sh), release notes +
+# changelogs (fastlane/metadata), website screenshots (process-screenshots.sh).
+# Store screenshots in ios/fastlane/screenshots/ are gitignored.
+run_cmd git add -- StillMoment.xcodeproj/project.pbxproj fastlane/metadata ../docs/images/screenshots
 run_cmd git commit -m "chore(ios): Prepare release v$VERSION"
 
 print_step "Creating git tag..."
 run_cmd git tag -a "$TAG_NAME" -m "iOS release v$VERSION"
+
+if [ -z "$DRY_RUN" ]; then
+    LEFTOVER_FILES=$(git status --porcelain --untracked-files=all)
+    if [ -n "$LEFTOVER_FILES" ]; then
+        echo ""
+        print_warning "WARNING: These changes are NOT part of the release commit:"
+        echo "$LEFTOVER_FILES"
+        echo ""
+        print_warning "release-prepare should not create these — check where they come from before pushing."
+    fi
+fi
 
 # ============================================================================
 # SUCCESS

@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
+.PHONY: help build-release format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
 
 DEVICE ?= iPhone 17
 IOS_VERSION ?= latest
@@ -94,6 +94,18 @@ analyze: ## Run Xcode static analysis (fails on any warning)
 		echo "✅ No static analysis warnings found"; \
 	fi
 
+build-release: ## Compile Release config for device without signing (catches release-only breakage before tagging)
+	@echo "🏗  Building Release configuration (generic iOS device, no code signing)..."
+	@xcodebuild build \
+		-quiet \
+		-project StillMoment.xcodeproj \
+		-scheme StillMoment \
+		-configuration Release \
+		-destination 'generic/platform=iOS' \
+		-derivedDataPath build/DerivedData-Release \
+		CODE_SIGNING_ALLOWED=NO
+	@echo "✅ Release build succeeded"
+
 screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
 	@echo "💎 Setting up Ruby/Fastlane environment..."
 	@if ! command -v rbenv &> /dev/null; then \
@@ -135,11 +147,8 @@ screenshot-single: ## Run single screenshot (TEST=... MODE=dark optional)
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
 	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh
 
-release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional)
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Usage: make release VERSION=x.y.z [SKIP_BUILD=1]"; \
-		exit 1; \
-	fi
+release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional; checks tag/version/screenshots first)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh ios
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \

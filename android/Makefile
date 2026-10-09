@@ -1,4 +1,4 @@
-.PHONY: help format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
+.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -41,6 +41,11 @@ test-failures: ## List failing tests from last run
 build: ## Build debug APK
 	@echo "Building debug APK..."
 	@./gradlew assembleDebug
+
+build-release: ## Build release bundle (minified; catches release-only breakage before tagging; debug-signed without keystore.properties)
+	@echo "Building release bundle..."
+	@./gradlew bundleRelease
+	@echo "Release build succeeded: app/build/outputs/bundle/release/app-release.aab"
 
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
@@ -89,8 +94,9 @@ screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
 	@bundle exec fastlane screenshots
 	@echo "Screenshots generated in fastlane/metadata/android/*/images/phoneScreenshots/"
 
-release: ## Upload to Play Store (Production)
-	@echo "Building and uploading to Play Store (Production)..."
+release: ## Upload to Play Store (Production) (VERSION=x.y.z required; checks tag/version/screenshots first)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh android
+	@echo "Building and uploading version $(VERSION) to Play Store (Production)..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
@@ -105,8 +111,9 @@ release-dry: ## Validate release without uploading (dry run)
 	fi
 	@bundle exec fastlane release_dry
 
-release-production: ## Upload to Production (with confirmation)
-	@echo "Preparing production release..."
+release-production: ## Upload to Production with confirmation prompt (VERSION=x.y.z required; same checks as release)
+	@VERSION=$(VERSION) ../scripts/release/release-guard.sh android
+	@echo "Preparing production release of version $(VERSION)..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
@@ -129,5 +136,5 @@ screenshots-upload: ## Upload screenshots to Play Store without new build
 	fi
 	@bundle exec fastlane screenshots_upload
 
-release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
-	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
+release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
+	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh
