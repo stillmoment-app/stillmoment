@@ -8,6 +8,7 @@
 
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
+- [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 
 ## Feature-Entfernungen (Refactoring)
 
@@ -46,3 +47,4 @@
 - **iOS-Referenz-Code lesen bevor angefangen wird.** Bei shared-Tickets mit iOS-Pendant (z.B. shared-099 / ios-048): die iOS-Implementierung ist die fachliche Quelle der Wahrheit. Erst `ios/StillMoment/Presentation/Views/Shared/TextStyle.swift` etc. lesen, dann Android nachziehen. Saemtliche Annahmen (Tokens-Anzahl, Bold-Mapping, Sample-Texte fuer Debug) werden 1:1 uebernommen — keine Erfindungen.
 - **TTF-Dateien wiederverwenden.** Newsreader/Geist-Fonts unter `ios/StillMoment/Resources/Fonts/` lassen sich direkt nach `android/app/src/main/res/font/` kopieren (Naming: snake_case). Spart Asset-Bundle-Pflege auf beiden Plattformen.
 - **Fixe Cross-Platform-Werte separat dokumentieren.** Bedeutungstragende, plattformidentische Daten (z.B. die Gong-WAVE-Envelopes aus shared-115) in eine eigene Spec-Datei legen, damit Android exakt spiegeln kann. Siehe [shared-115 Gong-WAVE-Spec](project_shared115_gong_wave_spec.md) — iOS ist Referenz, Werte stammen 1:1 aus dem Design-Handoff.
+- [Store-/Mail-Links im Simulator](feedback_simulator_store_and_mail_links.md) — apps.apple.com = "Adresse ungueltig" (auch fremde Apps), mailto accepted=false, `simctl pbpaste`.
