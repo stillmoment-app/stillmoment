@@ -14,7 +14,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
-| [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
 | [shared-085](shared/shared-085-store-website-meditationen-zuerst.md) | Store + Website spiegeln Meditationen-zuerst-IA | 4-Polish | [ ] | [ ] |
 | [shared-117](shared/shared-117-lautstaerke-normalisierung.md) | Lautstärke-Normalisierung gefuehrter Meditationen | 3-Feature | [ ] | [ ] |
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
@@ -125,6 +124,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-074](archive/shared/shared-074-audio-resolver-services.md) | Einheitliche Audio-Resolver (Einstimmung + Klangatmosphaere) | 2-Architektur | [x] | [x] |
 | [shared-075](archive/shared/shared-075-library-long-press-preview.md) | Long-Press Preview in der Meditations-Bibliothek | 3-Feature | [x] | [x] |
 | [shared-076](archive/shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [x] | [x] |
+| [shared-077](archive/shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [-] | [-] |
 | [shared-078](archive/shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [-] | [-] |
 | [shared-079](archive/shared/shared-079-screenshot-pipeline-hardening.md) | Screenshot-Pipeline Hardening | 3-Feature | [x] | [x] |
 | [shared-080](archive/shared/shared-080-completion-screen-survive-termination.md) | Danke-Screen ueberlebt App-Termination | 4-Polish | [x] | [x] |

@@ -2,8 +2,8 @@
 id: shared-077
 title: Philosophie-Zitat in den Einstellungen
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 4-Polish
 priority: niedrig
 ---
@@ -11,6 +11,14 @@ priority: niedrig
 # Ticket shared-077: Philosophie-Zitat in den Einstellungen
 
 **Aufwand**: iOS ~1h | Android ~1h
+
+---
+
+## WONTFIX
+
+Bewusst verworfen: Das Zitat in den Einstellungen ist Dekoration ohne Nutzen fuer die
+Meditation — im Sinne von "Simplicity over features" weggelassen. Das Zitat bleibt auf der
+Website (`docs/index.html`).
 
 ---
 
