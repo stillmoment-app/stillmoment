@@ -6,10 +6,6 @@
 // MARK: - Main Screen
 
 
-// MARK: - Buttons
-
-"button.start" = "Begin";
-
 // MARK: - Common UI Elements
 
 "common.error" = "Error";

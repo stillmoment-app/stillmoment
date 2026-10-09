@@ -1,5 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -7,18 +9,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -29,9 +34,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Praxis
+import com.stillmoment.presentation.ui.components.PlayButtonCircle
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
-import com.stillmoment.presentation.ui.components.WarmPrimaryButton
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -47,7 +52,7 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
  * Timer Screen - Main meditation timer view (shared-086 / shared-089).
  *
  * Idle-Layout: Headline → BreathDial (Atemkreis) → flache 4-Zeilen-Settings-Liste
- * → Beginnen-Button. Tap auf eine Listen-Zeile navigiert direkt in den jeweiligen
+ * → runder Play-Knopf (Start). Tap auf eine Listen-Zeile navigiert direkt in den jeweiligen
  * Sub-Screen (kein PraxisEditor-Index dazwischen). Nach Wert-Aenderung im
  * Atemkreis wird die Dauer ueber [TimerViewModel.setSelectedMinutes] persistiert.
  */
@@ -126,7 +131,11 @@ private fun TimerScreenLayout(
         val dialDiameter = if (isCompact) 180.dp else 220.dp
         val headlineToDial = if (isCompact) 18.dp else 28.dp
         val dialToList = if (isCompact) 32.dp else 72.dp
-        val listToButton = if (isCompact) 24.dp else 32.dp
+        // shared-126: der runde Start-Knopf (68 dp) ist 12 dp hoeher als der
+        // alte Text-Button (56 dp). Im kompakten Layout faengt der kleinere
+        // Abstand das auf, damit die Gesamthoehe gleich bleibt und der Knopf
+        // nicht an der Tab-Leiste abgeschnitten wird.
+        val listToButton = if (isCompact) 12.dp else 32.dp
 
         StillMomentTopAppBar()
 
@@ -188,16 +197,26 @@ private fun TimerScreenLayout(
 
 @Composable
 private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    // shared-097: shared plastischer "warmer" Primary-CTA — gleicher Stil wie
-    // der "Fertig"-Button auf dem Danke-Screen, damit Start- und End-Punkt der
-    // Praxis dasselbe Vokabular sprechen.
-    WarmPrimaryButton(
-        text = stringResource(R.string.button_start),
-        onClick = onClick,
-        contentDescription = stringResource(R.string.accessibility_start_button),
-        modifier = modifier,
-        leadingIcon = Icons.Filled.PlayArrow
-    )
+    // shared-126: runder Play-Knopf ohne sichtbaren Text — dasselbe plastische
+    // Vokabular wie der Play-Knopf in der Bibliothek, nur groesser. Der Ripple
+    // ist unbounded mit Radius = halber Durchmesser und damit exakt auf den
+    // Kreis begrenzt, ohne den Drop-Shadow des PlayButtonCircle abzuschneiden.
+    // TalkBack sagt weiterhin "Meditation starten" an (contentDescription).
+    val description = stringResource(R.string.accessibility_start_button)
+    Box(
+        modifier = modifier
+            .size(START_BUTTON_DIAMETER)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(bounded = false, radius = START_BUTTON_DIAMETER / 2),
+                role = Role.Button,
+                onClick = onClick
+            )
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center
+    ) {
+        PlayButtonCircle(isPlaying = false, diameter = START_BUTTON_DIAMETER)
+    }
 }
 
 // region Card-Label Helpers (shared-089)
@@ -275,6 +294,9 @@ private fun idleListItem(
 // endregion
 
 private val COMPACT_HEIGHT_THRESHOLD = 840.dp
+
+/** Durchmesser des runden Start-Knopfs (shared-126), identisch zu iOS. */
+private val START_BUTTON_DIAMETER = 68.dp
 
 // MARK: - Previews
 

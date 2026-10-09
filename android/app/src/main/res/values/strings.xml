@@ -23,7 +23,6 @@
     <string name="common_edit">Edit</string>
 
     <!-- Buttons -->
-    <string name="button_start">Start</string>
     <string name="button_done">Done</string>
     <string name="button_back">Back</string>
 
@@ -32,28 +31,15 @@
     <string name="tab_library">Meditations</string>
 
     <!-- Settings -->
-    <string name="settings_title">Settings</string>
-    <string name="settings_soundscape">Soundscape</string>
-    <string name="settings_soundscape_label">Sound</string>
     <string name="settings_interval_gongs">Interval Gongs</string>
-    <string name="settings_interval_gongs_description">Play a gong sound at regular intervals during meditation</string>
     <string name="settings_interval_minutes">Interval</string>
-    <string name="settings_interval_sound">Sound</string>
 
     <!-- Interval Mode Labels -->
     <string name="settings_interval_mode_repeating">Regular</string>
     <string name="settings_interval_mode_after_start">After start</string>
     <string name="settings_interval_mode_before_end">Before end</string>
 
-    <!-- Interval Gongs Dynamic Description -->
-    <string name="settings_interval_desc_repeating">Every %1$d min, %2$s</string>
-    <string name="settings_interval_desc_after_start">%1$d min after start, %2$s</string>
-    <string name="settings_interval_desc_before_end">%1$d min before end, %2$s</string>
     <string name="settings_interval_minutes_format">%d min</string>
-    <string name="settings_gong">Gong</string>
-    <string name="settings_gong_sound">Gong Sound</string>
-    <string name="settings_preparation_time">Preparation Time</string>
-    <string name="settings_preparation_description">Time to settle in before meditation</string>
     <string name="settings_preparation_duration">Duration</string>
 
     <!-- Preparation Time Screen (shared-119) -->
@@ -226,25 +212,16 @@
     <string name="accessibility_back_to_library">Back to library</string>
 
     <!-- Settings Accessibility -->
-    <string name="accessibility_done_button">Save and close settings</string>
-    <string name="accessibility_interval_enabled">Interval gongs enabled, every %d minutes</string>
-    <string name="accessibility_interval_disabled">Interval gongs disabled</string>
     <string name="accessibility_sound_selected">%s selected</string>
     <string name="accessibility_gong_preview">Preview %s</string>
-    <string name="accessibility_preparation_enabled">Preparation time enabled, %d seconds</string>
-    <string name="accessibility_preparation_disabled">Preparation time disabled</string>
     <string name="accessibility_preparation_slider_value">%d seconds</string>
-    <string name="accessibility_gong_sound_hint">Choose the gong sound for start and end of meditation</string>
     <string name="accessibility_background_volume">Volume: %d percent</string>
     <string name="accessibility_gong_volume">Gong volume: %d percent</string>
-    <string name="accessibility_interval_gong_volume">Interval gong volume: %d percent</string>
     <string name="accessibility_interval_gongs_toggle">Interval Gongs toggle</string>
     <string name="accessibility_interval_mode_selector">Interval mode</string>
     <string name="accessibility_interval_stepper">Interval: %d minutes</string>
     <string name="accessibility_interval_decrease">Decrease interval</string>
     <string name="accessibility_interval_increase">Increase interval</string>
-    <string name="accessibility_interval_sound_hint">Choose interval gong sound</string>
-    <string name="accessibility_preparation_time_toggle">Preparation time toggle</string>
 
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>

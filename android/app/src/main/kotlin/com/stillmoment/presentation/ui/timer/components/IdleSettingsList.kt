@@ -42,8 +42,8 @@ import com.stillmoment.presentation.ui.theme.toComposeTextStyle
  *
  * Eine Zeile pro Setting: Label links, akzentuierter Wert rechts mit dezentem
  * Chevron als Affordance. Trennlinien zwischen den Zeilen, Top-Trenner als oberer
- * Abschluss, kein Bottom-Strich (die Liste leitet visuell zum Beginnen-Button
- * hinueber). Inaktive Zeilen werden auf Zeilen-Ebene gedimmt (alpha 0.45).
+ * Abschluss, kein Bottom-Strich (die Liste leitet visuell zum runden
+ * Start-Knopf hinueber). Inaktive Zeilen werden auf Zeilen-Ebene gedimmt (alpha 0.45).
  *
  * Pendant zu iOS IdleSettingsList.swift.
  */

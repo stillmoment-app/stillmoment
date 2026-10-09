@@ -101,6 +101,10 @@ struct TimerView: View {
 
     // MARK: Private
 
+    /// Diameter of the round start button (shared-126) — well above the 44pt
+    /// minimum tap target, identical to Android.
+    private static let startButtonDiameter: CGFloat = 68
+
     @Environment(\.themeColors)
     private var theme
     @Environment(\.accessibilityReduceMotion)
@@ -300,10 +304,12 @@ struct TimerView: View {
     private var controlButtons: some View {
         HStack(spacing: 30) {
             if self.viewModel.canStart {
+                // Round play button without visible text (shared-126); the
+                // accessibility label keeps the VoiceOver announcement.
                 Button(action: self.viewModel.startTimer) {
-                    Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
+                    PlayButtonCircle(isPlaying: false, diameter: Self.startButtonDiameter)
                 }
-                .warmPrimaryButton()
+                .buttonStyle(ButtonStyles.PressScale())
                 .accessibilityIdentifier("timer.button.start")
                 .accessibilityLabel("accessibility.startMeditation")
                 .accessibilityHint("accessibility.startMeditation.hint")

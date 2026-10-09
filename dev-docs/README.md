@@ -41,7 +41,6 @@ Referenzdokumentation zum schnellen Nachschlagen.
 |----------|--------|-------------|
 | [reference/glossary.md](reference/glossary.md) | Ubiquitous Language, Domain-Begriffe | Begriff unklar? |
 | [reference/color-system.md](reference/color-system.md) | Semantische Farben, Design Tokens | Bei UI-Styling |
-| [reference/view-names.md](reference/view-names.md) | Naming-Konventionen fuer Views | Neue View erstellen |
 
 ---
 
@@ -95,8 +94,7 @@ dev-docs/
 │   └── website.md
 ├── reference/        # Nachschlagen (Reference)
 │   ├── glossary.md
-│   ├── color-system.md
-│   └── view-names.md
+│   └── color-system.md
 ├── release/          # Release-Prozess
 ├── concepts/         # Feature-Planung
 └── tickets/          # Ticket-System

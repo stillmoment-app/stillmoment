@@ -7,6 +7,7 @@
 ## Android/Kotlin Tests
 
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
+- [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
 
 ## Feature-Entfernungen (Refactoring)
 
@@ -37,6 +38,7 @@
 - [SwiftLint trailing_closure bei Closure als letztem Parameter](feedback_trailing_closure_last_param.md) — benannte Konstante oder Methodenreferenz statt Closure-Literal.
 - [View in Type+Topic.swift aufteilen](feedback_view_extension_file_split.md) — verschachtelter `ViewModifier` mit Bindings, statt `private` zu lockern.
 - [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
+- [Worktree-Build + UI-Test-Simulatorzustand](feedback_ios_worktree_and_ui_test_state.md) — Local.xcconfig in Worktree kopieren; LibraryFlowUITests-Empty-State-Fehler = alte Bibliothek auf Test-Simulator.
 - [Test-Fixtures liegen flach im Bundle](project_test_fixtures_bundle_flat.md) — `url(forResource:withExtension:)` ohne `subdirectory:`.
 
 ## Cross-Platform-Migration (iOS Pendant existiert)
