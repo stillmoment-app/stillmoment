@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert für schnelles AI-Nachschlagen
 - Detailsektionen nach Domäne gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-09-13
+Last Updated: 2026-10-09
 -->
 
 ## Quick Reference
@@ -38,6 +38,7 @@ Last Updated: 2026-09-13
 | `MeditationTimer` | Value Object | Timer | Das zentrale Timer-Modell |
 | Podcast-Import (`PodcastEpisodeResolver`) | Protokoll | Bibliothek | Eine geteilte Apple-Podcasts-Folge zur Audiodatei auflösen |
 | `PendingImport` | Value Object | Bibliothek | Import zwischen Dateiwahl und Speichern |
+| Rückmeldung (`FeedbackLinks`) | Konzept | App-weit | „App bewerten" und „Schreib uns" in den Einstellungen |
 | `Praxis` | Value Object | Timer | Die eine gespeicherte Timer-Konfiguration |
 | `PraxisRepository` | Protokoll | Timer | Laden und Speichern der Praxis |
 | `PreparationCountdown` | Value Object | Bibliothek | Vorbereitungszeit vor dem Start der Wiedergabe |
@@ -1063,6 +1064,31 @@ AppearanceMode (Domäne) → ThemeManager (Präsentation) → ThemeRootView → 
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/AppearanceMode.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/AppearanceMode.kt`
+
+---
+
+### Rückmeldung (`FeedbackLinks`)
+
+**Typ:** Konzept
+**Muster:** Feste Adressen nach außen
+
+**Beschreibung:**
+Die zwei Wege, auf denen jemand der App etwas zurückgeben kann, beide im Info-Bereich der
+Einstellungen:
+
+- **App bewerten** öffnet die Store-Seite von Still Moment direkt beim Bewerten
+  (iOS: App Store, Android: Google Play, ohne Play-Store-App die Webseite).
+- **Schreib uns** öffnet eine neue Mail an `hello@stillmoment.app`, Betreff „Still Moment",
+  im Text App-Version und Betriebssystem — sichtbar und vor dem Senden löschbar. Gibt es
+  kein Mail-Programm, zeigt die App die Adresse zum Kopieren.
+
+**Bewusst nicht:** Die App fragt nie von sich aus nach einer Bewertung (kein
+Bewertungsfenster des Systems), und es gibt kein Formular und keinen Feedback-Dienst — die
+App hat keinen Server und misst nichts (shared-134).
+
+**Dateireferenzen:**
+- iOS: `ios/StillMoment/Domain/Models/FeedbackLinks.swift`
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/FeedbackLinks.kt`
 
 ---
 
