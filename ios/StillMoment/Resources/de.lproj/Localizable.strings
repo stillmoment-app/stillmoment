@@ -149,7 +149,7 @@
 "guided_meditations.guide.title" = "Wo finde ich Meditationen?";
 "guided_meditations.guide.intro" = "Gute Meditationen gibt es frei verfügbar auf Webseiten und in Podcasts. Ein paar Empfehlungen findest du unten.";
 "guided_meditations.guide.close" = "Schließen";
-"guided_meditations.guide.openSource" = "Quelle im Browser öffnen";
+"guided_meditations.guide.openSource" = "Öffnet außerhalb der App";
 "guided_meditations.guide.otherLanguage.title" = "Auch auf %@";
 "guided_meditations.guide.otherLanguage.collapsed" = "eingeklappt";
 "guided_meditations.guide.otherLanguage.expanded" = "aufgeklappt";
