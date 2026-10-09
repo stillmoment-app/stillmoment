@@ -32,7 +32,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | UI-Tests unabhängig vom Zustand des Simulators | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-057](ios/ios-057-unit-tests-ohne-reste-im-app-ordner.md) | Unit-Tests hinterlassen keine Daten im echten App-Ordner | 5-QA | [ ] | - |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
-| [ios-059](ios/ios-059-share-extension-im-app-stil.md) | Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert | 4-Polish | [ ] | - |
+| [ios-059](ios/ios-059-share-extension-im-app-stil.md) | Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert | 4-Polish | [~] | - |
 
 ### Android
 

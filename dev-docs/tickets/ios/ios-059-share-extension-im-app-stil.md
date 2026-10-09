@@ -1,13 +1,15 @@
 ---
 id: ios-059
 title: "Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert"
-status: todo
+status: in-progress
 phase: 4-Polish
 priority: niedrig
 depends_on: []
 ---
 
 # Ticket ios-059: Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert
+
+**Plan**: `dev-docs/tickets/plans/ios-059.md`
 
 **Komplexitaet**: Die Bestaetigung selbst ist schlicht. Der Aufwand steckt darin, Farben (dunkle Palette), Schriften, App-Icon und Texte der App auch in der Share-Extension verfuegbar zu machen (eigenes Target). Die Darstellungs-Einstellung wird bewusst nicht durchgereicht (siehe Hinweise). Risiko: das knappe Speicherlimit von Extensions — keine aufwendigen Animationen oder grossen Bilder.
 
