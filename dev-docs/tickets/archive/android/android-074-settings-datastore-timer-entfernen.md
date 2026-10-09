@@ -1,7 +1,7 @@
 ---
 id: android-074
 title: SettingsDataStore als Timer-Quelle entfernen
-status: todo
+status: done
 phase: 1-Quick Fix
 priority: hoch
 ---

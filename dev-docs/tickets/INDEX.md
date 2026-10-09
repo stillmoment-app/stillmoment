@@ -36,7 +36,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [android-074](android/android-074-settings-datastore-timer-entfernen.md) | SettingsDataStore als Timer-Quelle entfernen | 1-Quick Fix | [ ] | - |
 | [android-079](android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [ ] | - |
 | [android-082](android/android-082-instrumented-tests-android-16.md) | Instrumented Tests auf Android 16 wieder gruen | 5-QA | [ ] | [android-081](archive/android/android-081-target-sdk-36-android-16.md) |
 | [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
@@ -302,6 +301,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-071](archive/android/android-071-preparation-affirmation-fuenfte.md) | Vorbereitungs-Phase: 5. Affirmation | 4-Polish | [x] | - |
 | [android-072](archive/android/android-072-background-sound-library.md) | Background Sound Library erweitern | 3-Feature | [x] | - |
 | [android-073](archive/android/android-073-praxis-editor-auto-save.md) | PraxisEditor Auto-Save beim Zurücknavigieren | 4-Polish | [x] | - |
+| [android-074](archive/android/android-074-settings-datastore-timer-entfernen.md) | SettingsDataStore als Timer-Quelle entfernen | 1-Quick Fix | [x] | - |
 | [android-075](archive/android/android-075-url-share-hangs.md) | URL-Share haengt im Loading-Dialog | 1-Quick Fix | [x] | - |
 | [android-076](archive/android/android-076-file-uri-rejected.md) | URL-Share Import scheitert (file:// abgewiesen) | 1-Quick Fix | [x] | - |
 | [android-077](archive/android/android-077-url-download-filename.md) | URL-Download Cache-Prefix entfernen | 1-Quick Fix | [x] | - |
