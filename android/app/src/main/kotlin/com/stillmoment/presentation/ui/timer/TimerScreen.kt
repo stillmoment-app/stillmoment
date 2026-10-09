@@ -5,7 +5,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
@@ -40,7 +43,6 @@ import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
-import com.stillmoment.presentation.ui.theme.bottomFadeMask
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.ui.timer.components.BreathDial
 import com.stillmoment.presentation.ui.timer.components.IdleSettingsList
@@ -96,7 +98,12 @@ internal fun TimerScreenContent(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            // android-084: Die aeussere NavHost-Scaffold rechnet Statusleiste,
+            // Tab-Leiste und Systemnavigation bereits heraus. Die Standard-Insets
+            // hier zogen Statusleiste und Systemnavigation ein zweites Mal ab —
+            // dadurch fehlten rund 65–70 dp Hoehe.
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { paddingValues ->
             TimerScreenLayout(
                 uiState = uiState,
@@ -125,29 +132,22 @@ private fun TimerScreenLayout(
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         // Container height (post-Scaffold padding), nicht screenHeightDp:
-        // Bottom-Bar/Status-Insets verkleinern den verfuegbaren Bereich,
-        // sonst laeuft das Idle-Layout auf Pixel-8-Klasse vertikal ueber.
-        val isCompact = maxHeight < COMPACT_HEIGHT_THRESHOLD
-        val dialDiameter = if (isCompact) 180.dp else 220.dp
-        val headlineToDial = if (isCompact) 18.dp else 28.dp
-        val dialToList = if (isCompact) 32.dp else 72.dp
-        // shared-126: der runde Start-Knopf (68 dp) ist 12 dp hoeher als der
-        // alte Text-Button (56 dp). Im kompakten Layout faengt der kleinere
-        // Abstand das auf, damit die Gesamthoehe gleich bleibt und der Knopf
-        // nicht an der Tab-Leiste abgeschnitten wird.
-        val listToButton = if (isCompact) 12.dp else 32.dp
+        // Bottom-Bar/Status-Insets verkleinern den verfuegbaren Bereich.
+        val metrics = IdleLayoutMetrics.forContainerHeight(maxHeight)
 
         StillMomentTopAppBar()
 
+        // android-084: Aufteilung wie iOS (`TimerView.idleLayout`) — Headline fix
+        // oben, darunter vier gleich wachsende Abstaende zwischen Atemkreis, Liste,
+        // Start-Knopf und unterem Rand. Kein Scrollen, keine Fade-Maske: der
+        // Knopf ist Teil des Layouts und muss immer ganz sichtbar sein.
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = TopAppBarHeight)
-                .padding(horizontal = 24.dp)
-                .bottomFadeMask(),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(metrics.headlineTop))
 
             Text(
                 text = stringResource(R.string.timer_idle_headline),
@@ -157,30 +157,29 @@ private fun TimerScreenLayout(
                 modifier = Modifier.semantics { heading() }
             )
 
-            Spacer(modifier = Modifier.height(headlineToDial))
+            // Der Atemkreis bringt oben und unten je 24 dp Beruehrflaeche mit —
+            // die ist der Mindestabstand, daher hier kein fester Anteil.
+            FlexibleGap(minHeight = 0.dp)
 
             BreathDial(
                 value = uiState.selectedMinutes,
                 onValueChange = onMinutesChange,
-                diameter = dialDiameter
+                diameter = metrics.dialDiameter
             )
 
-            Spacer(modifier = Modifier.height(dialToList))
+            FlexibleGap(minHeight = 0.dp)
 
             IdleSettingsList(
                 preparation = preparationListItem(uiState.currentPraxis, onNavigateToPreparation),
                 gong = gongListItem(uiState.currentPraxis, onNavigateToGong),
                 interval = intervalListItem(uiState.currentPraxis, onNavigateToInterval),
                 background = backgroundListItem(uiState, onNavigateToBackground),
-                isCompactHeight = isCompact
+                isCompactHeight = metrics.isCompactList
             )
 
-            Spacer(modifier = Modifier.height(listToButton))
-            Spacer(modifier = Modifier.weight(1f))
+            FlexibleGap(minHeight = metrics.minGap)
 
             StartButton(onClick = onStartClick)
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             uiState.errorMessage?.let { error ->
                 Text(
@@ -188,9 +187,80 @@ private fun TimerScreenLayout(
                     style = TextStyle.caption.toComposeTextStyle(),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
+
+            FlexibleGap(minHeight = metrics.minGap)
+        }
+    }
+}
+
+/**
+ * Abstand, der mindestens [minHeight] hoch ist und darueber hinaus gleichmaessig
+ * mit den anderen FlexibleGaps waechst (Pendant zu iOS `Spacer(minLength:)`).
+ * Ein einzelner `weight`-Spacer kennt keine Mindesthoehe — `weight` setzt feste
+ * Constraints, `heightIn(min)` wuerde darin ignoriert. Daher fester Anteil plus
+ * gewichteter Rest.
+ */
+@Composable
+private fun ColumnScope.FlexibleGap(minHeight: Dp) {
+    Spacer(modifier = Modifier.height(minHeight))
+    Spacer(modifier = Modifier.weight(1f))
+}
+
+/**
+ * Groessenstufen des Idle-Layouts nach verfuegbarer Hoehe (android-084).
+ *
+ * - **regular** (Tablets): grosser Atemkreis, normale Liste.
+ * - **compact** (typische Telefone, z.B. Pixel 8): 180-dp-Atemkreis, kompakte Liste.
+ * - **medium** (z.B. 360×740 dp): 160-dp-Atemkreis, Headline 24 dp unter dem
+ *   oberen Rand statt unter der (leeren) Kopfleiste.
+ * - **small** (z.B. 360×640 dp): 120-dp-Atemkreis, minimale Abstaende.
+ *
+ * Android hat weniger Hoehe als iOS (Material-3-Tab-Leiste 80 dp statt 49 pt,
+ * dazu die Systemnavigation), daher mehr Stufen als die zwei auf iOS.
+ *
+ * Die Einstellungsliste bleibt ab compact in der kompakten Variante und wird
+ * nie weiter gestaucht.
+ */
+private data class IdleLayoutMetrics(
+    val dialDiameter: Dp,
+    val isCompactList: Boolean,
+    val headlineTop: Dp,
+    val minGap: Dp
+) {
+    companion object {
+        fun forContainerHeight(height: Dp): IdleLayoutMetrics = when {
+            height >= REGULAR_HEIGHT_THRESHOLD -> IdleLayoutMetrics(
+                dialDiameter = 220.dp,
+                isCompactList = false,
+                headlineTop = TopAppBarHeight + 24.dp,
+                minGap = 24.dp
+            )
+            height >= COMPACT_HEIGHT_THRESHOLD -> IdleLayoutMetrics(
+                dialDiameter = 180.dp,
+                isCompactList = true,
+                headlineTop = TopAppBarHeight + 16.dp,
+                minGap = 24.dp
+            )
+            // Bedarf ca. 554 dp; Schwelle mit Reserve, damit 360×740 auch mit
+            // 3-Tasten-Navigation (ca. 572 dp) hier landet.
+            height >= MEDIUM_HEIGHT_THRESHOLD -> IdleLayoutMetrics(
+                dialDiameter = 160.dp,
+                isCompactList = true,
+                headlineTop = 24.dp,
+                minGap = 16.dp
+            )
+            // Nur fuer wirklich knappe Hoehen (360×640-Klasse). Bedarf ca.
+            // 474 dp — am Emulator gemessen passt das auch mit dem Hoehen-
+            // verlust der 3-Tasten-Navigation (Container ca. 478 dp).
+            else -> IdleLayoutMetrics(
+                dialDiameter = 120.dp,
+                isCompactList = true,
+                headlineTop = 4.dp,
+                minGap = 4.dp
+            )
         }
     }
 }
@@ -293,7 +363,17 @@ private fun idleListItem(
 
 // endregion
 
-private val COMPACT_HEIGHT_THRESHOLD = 840.dp
+/** Ab dieser Container-Hoehe: grosser Atemkreis und normale Liste (Tablets). */
+private val REGULAR_HEIGHT_THRESHOLD = 840.dp
+
+/**
+ * Unter dieser Container-Hoehe passt der 180-dp-Atemkreis samt Kopfleiste und
+ * Mindestabstaenden nicht mehr (Bedarf ca. 620 dp) — dann greift die medium-Stufe.
+ */
+private val COMPACT_HEIGHT_THRESHOLD = 640.dp
+
+/** Unter dieser Container-Hoehe greift die small-Stufe (Bedarf medium ca. 554 dp). */
+private val MEDIUM_HEIGHT_THRESHOLD = 560.dp
 
 /** Durchmesser des runden Start-Knopfs (shared-126), identisch zu iOS. */
 private val START_BUTTON_DIAMETER = 68.dp
