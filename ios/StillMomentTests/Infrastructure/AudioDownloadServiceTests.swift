@@ -236,8 +236,8 @@ final class AudioDownloadServiceTests: XCTestCase {
     func testDownloadFromURLWithoutExtension_nonStandardAudioMp3ContentType_savesAsMp3() async throws {
         // Given — URL ohne Endung, Server liefert das non-standard "audio/mp3"
         // (audiodharma.org → S3 / linodeobjects.com sendet diesen Content-Type
-        // statt des offiziellen "audio/mpeg"). Die `audio/`-Prefix-Pruefung in
-        // validateContentType muss das durchlassen, sonst sieht der User
+        // statt des offiziellen "audio/mpeg"). Die Annahme-Liste (AudioContentType)
+        // muss das durchlassen, sonst sieht der User
         // "Keine Aufnahme gefunden" fuer einen klar gueltigen MP3-Download.
         let sut = try XCTUnwrap(self.sut)
         let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25407/download"))
@@ -498,6 +498,10 @@ final class MockURLProtocol: URLProtocol {
     /// Handler that receives the request and returns a response + data, or throws.
     static var requestHandler: ((URLRequest) async throws -> (HTTPURLResponse, Data))?
 
+    /// Pause between delivering the response (headers) and the body — simulates a slow,
+    /// long file whose headers arrive long before its content. Reset in `tearDown`.
+    static var bodyDelayNanoseconds: UInt64 = 0
+
     override static func canInit(with request: URLRequest) -> Bool {
         true
     }
@@ -513,19 +517,31 @@ final class MockURLProtocol: URLProtocol {
         }
 
         let request = self.request
-        Task {
+        let bodyDelay = MockURLProtocol.bodyDelayNanoseconds
+        self.loadingTask = Task {
             do {
                 let (response, data) = try await handler(request)
                 self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+                if bodyDelay > 0 {
+                    try await Task.sleep(nanoseconds: bodyDelay)
+                }
                 self.client?.urlProtocol(self, didLoad: data)
                 self.client?.urlProtocolDidFinishLoading(self)
             } catch {
+                // After stopLoading the client must not be called anymore.
+                guard !Task.isCancelled else {
+                    return
+                }
                 self.client?.urlProtocol(self, didFailWithError: error)
             }
         }
     }
 
     override func stopLoading() {
-        // No-op for mock
+        self.loadingTask?.cancel()
     }
+
+    // MARK: Private
+
+    private var loadingTask: Task<Void, Never>?
 }
