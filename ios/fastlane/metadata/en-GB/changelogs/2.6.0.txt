@@ -1,0 +1,10 @@
+- Add podcast episodes from Apple Podcasts to your library
+- New guide: how to import from Apple Podcasts
+- Meditation sources: teachers first, sources in every language
+- New in Settings: Rate the app and Write to us
+- The timer now starts with a round play button
+- Calmer confirmation after sharing to Still Moment
+- Clearer message when the internet connection is missing during import
+- The edit dialog now reliably appears when importing
+- The last meditation in your library stays readable
+- More improvements when importing via links
