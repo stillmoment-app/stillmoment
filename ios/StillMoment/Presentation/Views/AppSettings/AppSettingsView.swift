@@ -77,6 +77,18 @@ struct AppSettingsView: View {
             )
             .cardRowBackground()
 
+            NavigationLink {
+                FontAttributionsView()
+            } label: {
+                Text("app.settings.fontAttributions.title", bundle: .main)
+                    .textStyle(.body, color: \.textPrimary)
+            }
+            .accessibilityIdentifier("app.settings.row.fontAttributions")
+            .accessibilityHint(
+                NSLocalizedString("accessibility.appSettings.fontAttributions.hint", comment: "")
+            )
+            .cardRowBackground()
+
             if let url = self.privacyURL {
                 Link(destination: url) {
                     Text("app.settings.privacy.title", bundle: .main)
