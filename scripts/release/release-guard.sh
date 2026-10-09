@@ -6,7 +6,8 @@
 # Fails unless:
 #   - VERSION is set (MAJOR.MINOR.PATCH)
 #   - the working tree is clean (untracked files included)
-#   - tag <platform>-vVERSION exists and points to HEAD (i.e. release-prepare ran)
+#   - tag <platform>-vVERSION exists (i.e. release-prepare ran), is an ancestor of HEAD,
+#     and nothing below <platform>/ changed between tag and HEAD
 #   - the version in the project file equals VERSION
 #   - the curated store screenshots are complete (count per locale)
 # Also prints the age of the screenshots so stale ones stand out.
@@ -99,13 +100,17 @@ fi
 
 # --- Tag ----------------------------------------------------------------------
 
-HEAD_COMMIT=$(git rev-parse HEAD)
-if ! TAG_COMMIT=$(git rev-parse --verify --quiet "$TAG_NAME^{commit}"); then
+# The tag need not be HEAD: release-prepare of the other platform commits on top.
+# It must be an ancestor of HEAD, and nothing below <platform>/ may have changed since.
+if ! git rev-parse --verify --quiet "$TAG_NAME^{commit}" >/dev/null; then
     fail "Tag '$TAG_NAME' does not exist — run 'make release-prepare VERSION=$VERSION' first"
-elif [ "$TAG_COMMIT" != "$HEAD_COMMIT" ]; then
-    fail "Tag '$TAG_NAME' does not point to HEAD (tag: ${TAG_COMMIT:0:8}, HEAD: ${HEAD_COMMIT:0:8})"
+elif ! git merge-base --is-ancestor "$TAG_NAME" HEAD; then
+    fail "Tag '$TAG_NAME' is not an ancestor of HEAD"
+elif ! git diff --quiet "$TAG_NAME" HEAD -- "$PLATFORM/"; then
+    fail "$PLATFORM/ changed since tag $TAG_NAME:"
+    git diff --name-only "$TAG_NAME" HEAD -- "$PLATFORM/" | sed 's/^/      /'
 else
-    print_success "  ✓ Tag '$TAG_NAME' points to HEAD"
+    print_success "  ✓ Tag '$TAG_NAME' is in HEAD's history, no $PLATFORM/ changes since"
 fi
 
 # --- Version in project file --------------------------------------------------
