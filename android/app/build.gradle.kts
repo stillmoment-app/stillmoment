@@ -26,7 +26,7 @@ android {
         applicationId = "com.stillmoment"
         minSdk = 26
         targetSdk = 36
-        versionCode = 21
+        versionCode = 22
         versionName = "2.6.0"
 
         testInstrumentationRunner = "com.stillmoment.HiltTestRunner"
