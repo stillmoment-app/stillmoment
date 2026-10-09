@@ -10,15 +10,19 @@ import Foundation
 
 /// Writes shared audio files and links into the inbox directory (App Group `ShareInbox/`).
 ///
-/// Every entry is written to a hidden temporary file first and then moved into place,
-/// so the main app never reads a half-written entry.
+/// Every entry is written completely first and then atomically renamed into place,
+/// replacing a waiting entry with the same name. The main app never reads a half-written
+/// entry and never finds the inbox without it.
 ///
 /// No logging here: the Share Extension has no `Logger`.
 enum ShareInbox {
     /// Copies a shared audio file into the inbox under its own file name.
     ///
-    /// The modification date is set to `date`: the original file may be older than the
-    /// 24-hour stale threshold of `InboxHandler`, and "newest entry wins" relies on it.
+    /// The copy is prepared as a hidden temporary file and gets `date` as modification date
+    /// before it is put in place: the original file may be older than the 24-hour stale
+    /// threshold of `InboxHandler`, and "newest entry wins" relies on it. If the date cannot
+    /// be set, storing fails — otherwise the app would silently discard the entry while the
+    /// Share Extension reported success.
     ///
     /// - Returns: The inbox entry
     @discardableResult
@@ -29,17 +33,16 @@ enum ShareInbox {
         date: Date = Date()
     ) throws -> URL {
         let destinationURL = inboxDirectory.appendingPathComponent(sourceURL.lastPathComponent)
-        let tempURL = self.temporaryURL(in: inboxDirectory)
+        let tempURL = inboxDirectory.appendingPathComponent(".\(UUID().uuidString).tmp")
 
         do {
             try fileManager.copyItem(at: sourceURL, to: tempURL)
-            try self.moveIntoPlace(tempURL, at: destinationURL, fileManager: fileManager)
+            try fileManager.setAttributes([.modificationDate: date], ofItemAtPath: tempURL.path)
+            try self.replaceAtomically(destinationURL, with: tempURL)
         } catch {
             try? fileManager.removeItem(at: tempURL)
             throw error
         }
-
-        try? fileManager.setAttributes([.modificationDate: date], ofItemAtPath: destinationURL.path)
         return destinationURL
     }
 
@@ -52,7 +55,6 @@ enum ShareInbox {
     static func storeLink(
         _ url: URL,
         in inboxDirectory: URL,
-        fileManager: FileManager = .default,
         date: Date = Date()
     ) throws -> URL {
         let filename = url.lastPathComponent
@@ -67,33 +69,25 @@ enum ShareInbox {
         encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(reference)
 
-        let tempURL = self.temporaryURL(in: inboxDirectory)
-        do {
-            try data.write(to: tempURL, options: .atomic)
-            try self.moveIntoPlace(tempURL, at: destinationURL, fileManager: fileManager)
-        } catch {
-            try? fileManager.removeItem(at: tempURL)
-            throw error
-        }
+        // `.atomic` writes to a temporary file and renames it into place, replacing a
+        // waiting entry with the same name in one step (see `replaceAtomically`).
+        try data.write(to: destinationURL, options: .atomic)
         return destinationURL
     }
 
     // MARK: Private
 
-    /// Hidden name — `InboxHandler` skips hidden files, so a half-written entry is never picked up
-    private static func temporaryURL(in inboxDirectory: URL) -> URL {
-        inboxDirectory.appendingPathComponent(".\(UUID().uuidString).tmp")
-    }
-
-    /// Moves the completely written temporary file to its final name.
+    /// Puts the completely written (hidden) temporary file in place of `destinationURL`.
     ///
-    /// A waiting entry with the same name is replaced (shared-132): the same link or file
-    /// shared twice, or two links with the same ending (`…/25401/download`, `…/25402/download`).
-    /// The last shared entry wins. `moveItem` alone would fail on the existing name.
-    /// The waiting entry is only removed once the new one is completely written, so a
-    /// failed share never destroys it. "Does not exist" is the normal case and ignored.
-    private static func moveIntoPlace(_ tempURL: URL, at destinationURL: URL, fileManager: FileManager) throws {
-        try? fileManager.removeItem(at: destinationURL)
-        try fileManager.moveItem(at: tempURL, to: destinationURL)
+    /// A waiting entry with the same name is replaced (shared-132): the same file shared
+    /// twice — the last shared entry wins. POSIX `rename(2)` replaces an existing target
+    /// atomically ("guarantees that an instance of new will always exist"), so the app never
+    /// finds the inbox without the entry, and a failure leaves the waiting entry untouched.
+    /// A missing target is the normal case. Unlike `FileManager.replaceItemAt`, which keeps
+    /// the original's metadata by default, `rename` keeps the new file's modification date.
+    private static func replaceAtomically(_ destinationURL: URL, with tempURL: URL) throws {
+        guard rename(tempURL.path, destinationURL.path) == 0 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
     }
 }
