@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -131,7 +132,12 @@ fun MeditationEditSheet(
         topBar = {
             EditorTopBar(mode = mode, saveEnabled = editState.isValid, onCancel = attemptDismiss, onSave = save)
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        // android-088: Der Editor liegt als Overlay im Bibliotheks-Bildschirm, also
+        // innerhalb der NavHost-Scaffold, die Statusleiste, Tab-Leiste und
+        // Systemnavigation schon herausrechnet. Eigene Insets wuerden sie doppelt
+        // abziehen (siehe auch EditorTopBar).
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         MeditationEditContent(
             meditation = meditation,
@@ -245,7 +251,10 @@ private fun EditorTopBar(mode: EditSheetMode, saveEnabled: Boolean, onCancel: ()
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background
-        )
+        ),
+        // android-088: Die Statusleiste haelt bereits die NavHost-Scaffold frei.
+        windowInsets = WindowInsets(0, 0, 0, 0),
+        modifier = Modifier.testTag("editSheet.topBar")
     )
 }
 
@@ -353,6 +362,7 @@ private fun MeditationEditContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .testTag("editSheet.content")
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(bottom = 24.dp)

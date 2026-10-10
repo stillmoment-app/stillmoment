@@ -1,7 +1,7 @@
 ---
 id: android-088
 title: "Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände"
-status: todo
+status: done
 phase: 4-Polish
 priority: mittel
 depends_on: []
@@ -41,6 +41,16 @@ Die Bibliothek ist das Kernfeature. Verschenkte Höhe heißt weniger sichtbare M
 3. Eine Meditation bearbeiten: Abstände oben/unten und Sichtbarkeit der Tab-Leiste prüfen
 4. Erwartung: keine leeren Zonen unter der Statusleiste oder über der Tab-Leiste; Bearbeiten-Blatt ohne doppelten Rand
 5. Dasselbe bei 360×640 dp (`adb shell wm size 720x1280` + `adb shell wm density 320`, danach `wm size reset` / `wm density reset`)
+
+---
+
+## Umsetzungsnotiz
+
+- Ursache wie in android-084: Die innere Scaffold der Bibliothek zog Status- und Navigationsleiste ein zweites Mal ab; im Bearbeiten-Blatt zusätzlich die Standard-Insets der Kopfleiste. Beides auf null gesetzt, die äußere NavHost-Scaffold hält die Ränder frei.
+- Endabstand der Liste: 80 dp wie auf iOS (`BottomFadeContentInset`), vorher kamen 80 dp plus Navigationsleiste zusammen.
+- Am Emulator geprüft (2026-10-10, normal und 360×640 dp): Kopfzeile direkt unter der Statusleiste, letztes Element vollständig sichtbar, Snackbar über der Tab-Leiste, Tastatur verdeckt weder Titel- noch Lehrer-Feld, Timer/Einstellungen/Player unverändert. `LibraryWindowInsetsTest` 5/5 grün.
+- Tab-Leiste beim offenen Bearbeiten-Blatt: bleibt sichtbar. Das ist gewollt und entspricht iOS (Editor als Push ohne ausgeblendete Tab-Leiste).
+- Dabei aufgefallen und als eigenes Ticket festgehalten (android-097): Ein Tipp auf einen anderen Tab mit ungespeicherten Änderungen im Bearbeiten-Blatt verwirft die Eingaben ohne Rückfrage.
 
 ---
 

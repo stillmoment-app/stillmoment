@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -74,7 +75,7 @@ fun LibraryHeaderBar(
     // spacedBy greift nur zwischen tatsaechlich emittierten Kindern — im Suchmodus ohne
     // Filter bleibt der Header deshalb so kompakt wie vor shared-081.
     Column(
-        modifier = modifier.fillMaxWidth().padding(top = 12.dp, bottom = 8.dp),
+        modifier = modifier.testTag("library.header").fillMaxWidth().padding(top = 12.dp, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         LibrarySearchRow(

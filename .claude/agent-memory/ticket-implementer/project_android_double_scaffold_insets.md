@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-The NavHost `Scaffold` (NavGraph.kt) already pads status bar, bottom bar and system navigation. Tab screens that wrap their content in their own `Scaffold` with default `contentWindowInsets` subtract status bar and system nav **again** (about 65-70 dp lost). android-084 fixed this only for `TimerScreenContent` (`contentWindowInsets = WindowInsets(0, 0, 0, 0)`). The Library screen showed the same doubled top offset in UI dumps (2026-10-09) and was left alone.
+The NavHost `Scaffold` (NavGraph.kt) already pads status bar, bottom bar and system navigation. Tab screens that wrap their content in their own `Scaffold` with default `contentWindowInsets` subtract status bar and system nav **again** (about 65-70 dp lost). android-084 fixed this for `TimerScreenContent` (`contentWindowInsets = WindowInsets(0, 0, 0, 0)`), android-088 for the Library Scaffold and the meditation editor overlay (its Scaffold *and* its `CenterAlignedTopAppBar`, whose default `windowInsets` also pad the status bar). Overlays drawn inside a tab screen (editor, trim editor) sit inside the NavHost padding too, so the tab bar stays visible below them — same as the iOS push navigation. `LibraryWindowInsetsTest` (androidTest) checks this edge-to-edge without the NavHost.
 
 **Why:** On small screens this was the main reason the timer's start button did not fit. Fixing it moves content up by roughly a status-bar height.
 
