@@ -31,12 +31,14 @@ class SharedLinkImportTest {
 
     private val downloads = FakeDownloads()
     private val editSheets = mutableListOf<LinkImportOutcome.Imported>()
+    private val discarded = mutableListOf<Uri>()
 
     private fun TestScope.sharedLinkImport() = SharedLinkImport(
         scope = backgroundScope,
         import = downloads::import,
         cancelRunning = downloads::cancelRunning,
-        onImported = { editSheets += it }
+        onImported = { editSheets += it },
+        discardDownload = { discarded += it }
     )
 
     private fun imported(): LinkImportOutcome.Imported =
@@ -321,6 +323,60 @@ class SharedLinkImportTest {
             assertNull(sut.failure.value)
             assertTrue(editSheets.isEmpty())
             assertEquals(1, downloads.cancelCount, "The running download is stopped")
+        }
+    }
+
+    @Nested
+    inner class DownloadsThatAreNotNeeded {
+
+        @Test
+        fun `a replaced download that still finishes loading is discarded`() = runTest {
+            downloads.stopsOnCancel = false
+            val sut = sharedLinkImport()
+            val replaced = imported()
+            val newest = imported()
+            sut.share(talk25401)
+            runCurrent()
+            sut.share(talk25402)
+            runCurrent()
+
+            downloads.finish(talk25401, replaced)
+            runCurrent()
+            downloads.finish(talk25402, newest)
+            runCurrent()
+
+            assertEquals(listOf(replaced.uri), discarded)
+            assertEquals(listOf(newest), editSheets)
+        }
+
+        @Test
+        fun `a download that finishes right as the user cancels is discarded`() = runTest {
+            downloads.stopsOnCancel = false
+            val sut = sharedLinkImport()
+            val late = imported()
+            sut.share(talk25401)
+            runCurrent()
+
+            sut.cancel()
+            runCurrent()
+            downloads.finish(talk25401, late)
+            runCurrent()
+
+            assertEquals(listOf(late.uri), discarded)
+            assertTrue(editSheets.isEmpty())
+        }
+
+        @Test
+        fun `a loaded link handed to the edit sheet is kept`() = runTest {
+            val sut = sharedLinkImport()
+            sut.share(talk25401)
+            runCurrent()
+
+            downloads.finish(talk25401, imported())
+            runCurrent()
+
+            assertTrue(discarded.isEmpty())
+            assertEquals(1, editSheets.size)
         }
     }
 

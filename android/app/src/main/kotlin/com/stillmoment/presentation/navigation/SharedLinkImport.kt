@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.navigation
 
+import android.net.Uri
 import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.domain.models.LinkImportFailure
 import kotlinx.coroutines.CoroutineScope
@@ -9,6 +10,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -28,12 +30,14 @@ data class FailedLinkImport(val sharedUrl: String, val failure: LinkImportFailur
  * @param import Loads a shared address into a local file (`LinkImportHandler::import`).
  * @param cancelRunning Stops the running lookup/download (`LinkImportHandler::cancel`).
  * @param onImported Hands a loaded file over to the edit sheet.
+ * @param discardDownload Frees a loaded file nobody takes over any more (android-087).
  */
 class SharedLinkImport(
     private val scope: CoroutineScope,
     private val import: suspend (String) -> LinkImportOutcome,
     private val cancelRunning: () -> Unit,
-    private val onImported: (LinkImportOutcome.Imported) -> Unit
+    private val onImported: (LinkImportOutcome.Imported) -> Unit,
+    private val discardDownload: suspend (Uri) -> Unit
 ) {
     private val _isLoading = MutableStateFlow(false)
 
@@ -106,7 +110,14 @@ class SharedLinkImport(
             withContext(NonCancellable) { previous?.join() }
             ensureActive()
             val outcome = import(url)
-            ensureActive()
+            if (!isActive) {
+                // Replaced or cancelled while the download was ending: nobody takes
+                // the file over, so it must not stay on the device (android-087).
+                if (outcome is LinkImportOutcome.Imported) {
+                    withContext(NonCancellable) { discardDownload(outcome.uri) }
+                }
+                return@launch
+            }
             loadingUrl = null
             _isLoading.value = false
             when (outcome) {

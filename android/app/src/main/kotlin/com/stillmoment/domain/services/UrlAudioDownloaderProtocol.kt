@@ -14,7 +14,8 @@ interface UrlAudioDownloaderProtocol {
     /**
      * Downloads audio from [url] to a local temporary file.
      *
-     * On success: [Result] wraps the [Uri] of the downloaded file.
+     * On success: [Result] wraps the [Uri] of the downloaded file. Whoever ends
+     * the import removes it again via [ImportDownloadsProtocol.discard] (android-087).
      * On failure: the [Throwable] is one of
      * [com.stillmoment.domain.models.UrlAudioDownloadError.NotAudio],
      * [com.stillmoment.domain.models.UrlAudioDownloadError.Http],

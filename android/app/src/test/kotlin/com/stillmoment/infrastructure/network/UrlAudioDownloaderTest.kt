@@ -1,6 +1,5 @@
 package com.stillmoment.infrastructure.network
 
-import android.content.Context
 import android.net.Uri
 import com.stillmoment.domain.models.UrlAudioDownloadError
 import com.stillmoment.domain.services.LoggerProtocol
@@ -40,7 +39,7 @@ import org.mockito.kotlin.whenever
  */
 class UrlAudioDownloaderTest {
 
-    private lateinit var mockContext: Context
+    private lateinit var downloadFolder: ImportDownloadFolder
     private lateinit var mockLogger: LoggerProtocol
     private lateinit var mockConnection: HttpURLConnection
     private lateinit var mockUri: Uri
@@ -50,14 +49,13 @@ class UrlAudioDownloaderTest {
     @BeforeEach
     fun setUp() {
         cacheDir = createTempDirectory("downloader_test").toFile()
-        mockContext = mock()
         mockLogger = mock()
         mockConnection = mock()
         mockUri = mock()
-        whenever(mockContext.cacheDir).thenReturn(cacheDir)
+        downloadFolder = ImportDownloadFolder(cacheDir = { cacheDir }, logger = mockLogger)
 
         sut = UrlAudioDownloaderImpl(
-            context = mockContext,
+            downloadFolder = downloadFolder,
             logger = mockLogger,
             connectionFactory = { mockConnection },
             uriFromFile = { mockUri }
@@ -313,7 +311,7 @@ class UrlAudioDownloaderTest {
 
             assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
             verify(mockConnection, never()).inputStream
-            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+            assertEquals(emptyList<File>(), downloadsLeftBehind())
         }
 
         @Test
@@ -378,7 +376,7 @@ class UrlAudioDownloaderTest {
             // exception escapes download() and the LaunchedEffect leaves the loading modal
             // stuck on screen.
             val throwingSut = UrlAudioDownloaderImpl(
-                context = mockContext,
+                downloadFolder = downloadFolder,
                 logger = mockLogger,
                 connectionFactory = { throw IOException("malformed url") },
                 uriFromFile = { mockUri }
@@ -410,7 +408,7 @@ class UrlAudioDownloaderTest {
             val result = sut.download("https://example.com/long-episode.mp3")
 
             assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.Network)
-            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+            assertEquals(emptyList<File>(), downloadsLeftBehind())
         }
     }
 
@@ -569,7 +567,7 @@ class UrlAudioDownloaderTest {
                 "Expected CancellationException but got ${exception?.javaClass?.simpleName}"
             )
             // shared-128: abgebrochener Download hinterlaesst weder Datei noch Verzeichnis
-            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+            assertEquals(emptyList<File>(), downloadsLeftBehind())
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)
@@ -605,7 +603,7 @@ class UrlAudioDownloaderTest {
             whenever(freshConnection.contentType).thenReturn("audio/mpeg")
             whenever(freshConnection.inputStream).thenReturn(ByteArrayInputStream("ok".toByteArray()))
             val sutFresh = UrlAudioDownloaderImpl(
-                context = mockContext,
+                downloadFolder = downloadFolder,
                 logger = mockLogger,
                 connectionFactory = { freshConnection },
                 uriFromFile = { freshUri }
@@ -634,4 +632,41 @@ class UrlAudioDownloaderTest {
             return count
         }
     }
+
+    @Nested
+    inner class SeparateDownloads {
+        @Test
+        fun `the same address loaded twice in quick succession lands in two separate files`() = runTest {
+            // android-087: each import discards its own download — the second must not
+            // overwrite or share the first one's place, even within the same millisecond.
+            val savedFiles = mutableListOf<File>()
+            val recordingSut = UrlAudioDownloaderImpl(
+                downloadFolder = downloadFolder,
+                logger = mockLogger,
+                connectionFactory = { audioConnection() },
+                uriFromFile = { file ->
+                    savedFiles += file
+                    mockUri
+                }
+            )
+
+            recordingSut.download("https://www.audiodharma.org/talks/25401/download")
+            recordingSut.download("https://www.audiodharma.org/talks/25401/download")
+
+            assertEquals(2, savedFiles.map { it.parentFile?.canonicalPath }.distinct().size)
+            assertTrue(savedFiles.all { it.exists() })
+        }
+
+        private fun audioConnection(): HttpURLConnection {
+            val connection: HttpURLConnection = mock()
+            whenever(connection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(connection.contentType).thenReturn("audio/mpeg")
+            whenever(connection.inputStream).thenReturn(ByteArrayInputStream("audio".toByteArray()))
+            return connection
+        }
+    }
+
+    /** Downloaded files plus per-download directories still on disk. */
+    private fun downloadsLeftBehind(): List<File> =
+        cacheDir.walkTopDown().filter { it.isFile || it.parentFile?.name == "link_import" }.toList()
 }

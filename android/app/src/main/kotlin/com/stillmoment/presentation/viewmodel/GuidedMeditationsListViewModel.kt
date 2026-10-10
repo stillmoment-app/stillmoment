@@ -20,6 +20,7 @@ import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.ImportDownloadsProtocol
 import com.stillmoment.domain.services.LibrarySearchEngine
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.SearchHistory
@@ -199,6 +200,7 @@ constructor(
     private val fileOpenHandler: FileOpenHandler,
     private val praxisRepository: PraxisRepository,
     private val waveformProvider: WaveformProviderProtocol,
+    private val importDownloads: ImportDownloadsProtocol,
     private val logger: LoggerProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
@@ -293,6 +295,7 @@ constructor(
                     teacher = refined.prefill.teacher ?: "",
                     name = refined.prefill.name ?: ""
                 )
+                val replaced = _uiState.value.pendingImport
                 _uiState.update {
                     it.copy(
                         pendingImport = refined,
@@ -301,6 +304,10 @@ constructor(
                         error = null
                     )
                 }
+                // A newer share replaced the open edit sheet: its download is not needed any more.
+                if (replaced != null && replaced.uri != refined.uri) {
+                    importDownloads.discard(replaced.uri)
+                }
             }.onFailure { error ->
                 val libraryError = when ((error as? FileOpenException)?.error) {
                     FileOpenError.ALREADY_IMPORTED -> LibraryError.AlreadyImported
@@ -308,6 +315,12 @@ constructor(
                     FileOpenError.IMPORT_FAILED, null -> LibraryError.ImportFailed
                 }
                 _uiState.update { it.copy(error = libraryError) }
+                // "Already there", unreadable file: the import ends here. An open edit
+                // sheet for the very same file keeps its download.
+                val sharedUri = uri.toString()
+                if (sharedUri != _uiState.value.pendingImport?.uri) {
+                    importDownloads.discard(sharedUri)
+                }
             }
         }
     }
@@ -340,6 +353,9 @@ constructor(
                 // metadata, copy) is not actionable for the user.
                 _uiState.update { it.copy(error = LibraryError.ImportFailed) }
             }
+            // The library holds its own copy now (or the save failed for good) —
+            // the downloaded original is not needed any more (android-087).
+            importDownloads.discard(pending.uri)
             _uiState.update {
                 it.copy(
                     pendingImport = null,
@@ -353,9 +369,14 @@ constructor(
 
     /**
      * Discards the pending import without persisting anything. Used by the
-     * Cancel button and modal-swipe-down in the import edit sheet.
+     * Cancel button and modal-swipe-down in the import edit sheet. A file the
+     * link import downloaded for it is removed (android-087).
      */
     fun cancelImport() {
+        val discarded = _uiState.value.pendingImport
+        if (discarded != null) {
+            viewModelScope.launch { importDownloads.discard(discarded.uri) }
+        }
         _uiState.update {
             it.copy(
                 pendingImport = null,

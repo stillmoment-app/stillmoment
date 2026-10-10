@@ -20,6 +20,7 @@ import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.testutil.FakeImportDownloads
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -68,6 +69,7 @@ class GuidedMeditationsListViewModelTest {
     private lateinit var mockPraxisRepository: PraxisRepository
     private lateinit var mockWaveformProvider: WaveformProviderProtocol
     private lateinit var mockLogger: LoggerProtocol
+    private lateinit var importDownloads: FakeImportDownloads
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
@@ -97,6 +99,7 @@ class GuidedMeditationsListViewModelTest {
         whenever { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
         mockWaveformProvider = mock()
         mockLogger = mock()
+        importDownloads = FakeImportDownloads()
         viewModel = GuidedMeditationsListViewModel(
             repository = fakeRepository,
             audioService = mockAudioService,
@@ -105,6 +108,7 @@ class GuidedMeditationsListViewModelTest {
             fileOpenHandler = mockFileOpenHandler,
             praxisRepository = mockPraxisRepository,
             waveformProvider = mockWaveformProvider,
+            importDownloads = importDownloads,
             logger = mockLogger
         )
     }
@@ -377,6 +381,142 @@ class GuidedMeditationsListViewModelTest {
             assertEquals(1, fakeRepository.addedMeditations.size)
             assertNull(viewModel.uiState.value.error)
             assertFalse(viewModel.uiState.value.showEditSheet)
+        }
+    }
+
+    // MARK: - android-087: Geladene Dateien werden weggeraeumt
+
+    @Nested
+    inner class DownloadedFileIsDiscardedWhenImportEnds {
+        private val downloadedFile = "file:///data/cache/link_import/7f3a/talk.mp3"
+
+        private fun pendingFor(uri: String) = PendingImport(
+            uri = uri,
+            fileName = "talk.mp3",
+            metadata = AudioMetadata(duration = 600_000L, artist = "Tara Brach", title = "Body Scan"),
+            prefill = ImportPrefill(teacher = "Tara Brach", name = "Body Scan")
+        )
+
+        private suspend fun openEditSheetFor(uri: String) {
+            val shared = mock<Uri>()
+            whenever(mockFileOpenHandler.validateAndPrepareImport(shared))
+                .thenReturn(Result.success(pendingFor(uri)))
+            viewModel.importMeditation(shared)
+        }
+
+        @Test
+        fun `saving keeps only the library copy`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+            var copiesWhenDiscarded = -1
+            importDownloads.onDiscard = { copiesWhenDiscarded = fakeRepository.addedMeditations.size }
+
+            viewModel.saveImportedMeditation(checkNotNull(viewModel.uiState.value.selectedMeditation))
+            advanceUntilIdle()
+
+            assertEquals(listOf(downloadedFile), importDownloads.discarded)
+            assertEquals(1, copiesWhenDiscarded, "Discarded only after the library copy was made")
+        }
+
+        @Test
+        fun `a failed save does not leave the download behind`() = runTest {
+            fakeRepository.addFailure = IllegalStateException("copy failed")
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+
+            viewModel.saveImportedMeditation(checkNotNull(viewModel.uiState.value.selectedMeditation))
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.ImportFailed, viewModel.uiState.value.error)
+            assertEquals(listOf(downloadedFile), importDownloads.discarded)
+        }
+
+        @Test
+        fun `discarding the edit sheet frees the download`() = runTest {
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+
+            viewModel.cancelImport()
+            advanceUntilIdle()
+
+            assertEquals(listOf(downloadedFile), importDownloads.discarded)
+        }
+
+        @Test
+        fun `an open edit sheet keeps its download`() = runTest {
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.showEditSheet)
+            assertTrue(importDownloads.discarded.isEmpty())
+        }
+
+        @Test
+        fun `already there frees the download`() = runTest {
+            val shared = mock<Uri>()
+            whenever(mockFileOpenHandler.validateAndPrepareImport(shared))
+                .thenReturn(Result.failure(FileOpenException(FileOpenError.ALREADY_IMPORTED)))
+
+            viewModel.importMeditation(shared)
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.AlreadyImported, viewModel.uiState.value.error)
+            assertEquals(listOf(shared.toString()), importDownloads.discarded)
+        }
+
+        @Test
+        fun `a file that cannot be read frees the download`() = runTest {
+            val shared = mock<Uri>()
+            whenever(mockFileOpenHandler.validateAndPrepareImport(shared))
+                .thenReturn(Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED)))
+
+            viewModel.importMeditation(shared)
+            advanceUntilIdle()
+
+            assertEquals(listOf(shared.toString()), importDownloads.discarded)
+        }
+
+        @Test
+        fun `a newer share replacing the open edit sheet frees the older download`() = runTest {
+            val olderDownload = "file:///data/cache/link_import/1111/25401.mp3"
+            val newerDownload = "file:///data/cache/link_import/2222/25402.mp3"
+            openEditSheetFor(olderDownload)
+            advanceUntilIdle()
+
+            openEditSheetFor(newerDownload)
+            advanceUntilIdle()
+
+            assertEquals(newerDownload, viewModel.uiState.value.pendingImport?.uri)
+            assertEquals(listOf(olderDownload), importDownloads.discarded)
+        }
+
+        @Test
+        fun `a newer share that fails keeps the open edit sheet and its download`() = runTest {
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+            val failing = mock<Uri>()
+            whenever(mockFileOpenHandler.validateAndPrepareImport(failing))
+                .thenReturn(Result.failure(FileOpenException(FileOpenError.ALREADY_IMPORTED)))
+
+            viewModel.importMeditation(failing)
+            advanceUntilIdle()
+
+            assertEquals(downloadedFile, viewModel.uiState.value.pendingImport?.uri)
+            assertEquals(listOf(failing.toString()), importDownloads.discarded)
+        }
+
+        @Test
+        fun `the same file handed over twice keeps its download while the edit sheet is open`() = runTest {
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+
+            openEditSheetFor(downloadedFile)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.showEditSheet)
+            assertTrue(importDownloads.discarded.isEmpty())
         }
     }
 
@@ -919,6 +1059,9 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     var extractedMetadata: AudioMetadata = AudioMetadata(duration = 0L, artist = null, title = null)
     var fileName: String = "test.mp3"
 
+    /** When set, [addMeditation] fails with it (e.g. copying into the library failed). */
+    var addFailure: Throwable? = null
+
     override val meditationsFlow: Flow<List<GuidedMeditation>>
         get() = _meditations
 
@@ -936,6 +1079,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         endGongEnabled: Boolean,
         gongSoundId: String
     ): Result<GuidedMeditation> {
+        addFailure?.let { return Result.failure(it) }
         val item = GuidedMeditation(
             fileUri = sourceUri,
             fileName = fileName,

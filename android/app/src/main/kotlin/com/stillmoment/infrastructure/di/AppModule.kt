@@ -24,6 +24,7 @@ import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.FontLicenseProviderProtocol
+import com.stillmoment.domain.services.ImportDownloadsProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MeditationGongPlayerProtocol
@@ -55,6 +56,7 @@ import com.stillmoment.infrastructure.audio.WaveformProvider
 import com.stillmoment.infrastructure.fonts.AssetFontLicenseProvider
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import com.stillmoment.infrastructure.network.ApplePodcastsEpisodeResolver
+import com.stillmoment.infrastructure.network.ImportDownloadFolder
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
 import com.stillmoment.infrastructure.services.AndroidAudioMetadataService
 import com.stillmoment.presentation.viewmodel.TrimPreviewDurations
@@ -201,6 +203,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUrlAudioDownloader(impl: UrlAudioDownloaderImpl): UrlAudioDownloaderProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideImportDownloads(impl: ImportDownloadFolder): ImportDownloadsProtocol {
         return impl
     }
 

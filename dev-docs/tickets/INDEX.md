@@ -42,7 +42,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-079](android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [ ] | - |
 | [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
-| [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [ ] | - |
+| [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [~] | - |
 | [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [ ] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
 | [android-093](android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [ ] | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) |

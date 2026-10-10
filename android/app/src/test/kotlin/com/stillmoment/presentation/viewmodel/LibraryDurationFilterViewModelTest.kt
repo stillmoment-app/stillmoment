@@ -9,6 +9,7 @@ import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.testutil.FakeImportDownloads
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -65,6 +66,7 @@ class LibraryDurationFilterViewModelTest {
             fileOpenHandler = mock<FileOpenHandler>(),
             praxisRepository = praxisRepository,
             waveformProvider = mock<WaveformProviderProtocol>(),
+            importDownloads = FakeImportDownloads(),
             logger = mock<LoggerProtocol>()
         )
     }
