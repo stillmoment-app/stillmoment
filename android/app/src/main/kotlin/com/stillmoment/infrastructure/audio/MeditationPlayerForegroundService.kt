@@ -158,6 +158,11 @@ class MeditationPlayerForegroundService : Service() {
     }
 
     private fun stopForegroundAndService() {
+        // A stale null (meditation closed, next one started right away) must not end the
+        // notification of the meditation that is playing now.
+        if (audioPlayerService.nowPlaying.value != null) {
+            return
+        }
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         // Only stops if no newer start is pending (a new meditation started meanwhile).
         stopSelf(lastStartId)
