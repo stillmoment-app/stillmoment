@@ -39,7 +39,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [android-079](android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [~] | - |
 | [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
 | [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [ ] | - |
@@ -320,6 +319,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-076](archive/android/android-076-file-uri-rejected.md) | URL-Share Import scheitert (file:// abgewiesen) | 1-Quick Fix | [x] | - |
 | [android-077](archive/android/android-077-url-download-filename.md) | URL-Download Cache-Prefix entfernen | 1-Quick Fix | [x] | - |
 | [android-078](archive/android/android-078-edit-stale-lambda.md) | Edit-Sheet zeigt alte Metadaten (stale lambda) | 1-Quick Fix | [x] | - |
+| [android-079](archive/android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [x] | - |
 | [android-080](archive/android/android-080-waveform-generierung-beschleunigen.md) | Waveform-Generierung langer Meditationen beschleunigen (Sampling) | 4-Polish | [x] | - |
 | [android-081](archive/android/android-081-target-sdk-36-android-16.md) | Target API Level 36 (Android 16) fuer Google Play — Frist 31.08.2026 | 2-Architektur | [x] | - |
 | [android-082](archive/android/android-082-instrumented-tests-android-16.md) | Instrumented Tests auf Android 16 wieder gruen | 5-QA | [-] | [android-081](archive/android/android-081-target-sdk-36-android-16.md) |
