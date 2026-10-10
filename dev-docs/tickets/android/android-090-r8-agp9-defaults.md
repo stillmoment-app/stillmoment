@@ -1,7 +1,7 @@
 ---
 id: android-090
 title: "Release-Build auf die R8-Standards von AGP 9 umstellen"
-status: todo
+status: in-progress
 phase: 2-Architektur
 priority: niedrig
 depends_on: []
