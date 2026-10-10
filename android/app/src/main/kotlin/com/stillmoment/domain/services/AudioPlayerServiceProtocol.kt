@@ -30,6 +30,13 @@ interface AudioPlayerServiceProtocol {
     val playbackState: StateFlow<PlaybackState>
 
     /**
+     * The meditation shown on the lock screen and in the media notification, or null.
+     * Becomes null when the meditation stops — also when stopped from outside the app
+     * (lock screen, notification, headset or Bluetooth button) — or fails to load.
+     */
+    val nowPlaying: StateFlow<GuidedMeditation?>
+
+    /**
      * Plays a guided meditation and shows it on the lock screen and in the media
      * notification until it stops or ends.
      *
@@ -76,6 +83,15 @@ interface AudioPlayerServiceProtocol {
      * Stops playback and releases resources.
      */
     fun stop()
+
+    /**
+     * Removes the meditation from the lock screen and the media notification (ending the
+     * foreground service) after it has completed, keeping the completed playback state.
+     *
+     * Reaching the end alone keeps the meditation shown, so the end gong can ring out with
+     * the screen locked; call this once it has (or right away without an end gong).
+     */
+    fun endLockScreenPresence()
 
     /**
      * Registers a callback for playback completion.

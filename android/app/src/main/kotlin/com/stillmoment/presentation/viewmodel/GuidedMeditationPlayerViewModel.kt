@@ -236,8 +236,30 @@ constructor(
 
     init {
         observePlaybackState()
+        observeStopFromOutside()
         registerConflictHandler()
     }
+
+    /**
+     * A stop from the lock screen, the notification or a headset/Bluetooth button reaches
+     * only the audio service. Before the meditation audio begins (preparation, start gong,
+     * breath pause) the countdown or gong sequence would otherwise go on and start the
+     * meditation against the user's wish — so end it here as well (android-098).
+     */
+    private fun observeStopFromOutside() {
+        viewModelScope.launch {
+            audioPlayerService.nowPlaying.collect { meditation ->
+                if (meditation == null && isBeforeAudio()) {
+                    logger.d(TAG, "Stopped from outside before the meditation began")
+                    stop()
+                    hasSessionStarted = false
+                }
+            }
+        }
+    }
+
+    /** True while preparation, start gong or breath pause run and the audio has not begun. */
+    private fun isBeforeAudio(): Boolean = _uiState.value.isPreparing || isStartGongSequenceActive
 
     /**
      * Observes playback state changes from the audio service.
@@ -680,8 +702,8 @@ constructor(
         waveformJob?.cancel()
         waveformJob = null
 
-        audioPlayerService.stop()
-        audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+        // Reset the countdown first: stopping the service clears nowPlaying, which must not
+        // look like a stop from outside during preparation.
         _uiState.update {
             it.copy(
                 isPlaying = false,
@@ -690,6 +712,8 @@ constructor(
                 preparationCountdown = null
             )
         }
+        audioPlayerService.stop()
+        audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
     }
 
     // MARK: - Private Methods
@@ -709,13 +733,24 @@ constructor(
         // in every completion path exactly once: after the gong rings out when one is
         // enabled, or immediately otherwise (without this the GUIDED_MEDITATION session
         // would leak and block the timer audio after a gong-free meditation).
+        // The notification (foreground service) also stays until then: without it Android
+        // may not let the end gong play with the screen locked (android-098).
         if (_uiState.value.meditation?.endGongEnabled == true) {
             gongPlayer.play(_uiState.value.meditation?.gongSoundId ?: Praxis.DEFAULT_GONG_SOUND_ID, gongVolume) {
-                audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+                // A restart while the gong rang owns session and notification now
+                if (_uiState.value.isCompleted) {
+                    finishSession()
+                }
             }
         } else {
-            audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+            finishSession()
         }
+    }
+
+    /** Releases the audio session and removes notification and lock screen controls. */
+    private fun finishSession() {
+        audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+        audioPlayerService.endLockScreenPresence()
     }
 
     override fun onCleared() {

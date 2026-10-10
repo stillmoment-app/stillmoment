@@ -305,7 +305,9 @@ private class ScrubFakePlayerService : AudioPlayerServiceProtocol {
         completion?.invoke()
     }
 
+    override val nowPlaying: StateFlow<GuidedMeditation?> = MutableStateFlow(null)
     override fun announce(meditation: GuidedMeditation) = Unit
+    override fun endLockScreenPresence() = Unit
     override fun play(meditation: GuidedMeditation) = Unit
     override fun pause() {
         paused = true

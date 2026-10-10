@@ -49,6 +49,7 @@ Das ist der Kern-Anwendungsfall: Meditation starten, Telefon weglegen. Wer den S
 - iOS aktiviert die Audio-Session bereits zu Beginn der Gong- bzw. Vorbereitungsphase; der Timer auf Android startet seinen Vordergrund-Dienst beim Tipp. Beides ist das Vorbild.
 - Baut auf android-094 auf (Vordergrund-Dienst und Sperrbildschirm-Steuerung für geführte Meditationen sind dort erstmals angeschlossen).
 - Gefunden 2026-10-10 bei der Emulator-Prüfung von android-094.
+- Bekannte Grenze (Umsetzung): Während Vorbereitung und Start-Gong zeigt die Benachrichtigung einen Play-Knopf, der nichts bewirkt – es gibt noch nichts fortzusetzen. Pausieren der Vorbereitung ist nicht vorgesehen.
 
 ---
 

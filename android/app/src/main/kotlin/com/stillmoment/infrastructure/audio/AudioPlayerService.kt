@@ -78,10 +78,11 @@ constructor(
 
     /**
      * The meditation shown on the lock screen and in the playback notification, or null.
-     * Set when a meditation starts; cleared when it stops, ends or fails to load.
+     * Set when a meditation is announced or starts; cleared when it stops, fails to load,
+     * or via [endLockScreenPresence] after it has completed (and the end gong rang out).
      * [MeditationPlayerForegroundService] follows it and stops itself on null.
      */
-    val nowPlaying: StateFlow<GuidedMeditation?> = _nowPlaying.asStateFlow()
+    override val nowPlaying: StateFlow<GuidedMeditation?> = _nowPlaying.asStateFlow()
 
     /**
      * The currently playing meditation, or null if nothing is playing.
@@ -309,8 +310,10 @@ constructor(
     }
 
     /**
-     * Runs the regular completion path: stop progress, remove the lock screen controls and
-     * the notification, fire the completion callback. Shared by the natural file-end listener and the
+     * Runs the regular completion path: stop progress, show the meditation paused at its end,
+     * fire the completion callback. Lock screen controls and notification stay until
+     * [endLockScreenPresence], so the foreground service keeps the app allowed to play the
+     * end gong with the screen locked. Shared by the natural file-end listener and the
      * trim end-boundary check so a trimmed end behaves exactly like a file end.
      *
      * @param fileDuration Full file duration in ms (the reported end position is clamped to it)
@@ -323,7 +326,7 @@ constructor(
             )
         }
         stopProgressUpdates()
-        endLockScreenPresence()
+        updateMediaSessionState()
         onCompletionCallback?.invoke()
     }
 
@@ -334,9 +337,9 @@ constructor(
 
     /**
      * Removes the lock screen controls and the playback notification (the foreground
-     * service stops itself once [nowPlaying] is null).
+     * service stops itself once [nowPlaying] is null). Keeps the playback state.
      */
-    private fun endLockScreenPresence() {
+    override fun endLockScreenPresence() {
         mediaSessionManager.release()
         _nowPlaying.value = null
     }

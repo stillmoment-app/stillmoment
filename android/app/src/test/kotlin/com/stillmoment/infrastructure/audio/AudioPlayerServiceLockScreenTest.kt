@@ -314,8 +314,10 @@ class AudioPlayerServiceLockScreenTest {
 
     @Nested
     inner class Ending {
+        // The end gong rings after the audio end (shared-106). The foreground service must
+        // keep running until it has rung out, so the end alone keeps the meditation shown.
         @Test
-        fun `reaching the trim end removes the lock screen controls`() {
+        fun `reaching the trim end keeps the meditation shown, paused at the end`() {
             startPlaying()
             val progressCaptor = argumentCaptor<() -> Unit>()
             verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
@@ -323,19 +325,36 @@ class AudioPlayerServiceLockScreenTest {
             whenever(mockMediaPlayer.currentPosition).thenReturn(540_100)
             progressCaptor.firstValue.invoke()
 
-            verify(mockMediaSessionManager).release()
-            assertNull(sut.nowPlaying.value)
+            verify(mockMediaSessionManager, never()).release()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+            assertFalse(sut.playbackState.value.isPlaying)
         }
 
         @Test
-        fun `reaching the file end removes the lock screen controls`() {
+        fun `reaching the file end keeps the meditation shown`() {
             startPlaying()
             val completionCaptor = argumentCaptor<() -> Unit>()
             verify(mockMediaPlayer).setOnCompletionListener(completionCaptor.capture())
 
             completionCaptor.firstValue.invoke()
 
+            verify(mockMediaSessionManager, never()).release()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `ending the presence after the end removes the lock screen controls but keeps the end position`() {
+            startPlaying()
+            val completionCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnCompletionListener(completionCaptor.capture())
+            completionCaptor.firstValue.invoke()
+
+            sut.endLockScreenPresence()
+
             verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+            // Unlike stop(), the completion screen keeps showing the end
+            assertEquals(540_000L, sut.playbackState.value.currentPosition)
         }
 
         @Test
