@@ -350,6 +350,21 @@ fun `create timer with zero duration throws exception`() {
 }
 ```
 
+### UI Tests (Emulator)
+
+Run with `./gradlew :app:connectedDebugAndroidTest` (CI does not run them yet). With more than one
+emulator attached, set `ANDROID_SERIAL=<serial>`, otherwise the suite runs on every device.
+
+- **Endless frame loops use `withInfiniteAnimationFrameNanos`/`…Millis`**, never plain
+  `withFrameNanos`/`withFrameMillis` (or `rememberInfiniteTransition`). In the app they behave
+  identically; under `createComposeRule` the test framework cancels them while
+  `mainClock.autoAdvance` is on. A plain frame loop keeps Compose busy forever and every
+  finder fails with `ComposeNotIdleException` (android-095: download loader, player waveform).
+- **Expected texts come from string resources, in both languages.** Tests that check visible text
+  run parameterized over `SUPPORTED_TEST_LANGUAGES` and wrap the content in
+  `LocalizedTestContent(strings) { … }` (see `LocalizedTestContent.kt`, `LibraryScreenTest`).
+  Literals drift silently when copy changes.
+
 ---
 
 ## Build Stack

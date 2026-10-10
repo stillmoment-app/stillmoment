@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.common
 
+import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -8,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -21,8 +21,10 @@ import kotlin.math.sin
  * Calm meditative loader: a pulsing copper core orbited by 5 dots on two orbital paths.
  *
  * Used by [DownloadProgressModal]. The animation is driven by a single
- * [withFrameMillis] loop that pauses when [isActive] is false, so the loader
- * stops consuming CPU when the app moves to the background.
+ * [withInfiniteAnimationFrameMillis] loop that pauses when [isActive] is false, so the loader
+ * stops consuming CPU when the app moves to the background. The "infinite" variant behaves
+ * exactly like `withFrameMillis` in the app, but lets the Compose test framework stop the
+ * endless loop so UI tests can wait for an idle UI.
  *
  * Geometry follows the design handoff in
  * `handoffs/design_handoff_download_animation/README.md`.
@@ -33,9 +35,9 @@ fun ConstellationLoader(color: Color, modifier: Modifier = Modifier, isActive: B
 
     LaunchedEffect(isActive) {
         if (!isActive) return@LaunchedEffect
-        var lastFrameMs = withFrameMillis { it }
+        var lastFrameMs = withInfiniteAnimationFrameMillis { it }
         while (true) {
-            val now = withFrameMillis { it }
+            val now = withInfiniteAnimationFrameMillis { it }
             elapsedMs += now - lastFrameMs
             lastFrameMs = now
         }

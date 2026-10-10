@@ -315,9 +315,11 @@ class ScreengrabScreenshotTests {
         // collector is dispatched on Compose's frame clock — and under instrumentation that clock
         // is the test clock, which only advances when the test pumps it. A raw system tap injects
         // the input but does not pump the clock, so the navigation recompose never runs and the
-        // player never mounts. We also cannot pump via any composeRule semantics query / waitForIdle:
-        // the player auto-plays and PlayerWaveform's per-frame loop recomposes forever, so "idle"
-        // never arrives (ComposeNotIdleException).
+        // player never mounts. We also cannot pump via any composeRule semantics query / waitForIdle
+        // once auto-advance is off (see below): PlayerWaveform's per-frame loop uses
+        // withInfiniteAnimationFrameNanos, which the test framework only cancels while auto-advance
+        // is ON — with it off the loop keeps running, the auto-playing player recomposes forever and
+        // "idle" never arrives (ComposeNotIdleException).
         //
         // So we drive the frame clock manually for the whole player phase. auto-advance is left
         // OFF: with it on, the test clock only advances during an active sync (waitForIdle), so a

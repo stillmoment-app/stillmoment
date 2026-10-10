@@ -42,8 +42,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
 | [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
-| [android-095](android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [ ] | - |
-| [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [ ] | [android-095](android/android-095-veraltete-ui-tests-reparieren.md) |
+| [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [ ] | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) |
 | [android-097](android/android-097-bearbeiten-blatt-tab-wechsel-verwirft-eingaben.md) | Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage | 4-Polish | [ ] | - |
 
 ## Archiv
@@ -329,3 +328,4 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) | Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen | 5-QA | [x] | - |
 | [android-092](archive/android/android-092-ci-gradle-cache-version-catalog.md) | CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog | 5-QA | [x] | - |
 | [android-093](archive/android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [x] | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) |
+| [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [x] | - |
