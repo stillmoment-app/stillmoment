@@ -12,6 +12,7 @@ import java.io.File
 import java.nio.file.Path
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -68,7 +69,10 @@ class CustomAudioRepositoryImplImportTest {
             storeDuration = { id, durationMs -> dataStore.updateDuration(id, durationMs) },
             scope = backgroundScope,
             timeoutMs = 60_000L
-        )
+        ),
+        // Same virtual clock as the test: on a real IO thread the import could still be
+        // returning while runTest skips ahead and fires the detection timeout.
+        ioDispatcher = StandardTestDispatcher(testScheduler)
     )
 
     @Test
