@@ -15,6 +15,7 @@ import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -29,22 +30,31 @@ import kotlinx.coroutines.withContext
  * The play length is not part of the import: the file is saved without it and
  * [CustomAudioDurationBackfill] adds it in the background (android-079), because
  * detecting the length of a long MP3 can take minutes on slow devices.
+ *
+ * File work runs on [ioDispatcher]. Tests pass a test dispatcher so the import and
+ * the background length detection share one virtual clock; with a real IO thread the
+ * detection's timeout could fire while the import was still returning.
  */
 @Singleton
-class CustomAudioRepositoryImpl
-@Inject
-constructor(
-    @ApplicationContext private val context: Context,
+class CustomAudioRepositoryImpl(
+    private val context: Context,
     private val dataStore: CustomAudioDataStore,
-    private val durationBackfill: CustomAudioDurationBackfill
+    private val durationBackfill: CustomAudioDurationBackfill,
+    private val ioDispatcher: CoroutineDispatcher
 ) : CustomAudioRepository {
+    @Inject
+    constructor(
+        @ApplicationContext context: Context,
+        dataStore: CustomAudioDataStore,
+        durationBackfill: CustomAudioDurationBackfill
+    ) : this(context, dataStore, durationBackfill, Dispatchers.IO)
 
     override fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> = dataStore.filesFlow(type)
 
     override suspend fun loadAll(type: CustomAudioType): List<CustomAudioFile> = dataStore.loadAll(type)
 
     override suspend fun importFile(uri: Uri, type: CustomAudioType): Result<CustomAudioFile> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val originalFileName = getFileName(uri)
                 val extension = originalFileName.substringAfterLast(".", "").lowercase()
@@ -85,7 +95,7 @@ constructor(
         }
 
     override suspend fun delete(id: String) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val file = dataStore.findFile(id)
             if (file != null) {
                 deleteLocalFile(file)
@@ -105,7 +115,7 @@ constructor(
     override suspend fun findFile(id: String): CustomAudioFile? = dataStore.findFile(id)
 
     override suspend fun rename(id: String, newName: String) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             dataStore.renameFile(id, newName)
             Log.d(TAG, "Renamed custom audio file: $id -> $newName")
         }

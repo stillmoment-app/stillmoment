@@ -306,7 +306,15 @@ make test-single TEST=Class # Single test class, human-readable
 make test-single-agent TEST=Class/method  # Single test, agent-optimized
 make test-failures          # Show failures from last run (no re-run)
 make test                   # Full suite (debug + release variants)
+make test-ui                # All UI tests (androidTest, incl. screenshot tests) on the running emulator
+make test-ui-agent          # Same, agent-optimized output
 ```
+
+UI tests need a running emulator or connected device (`connectedDebugAndroidTest`).
+CI runs the identical task as check "Android UI Tests" (`.github/workflows/ci.yml`,
+job `android-ui-tests`, API 36 `google_apis` x86_64 emulator, animations off). On a red
+run the check summary lists each failed test with its message; JUnit XML and the HTML
+report are attached as artifact `android-ui-test-results`.
 
 ### JUnit 5 with Nested Classes
 

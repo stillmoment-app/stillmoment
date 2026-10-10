@@ -12,11 +12,13 @@
 - [Screengrab-Einzeltest: Sprachmix](project_android_screengrab_single_test_locale.md) — Einzelner Screenshot-Test liefert DE-UI mit EN-Quellen; Store-Bilder nur über vollen Lauf.
 - [Doppelte Scaffold-Insets auf Android-Tabs](project_android_double_scaffold_insets.md) — innere Scaffold zieht Status-/Systemleiste nochmal ab (~65-70 dp); Timer gefixt, Library nicht.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
+- [runTest + echter IO-Thread = virtueller Timeout-Flake](feedback_runtest_realthread_virtual_timeout.md) — IO-Dispatcher injizieren, TestDispatcher auf gleichem Scheduler.
 - [Worktree-Guard: Bash-Formen](feedback_worktree_guard_bash_shapes.md) — mehrere Heredocs / `git -C ..` werden abgelehnt; Write-Tool + absolute Pfade.
 - [adb-/Screenshot-Ketten im Worktree blockiert](feedback_worktree_guard_adb_scripts.md) — Einzelbefehle, URL quoten, Scratchpad-Skripte für Screenshot/Warten.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 - [Worktree-Guard: git nicht in Ketten](feedback_worktree_guard_compound_git.md) — `git` allein aufrufen; lange Code-Einfügungen per Edit statt Python-Heredoc.
 - [class=A,B-Filter überspringt Parameterized](feedback_connected_test_class_filter.md) — UI-Testklassen einzeln laufen lassen, Testanzahl im XML prüfen.
+- [CI-UI-Test-Fehler: Artefakt lesen](feedback_ci_ui_test_failure_artifacts.md) — Stacktrace/Logcat nur im Artefakt; "Failed to inject touch input" kann "Knoten fehlt" heißen.
 
 ## Feature-Entfernungen (Refactoring)
 

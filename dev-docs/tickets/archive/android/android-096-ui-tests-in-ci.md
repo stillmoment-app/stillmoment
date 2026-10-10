@@ -1,7 +1,7 @@
 ---
 id: android-096
 title: "Android-UI-Tests in der CI ausführen"
-status: todo
+status: done
 phase: 5-QA
 priority: mittel
 depends_on: [android-095]
@@ -44,6 +44,15 @@ Die CI führt für Android bisher nur Unit-Tests aus. Deshalb sind seit Mai 2026
 
 - Die neun roten UI-Tests reparieren. Das ist android-095 und muss vorher erledigt sein, sonst ist der neue Check von Anfang an rot.
 - Den Check zum Pflicht-Check für den Merge machen. Das ist eine Repo-Einstellung, die nur ein Admin vornehmen kann. Sinnvoll erst, wenn der Check sich als stabil erwiesen hat.
+
+---
+
+## Umsetzungsnotiz
+
+- Neuer Job „Android UI Tests“ in `.github/workflows/ci.yml`: `reactivecircus/android-emulator-runner` auf `ubuntu-latest` mit KVM, API 36 `google_apis` x86_64, frischer Emulator ohne Snapshot, Animationen aus. Führt `make test-ui` (= `connectedDebugAndroidTest`) aus, alle 75 Tests inkl. Screengrab-Screenshots, keiner ausgenommen.
+- Fehlgeschlagene Tests erscheinen als Annotation am Check und in der Job-Zusammenfassung (`android/scripts/ui-test-summary.py`); JUnit-XML und HTML-Report als Artefakt `android-ui-test-results`.
+- Lokal: `make test-ui`, knapp für Agents `make test-ui-agent` (75/75 grün in 154 s).
+- Nachweise (2026-10-10, PR #18/#19): Wegwerf-PR mit absichtlich rotem Test → Check rot, Annotation nennt `TimerScreenTest.timerScreen_showsDurationQuestion_whenIdle` mit Meldung. Laufzeit 10–11 min (iOS „UI Tests“ 9–14 min). Ein Re-Run deckte einen flaky Screenshot-Test auf (Tab-Klick, bevor die Tab-Leiste nach dem DataStore-Lesen erschien); behoben durch Warten auf die App-Shell. Danach zwei Läufe auf identischem Stand grün.
 
 ---
 

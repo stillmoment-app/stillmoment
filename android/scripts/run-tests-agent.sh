@@ -5,6 +5,7 @@
 # No live output during build/test — all output buffered
 #
 # Usage: ./scripts/run-tests-agent.sh [--single TestClass/testMethod]
+#        ./scripts/run-tests-agent.sh --ui   (UI tests on a running emulator/device)
 #
 
 set -eo pipefail
@@ -15,16 +16,21 @@ RESULTS_DIR="$PROJECT_DIR/app/build/test-results/testDebugUnitTest"
 
 # Parse arguments
 SINGLE_TEST=""
+UI_TESTS=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         --single)
             SINGLE_TEST="$2"
             shift 2
             ;;
+        --ui)
+            UI_TESTS="1"
+            shift
+            ;;
         *)
             echo "RESULT: ERROR"
             echo "ERROR: Unknown option: $1"
-            echo "Usage: $0 [--single TestClass/testMethod]"
+            echo "Usage: $0 [--single TestClass/testMethod] | --ui"
             exit 1
             ;;
     esac
@@ -32,6 +38,19 @@ done
 
 # Build Gradle arguments
 GRADLE_ARGS=("testDebugUnitTest")
+
+if [ -n "$UI_TESTS" ]; then
+    if [ -n "$SINGLE_TEST" ]; then
+        echo "RESULT: ERROR"
+        echo "ERROR: --single is not supported together with --ui"
+        exit 1
+    fi
+    # UI tests run on a connected emulator/device. Old XML files are removed so that
+    # a build failure is not reported with the counts of an earlier run.
+    GRADLE_ARGS=("connectedDebugAndroidTest")
+    RESULTS_DIR="$PROJECT_DIR/app/build/outputs/androidTest-results/connected/debug"
+    rm -rf "$RESULTS_DIR"
+fi
 
 if [ -n "$SINGLE_TEST" ]; then
     # Parse ClassName/methodName format

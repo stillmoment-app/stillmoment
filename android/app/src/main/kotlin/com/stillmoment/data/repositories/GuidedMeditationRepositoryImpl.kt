@@ -79,7 +79,9 @@ constructor(
         name: String,
         startGongEnabled: Boolean,
         endGongEnabled: Boolean,
-        gongSoundId: String
+        gongSoundId: String,
+        trimStartMs: Long?,
+        trimEndMs: Long?
     ): Result<GuidedMeditation> {
         return withContext(Dispatchers.IO) {
             try {
@@ -94,7 +96,9 @@ constructor(
                     name = name,
                     startGongEnabled = startGongEnabled,
                     endGongEnabled = endGongEnabled,
-                    gongSoundId = gongSoundId
+                    gongSoundId = gongSoundId,
+                    trimStartMs = trimStartMs,
+                    trimEndMs = trimEndMs
                 )
                 dataStore.addMeditation(meditation)
                 Result.success(meditation)
