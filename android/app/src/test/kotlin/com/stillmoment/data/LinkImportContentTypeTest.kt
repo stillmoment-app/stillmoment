@@ -1,12 +1,12 @@
 package com.stillmoment.data
 
-import android.content.Context
 import android.net.Uri
 import com.stillmoment.domain.models.ApplePodcastsLink
 import com.stillmoment.domain.models.LinkImportFailure
 import com.stillmoment.domain.models.PodcastEpisode
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.PodcastEpisodeResolverProtocol
+import com.stillmoment.infrastructure.network.ImportDownloadFolder
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -48,13 +48,11 @@ class LinkImportContentTypeTest {
     @BeforeEach
     fun setUp() {
         cacheDir = createTempDirectory("link_import_content_type").toFile()
-        val context: Context = mock()
-        whenever(context.cacheDir).thenReturn(cacheDir)
         connection = mock()
         val downloadedFile: Uri = mock()
         val logger: LoggerProtocol = mock()
         val downloader = UrlAudioDownloaderImpl(
-            context = context,
+            downloadFolder = ImportDownloadFolder(cacheDir = { cacheDir }, logger = mock()),
             logger = logger,
             connectionFactory = { connection },
             uriFromFile = { downloadedFile }

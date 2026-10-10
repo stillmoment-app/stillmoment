@@ -1,12 +1,10 @@
 package com.stillmoment.infrastructure.network
 
-import android.content.Context
 import android.net.Uri
 import com.stillmoment.domain.models.UrlAudioDownloadError
 import com.stillmoment.domain.models.UrlAudioValidator
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -22,7 +20,8 @@ import kotlinx.coroutines.withContext
  * Downloads audio files from HTTP/HTTPS URLs using HttpURLConnection.
  *
  * Validates the server's Content-Type header and saves the audio to
- * a temporary file in the app cache directory. The filename is taken
+ * a temporary file in its own directory of the [ImportDownloadFolder]
+ * (android-087: discarded again once the import ends). The filename is taken
  * from the server's `Content-Disposition` header when available
  * (relevant for redirect-URLs without a clean path filename, e.g.
  * audiodharma.org/talks/.../download → S3 with Content-Disposition),
@@ -30,17 +29,17 @@ import kotlinx.coroutines.withContext
  */
 @Singleton
 class UrlAudioDownloaderImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val downloadFolder: ImportDownloadFolder,
     private val logger: LoggerProtocol
 ) : UrlAudioDownloaderProtocol {
 
     // Secondary constructor for testing — allows injecting seams for HttpURLConnection and Uri
     internal constructor(
-        context: Context,
+        downloadFolder: ImportDownloadFolder,
         logger: LoggerProtocol,
         connectionFactory: (String) -> HttpURLConnection,
         uriFromFile: (File) -> Uri
-    ) : this(context, logger) {
+    ) : this(downloadFolder, logger) {
         this.connectionFactory = connectionFactory
         this.uriFromFile = uriFromFile
     }
@@ -144,7 +143,7 @@ class UrlAudioDownloaderImpl @Inject constructor(
     }
 
     /**
-     * Streams the response body into `cacheDir/dl_<ts>/<filename>`.
+     * Streams the response body into a fresh directory of the [ImportDownloadFolder].
      *
      * The directory is removed again unless the download succeeds — a cancelled or
      * broken download (long podcast episodes, shared-128) must not leave a partial
@@ -156,11 +155,10 @@ class UrlAudioDownloaderImpl @Inject constructor(
             contentDisposition = connection.getHeaderField("Content-Disposition"),
             contentType = contentType
         )
-        // Use a per-download sub-directory so the file keeps its original name
-        // (e.g. "Moment-mal-01Atem.mp3") while still avoiding collisions across
-        // repeated downloads of the same URL.
-        val downloadDir = File(context.cacheDir, "dl_${System.currentTimeMillis()}")
-        downloadDir.mkdirs()
+        // Own directory per download: the file keeps its original name
+        // (e.g. "Moment-mal-01Atem.mp3") while repeated downloads of the same URL
+        // never collide (android-087).
+        val downloadDir = downloadFolder.createDownloadDirectory()
         val tempFile = File(downloadDir, filename)
         var succeeded = false
         try {

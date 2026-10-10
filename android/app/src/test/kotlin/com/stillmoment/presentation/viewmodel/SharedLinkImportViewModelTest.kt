@@ -7,6 +7,7 @@ import com.stillmoment.domain.models.PodcastEpisode
 import com.stillmoment.domain.models.UrlAudioDownloadError
 import com.stillmoment.domain.services.PodcastEpisodeResolverProtocol
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
+import com.stillmoment.testutil.FakeImportDownloads
 import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -37,13 +38,14 @@ class SharedLinkImportViewModelTest {
     private val talk25401 = "https://www.audiodharma.org/talks/25401/download"
     private val testDispatcher = StandardTestDispatcher()
     private val downloader = ControlledDownloader()
+    private val importDownloads = FakeImportDownloads()
     private lateinit var viewModel: SharedLinkImportViewModel
 
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         val handler = LinkImportHandler(downloader = downloader, episodeResolver = NoPodcasts(), logger = mock())
-        viewModel = SharedLinkImportViewModel(handler)
+        viewModel = SharedLinkImportViewModel(handler, importDownloads)
     }
 
     @AfterEach
@@ -96,6 +98,39 @@ class SharedLinkImportViewModelTest {
         assertNull(viewModel.importedLink.value)
     }
 
+    @Test
+    fun `a loaded link replaced by a newer one before the edit sheet took it over is discarded`() =
+        runTest(testDispatcher) {
+            val first = mock<Uri>()
+            val second = mock<Uri>()
+            viewModel.linkImport.share(talk25401)
+            advanceUntilIdle()
+            downloader.finish(Result.success(first))
+            advanceUntilIdle()
+
+            downloader.restart()
+            viewModel.linkImport.share("https://www.audiodharma.org/talks/25402/download")
+            advanceUntilIdle()
+            downloader.finish(Result.success(second))
+            advanceUntilIdle()
+
+            assertEquals(second, viewModel.importedLink.value?.uri)
+            assertEquals(listOf(first.toString()), importDownloads.discarded)
+        }
+
+    @Test
+    fun `a loaded link the edit sheet took over is kept`() = runTest(testDispatcher) {
+        viewModel.linkImport.share(talk25401)
+        advanceUntilIdle()
+        downloader.finish(Result.success(mock()))
+        advanceUntilIdle()
+
+        viewModel.consumeImportedLink()
+        advanceUntilIdle()
+
+        assertTrue(importDownloads.discarded.isEmpty())
+    }
+
     /** Download that runs until the test finishes it. */
     private class ControlledDownloader : UrlAudioDownloaderProtocol {
         private var result = CompletableDeferred<Result<Uri>>()
@@ -106,6 +141,11 @@ class SharedLinkImportViewModelTest {
 
         fun finish(outcome: Result<Uri>) {
             result.complete(outcome)
+        }
+
+        /** The next download runs until finished again. */
+        fun restart() {
+            result = CompletableDeferred()
         }
     }
 

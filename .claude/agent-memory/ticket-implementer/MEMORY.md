@@ -14,6 +14,7 @@
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
 - [Worktree-Guard: Bash-Formen](feedback_worktree_guard_bash_shapes.md) — mehrere Heredocs / `git -C ..` werden abgelehnt; Write-Tool + absolute Pfade.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
+- [Worktree-Guard: git nicht in Ketten](feedback_worktree_guard_compound_git.md) — `git` allein aufrufen; lange Code-Einfügungen per Edit statt Python-Heredoc.
 
 ## Feature-Entfernungen (Refactoring)
 
