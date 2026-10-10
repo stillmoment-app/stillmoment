@@ -1,7 +1,6 @@
 package com.stillmoment.presentation.ui.meditations.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
 private val DEFAULT_SIZE = 220.dp
@@ -38,7 +38,7 @@ private const val LIGHT_ALPHA_MID = 0.03f
  */
 @Composable
 fun PlayerCenterDisc(modifier: Modifier = Modifier, size: Dp = DEFAULT_SIZE) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = LocalStillMomentColors.current.isDark
 
     val stops = if (isDark) {
         arrayOf(
@@ -75,7 +75,7 @@ fun PlayerCenterDisc(modifier: Modifier = Modifier, size: Dp = DEFAULT_SIZE) {
 @Preview(name = "Disc - Dark", showBackground = true, backgroundColor = 0xFF1A100A)
 @Composable
 private fun PlayerCenterDiscDarkPreview() {
-    StillMomentTheme {
+    StillMomentTheme(darkTheme = true) {
         PlayerCenterDisc()
     }
 }

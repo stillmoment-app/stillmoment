@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -23,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import kotlin.math.roundToInt
 
@@ -62,7 +62,7 @@ private data class MoonPalette(
 
 @Composable
 private fun rememberMoonPalette(): MoonPalette {
-    return if (isSystemInDarkTheme()) {
+    return if (LocalStillMomentColors.current.isDark) {
         MoonPalette(
             discFrom = DiscFromDark,
             discMid = DiscMidDark,
@@ -98,7 +98,8 @@ private fun rememberMoonPalette(): MoonPalette {
  *    links neben dem Mond.
  *
  * Farben sind aus dem Handoff `claude_code_handoff_running_timer_mondphase`
- * final und in dieser Composable hardcoded (Light/Dark via [isSystemInDarkTheme]).
+ * final und in dieser Composable hardcoded. Light/Dark folgt der App-Darstellung
+ * (`LocalStillMomentColors.current.isDark`), nicht der Geraeteeinstellung.
  * Pendant zu iOS' `MoonPhaseView` (1:1-Hex-Werte).
  *
  * Mond ist Dekoration — kein eigenes `contentDescription`/`semantics`-Block.
@@ -259,7 +260,7 @@ private fun MoonPhaseVollmondLightPreview() {
 )
 @Composable
 private fun MoonPhaseNeumondDarkPreview() {
-    StillMomentTheme {
+    StillMomentTheme(darkTheme = true) {
         MoonPhase(progress = 0f, reduceMotion = true)
     }
 }
@@ -272,7 +273,7 @@ private fun MoonPhaseNeumondDarkPreview() {
 )
 @Composable
 private fun MoonPhaseHalbmondDarkPreview() {
-    StillMomentTheme {
+    StillMomentTheme(darkTheme = true) {
         MoonPhase(progress = 0.5f, reduceMotion = true)
     }
 }
@@ -285,7 +286,7 @@ private fun MoonPhaseHalbmondDarkPreview() {
 )
 @Composable
 private fun MoonPhaseVollmondDarkPreview() {
-    StillMomentTheme {
+    StillMomentTheme(darkTheme = true) {
         MoonPhase(progress = 1f, reduceMotion = true)
     }
 }
@@ -298,7 +299,7 @@ private fun MoonPhaseVollmondDarkPreview() {
 )
 @Composable
 private fun MoonPhaseCompactPreview() {
-    StillMomentTheme {
+    StillMomentTheme(darkTheme = true) {
         MoonPhase(progress = 0.5f, reduceMotion = true, outerSize = 180.dp)
     }
 }
