@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.ui.settings
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -26,13 +27,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.stillmoment.BuildConfig
 import com.stillmoment.R
@@ -40,6 +42,7 @@ import com.stillmoment.domain.models.FeedbackLinks
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
+import kotlinx.coroutines.launch
 
 /*
  * "Rate the App" and "Write to Us" in the settings' own feedback section
@@ -138,7 +141,8 @@ internal fun WriteToUsRow(onNoMailApp: () -> Unit, modifier: Modifier = Modifier
 @Composable
 internal fun NoMailAppDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
     val copiedMessage = stringResource(R.string.app_settings_address_copied)
 
     AlertDialog(
@@ -148,12 +152,17 @@ internal fun NoMailAppDialog(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = {
-                    clipboardManager.setText(AnnotatedString(FeedbackLinks.MAIL_ADDRESS))
-                    // Android 13+ confirms copying itself; below that Google recommends own feedback.
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-                        Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+                    // Dismiss only after copying: closing the dialog cancels this scope.
+                    scope.launch {
+                        clipboard.setClipEntry(
+                            ClipEntry(ClipData.newPlainText(FeedbackLinks.MAIL_ADDRESS, FeedbackLinks.MAIL_ADDRESS))
+                        )
+                        // Android 13+ confirms copying itself; below that Google recommends own feedback.
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                            Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+                        }
+                        onDismiss()
                     }
-                    onDismiss()
                 }
             ) {
                 Text(stringResource(R.string.app_settings_copy_address))

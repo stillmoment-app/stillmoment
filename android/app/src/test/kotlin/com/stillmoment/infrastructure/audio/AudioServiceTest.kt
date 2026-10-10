@@ -29,7 +29,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Unit tests for AudioService.
@@ -531,7 +530,7 @@ class AudioServiceTest {
         val customSoundId = "custom-uuid-123"
         val mockCustomPlayer: MediaPlayerProtocol = mock()
         whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
-        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+        whenever { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
 
         // When
         sut.playBackgroundPreview(customSoundId, 0.3f)
@@ -549,7 +548,7 @@ class AudioServiceTest {
         val mockCustomPlayer: MediaPlayerProtocol = mock()
         val preparedListenerCaptor = argumentCaptor<() -> Unit>()
         whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
-        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+        whenever { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
 
         // When
         sut.playBackgroundPreview(customSoundId, 0.3f)
@@ -568,7 +567,7 @@ class AudioServiceTest {
         val customSoundId = "custom-uuid-123"
         val mockCustomPlayer: MediaPlayerProtocol = mock()
         whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
-        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+        whenever { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
         clearInvocations(mockCoordinator)
 
         // When
@@ -583,7 +582,7 @@ class AudioServiceTest {
     fun `playBackgroundPreview with unknown custom sound id does not start player`() {
         // Given: Custom audio file not found in repository
         val unknownId = "unknown-uuid-456"
-        wheneverBlocking { mockCustomAudioRepository.getFilePath(unknownId) }.thenReturn(null)
+        whenever { mockCustomAudioRepository.getFilePath(unknownId) }.thenReturn(null)
 
         // When
         sut.playBackgroundPreview(unknownId, 0.3f)

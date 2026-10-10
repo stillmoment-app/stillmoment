@@ -46,7 +46,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Unit tests for GuidedMeditationsListViewModel.
@@ -95,7 +94,7 @@ class GuidedMeditationsListViewModelTest {
         // handler with a mock that callers can wire as needed.
         mockFileOpenHandler = mock()
         mockPraxisRepository = mock()
-        wheneverBlocking { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
+        whenever { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
         mockWaveformProvider = mock()
         mockLogger = mock()
         viewModel = GuidedMeditationsListViewModel(
@@ -513,7 +512,7 @@ class GuidedMeditationsListViewModelTest {
         fun `showEditSheet loads the waveform into state for the mini bars`() = runTest {
             val item = meditation(id = "med-wave")
             val waveform = MeditationWaveform(List(MeditationWaveform.SAMPLE_COUNT) { 0.5f })
-            wheneverBlocking { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
+            whenever { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
 
             viewModel.showEditSheet(item)
             advanceUntilIdle()
@@ -524,7 +523,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `showEditSheet leaves waveform null when generation fails`() = runTest {
             val item = meditation(id = "med-fail")
-            wheneverBlocking { mockWaveformProvider.waveform(item) }
+            whenever { mockWaveformProvider.waveform(item) }
                 .thenAnswer { throw WaveformGenerationException.DecodingFailed("boom") }
 
             viewModel.showEditSheet(item)
@@ -537,7 +536,7 @@ class GuidedMeditationsListViewModelTest {
         fun `hideEditSheet clears the loaded waveform`() = runTest {
             val item = meditation(id = "med-wave")
             val waveform = MeditationWaveform(List(MeditationWaveform.SAMPLE_COUNT) { 0.5f })
-            wheneverBlocking { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
+            whenever { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
             viewModel.showEditSheet(item)
             advanceUntilIdle()
 

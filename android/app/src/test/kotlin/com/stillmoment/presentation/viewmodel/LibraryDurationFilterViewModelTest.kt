@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Tests fuer das Zusammenspiel von Dauer-Filter und Suche (shared-081).
@@ -56,7 +55,7 @@ class LibraryDurationFilterViewModelTest {
         whenever(audioService.meditationPreviewCompletionFlow)
             .thenReturn(MutableSharedFlow<Unit>(extraBufferCapacity = 1).asSharedFlow())
         val praxisRepository = mock<PraxisRepository>()
-        wheneverBlocking { praxisRepository.load() }.thenReturn(Praxis.Default)
+        whenever { praxisRepository.load() }.thenReturn(Praxis.Default)
 
         viewModel = GuidedMeditationsListViewModel(
             repository = fakeRepository,
