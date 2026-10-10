@@ -19,8 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 /**
  * Audio player service for guided meditation playback.
@@ -42,6 +40,7 @@ class AudioPlayerService
 constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager,
+    private val serviceLauncher: MeditationPlayerServiceLauncher,
     private val coordinator: AudioSessionCoordinatorProtocol,
     private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
     private val progressScheduler: ProgressSchedulerProtocol,
@@ -75,11 +74,20 @@ constructor(
     private val _playbackState = MutableStateFlow(PlaybackState())
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
+    private val _nowPlaying = MutableStateFlow<GuidedMeditation?>(null)
+
+    /**
+     * The meditation shown on the lock screen and in the playback notification, or null.
+     * Set when a meditation starts; cleared when it stops, ends or fails to load.
+     * [MeditationPlayerForegroundService] follows it and stops itself on null.
+     */
+    val nowPlaying: StateFlow<GuidedMeditation?> = _nowPlaying.asStateFlow()
+
     /**
      * The currently playing meditation, or null if nothing is playing.
      */
-    var currentMeditation: GuidedMeditation? = null
-        private set
+    val currentMeditation: GuidedMeditation?
+        get() = _nowPlaying.value
 
     /**
      * Commands from the lock screen, the media notification and headset buttons.
@@ -102,7 +110,7 @@ constructor(
      * lock screen and in the media notification until it stops or ends.
      */
     override fun play(meditation: GuidedMeditation) {
-        currentMeditation = meditation
+        _nowPlaying.value = meditation
 
         mediaSessionManager.createSession(lockScreenControls)
         mediaSessionManager.updateMetadata(meditation)
@@ -113,6 +121,13 @@ constructor(
             meditation.trimStartMs,
             meditation.trimEndMs
         )
+
+        // Start the notification now, while the user's tap keeps the app in the foreground,
+        // not later in the prepared callback (Android 12+ refuses background starts).
+        // A file that failed to load has already cleared nowPlaying.
+        if (_nowPlaying.value != null) {
+            serviceLauncher.start()
+        }
     }
 
     /**
@@ -244,14 +259,13 @@ constructor(
         player.setOnErrorListener { what, extra ->
             setPlaybackError("Playback error: $what, $extra")
             stopProgressUpdates()
-            stopForegroundService()
             true
         }
     }
 
     /**
-     * Starts playback and brings up the progress loop, media session and foreground
-     * service. Called directly from the prepared callback for untrimmed playback, or
+     * Starts playback and brings up the progress loop and the lock screen state.
+     * Called directly from the prepared callback for untrimmed playback, or
      * from the seek-complete callback once a trim-start seek has landed (shared-105).
      */
     private fun beginPlayback(player: MediaPlayerProtocol, duration: Long) {
@@ -266,7 +280,6 @@ constructor(
         }
         startProgressUpdates()
         updateMediaSessionState()
-        startForegroundService()
     }
 
     /**
@@ -284,13 +297,22 @@ constructor(
             )
         }
         stopProgressUpdates()
-        mediaSessionManager.release()
-        stopForegroundService()
+        endLockScreenPresence()
         onCompletionCallback?.invoke()
     }
 
     private fun setPlaybackError(message: String) {
         _playbackState.update { it.copy(isPlaying = false, error = message) }
+        endLockScreenPresence()
+    }
+
+    /**
+     * Removes the lock screen controls and the playback notification (the foreground
+     * service stops itself once [nowPlaying] is null).
+     */
+    private fun endLockScreenPresence() {
+        mediaSessionManager.release()
+        _nowPlaying.value = null
     }
 
     override fun pause() {
@@ -300,7 +322,6 @@ constructor(
                 _playbackState.update { it.copy(isPlaying = false) }
                 stopProgressUpdates()
                 updateMediaSessionState()
-                updateNotification()
             }
         }
     }
@@ -312,7 +333,6 @@ constructor(
                 _playbackState.update { it.copy(isPlaying = true) }
                 startProgressUpdates()
                 updateMediaSessionState()
-                updateNotification()
             }
         }
     }
@@ -328,10 +348,8 @@ constructor(
     override fun stop() {
         stopMediaPlayer()
         stopProgressUpdates()
-        mediaSessionManager.release()
-        stopForegroundService()
+        endLockScreenPresence()
         coordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
-        currentMeditation = null
         effectiveStartMs = 0L
         effectiveEndMs = Long.MAX_VALUE
         hasReachedEndBoundary = false
@@ -415,20 +433,6 @@ constructor(
             position = relativePosition,
             duration = effectiveDuration
         )
-    }
-
-    private fun startForegroundService() {
-        val meditation = currentMeditation ?: return
-        val meditationJson = Json.encodeToString(meditation)
-        MeditationPlayerForegroundService.start(context, meditationJson)
-    }
-
-    private fun updateNotification() {
-        MeditationPlayerForegroundService.update(context)
-    }
-
-    private fun stopForegroundService() {
-        MeditationPlayerForegroundService.stop(context)
     }
 
     companion object {

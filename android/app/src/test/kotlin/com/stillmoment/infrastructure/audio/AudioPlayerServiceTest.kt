@@ -68,6 +68,7 @@ class AudioPlayerServiceTest {
         sut = AudioPlayerService(
             mockContext,
             mockMediaSessionManager,
+            mock<MeditationPlayerServiceLauncher>(),
             mockCoordinator,
             mockMediaPlayerFactory,
             mockProgressScheduler,

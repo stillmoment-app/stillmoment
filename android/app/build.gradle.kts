@@ -134,9 +134,7 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
 
     // Media3 - media3-session drives lock screen controls and the media notification
-    implementation(libs.media3.exoplayer)
     implementation(libs.media3.session)
-    implementation(libs.media3.ui)
 
     // Testing - JUnit 5
     testImplementation(libs.junit5.api)

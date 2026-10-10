@@ -9,6 +9,8 @@ import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -33,6 +35,7 @@ class AudioPlayerServiceLockScreenTest {
     private lateinit var mockMediaSessionManager: MediaSessionManager
     private lateinit var mockMediaPlayer: MediaPlayerProtocol
     private lateinit var mockProgressScheduler: ProgressSchedulerProtocol
+    private lateinit var mockServiceLauncher: MeditationPlayerServiceLauncher
     private lateinit var uriStatic: MockedStatic<Uri>
 
     /** 10-minute file, trimmed to play 1:00 – 9:00 (8 minutes audible). */
@@ -52,6 +55,7 @@ class AudioPlayerServiceLockScreenTest {
         mockMediaSessionManager = mock()
         mockMediaPlayer = mock()
         mockProgressScheduler = mock()
+        mockServiceLauncher = mock()
         val mockFactory: MediaPlayerFactoryProtocol = mock()
         whenever(mockFactory.create()).thenReturn(mockMediaPlayer)
         val mockCoordinator: AudioSessionCoordinatorProtocol = mock()
@@ -69,6 +73,7 @@ class AudioPlayerServiceLockScreenTest {
             AudioPlayerService(
                 mockContext,
                 mockMediaSessionManager,
+                mockServiceLauncher,
                 mockCoordinator,
                 mockFactory,
                 mockProgressScheduler,
@@ -183,6 +188,64 @@ class AudioPlayerServiceLockScreenTest {
     }
 
     @Nested
+    inner class Notification {
+        @Test
+        fun `starting a meditation brings up the playback notification right away`() {
+            // The user just tapped play, so the app is in the foreground. The notification
+            // service starts now, not only once the audio file is loaded.
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `stopping right after the start ends the notification`() {
+            sut.play(trimmedMeditation)
+
+            sut.stop()
+
+            verify(mockServiceLauncher).start()
+            assertNull(sut.nowPlaying.value)
+            verify(mockMediaSessionManager).release()
+        }
+
+        @Test
+        fun `a file that cannot be loaded shows no lock screen controls`() {
+            val errorCaptor = argumentCaptor<(Int, Int) -> Boolean>()
+            sut.play(trimmedMeditation)
+            verify(mockMediaPlayer).setOnErrorListener(errorCaptor.capture())
+
+            errorCaptor.firstValue.invoke(1, -1004)
+
+            verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `an unreadable file never starts the notification`() {
+            val unsupported: Uri = mock()
+            whenever(unsupported.scheme).thenReturn("http")
+            uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(unsupported)
+
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher, never()).start()
+            verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `pausing keeps the notification`() {
+            startPlaying()
+
+            sut.pause()
+
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+    }
+
+    @Nested
     inner class Ending {
         @Test
         fun `reaching the trim end removes the lock screen controls`() {
@@ -194,6 +257,7 @@ class AudioPlayerServiceLockScreenTest {
             progressCaptor.firstValue.invoke()
 
             verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
         }
 
         @Test

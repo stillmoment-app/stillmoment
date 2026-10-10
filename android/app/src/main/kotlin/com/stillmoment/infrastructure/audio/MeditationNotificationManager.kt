@@ -112,6 +112,18 @@ constructor(
     }
 
     /**
+     * Minimal notification for the rare case that the foreground service starts after the
+     * meditation already stopped. Android requires a notification for every foreground
+     * start; the service removes it right away.
+     */
+    fun buildPlaceholderNotification(): Notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setContentTitle(context.getString(R.string.notification_playback_channel_name))
+        .setSmallIcon(R.drawable.ic_notification)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setSilent(true)
+        .build()
+
+    /**
      * Shows or updates the notification.
      *
      * @param notification The notification to display

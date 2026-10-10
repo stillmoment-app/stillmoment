@@ -300,7 +300,9 @@ interface AudioFocusManagerProtocol {
 Guided meditations use a Media3 `MediaSession` (`media3-session`), never `MediaSessionCompat`/`androidx.media`.
 Audio plays through `MediaPlayer`; `GuidedMeditationSessionPlayer` (a `SimpleBasePlayer`) only mirrors state
 to the session and forwards its commands. Start playback via `AudioPlayerService.play(meditation)`, the only path
-that creates the session and the foreground service. Lock-screen positions/length are relative to the trim range.
+that creates the session and starts the foreground service (on the user's tap, never later). The service
+always calls `startForeground` on start and stops itself when `AudioPlayerService.nowPlaying` becomes null; never send it
+stop/update intents. Lock-screen positions/length are relative to the trim range.
 Media3 `@UnstableApi` calls need `@OptIn(UnstableApi::class)` (`androidx.annotation.OptIn`), or lint fails.
 Details: `dev-docs/architecture/audio-system.md` → "Sperrbildschirm-Steuerung".
 
