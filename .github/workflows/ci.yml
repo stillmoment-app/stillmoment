@@ -338,6 +338,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
+        # Das Standardmuster von setup-java findet nur gradle/*.versions.toml im Repo-Root.
+        # Ohne android/gradle/libs.versions.toml im Schluessel erneuern Dependabot-PRs den Cache nie.
+        cache-dependency-path: |
+          android/**/*.gradle*
+          android/**/gradle.properties
+          android/**/gradle-wrapper.properties
+          android/gradle/libs.versions.toml
 
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
@@ -370,19 +377,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
+        # Siehe android-code-quality. setup-java ist der einzige Gradle-Cache dieses Jobs.
+        cache-dependency-path: |
+          android/**/*.gradle*
+          android/**/gradle.properties
+          android/**/gradle-wrapper.properties
+          android/gradle/libs.versions.toml
 
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
-
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v6
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
 
     - name: Build Debug APK
       run: cd android && ./gradlew assembleDebug
