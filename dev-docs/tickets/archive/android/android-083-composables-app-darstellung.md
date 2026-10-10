@@ -1,7 +1,7 @@
 ---
 id: android-083
 title: Fuenf Composables folgen dem Geraet statt der App-Darstellung
-status: todo
+status: done
 phase: 4-Polish
 priority: niedrig
 depends_on: [shared-122]

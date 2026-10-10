@@ -87,7 +87,15 @@ data class StillMomentColors(
     /** Bright sage variant — playhead line, grabber gradient top, drag time bubble. */
     val playheadAccentHi: Color,
     /** Text on the bright sage bubble — fixed dark fir tone, same on both palettes. */
-    val textOnPlayhead: Color
+    val textOnPlayhead: Color,
+    /**
+     * Whether this is the dark palette — i.e. the appearance the *app* shows, not the
+     * device setting (android-083). Composables with their own light/dark values
+     * (moon, player disc, search-bar focus border, lifted-card shadow) branch on this
+     * instead of the device flag `isSystemInDarkTheme`, so "Dark"/"Light" in the app settings win
+     * over the device. Only MainActivity reads the device setting, to resolve "System".
+     */
+    val isDark: Boolean
 )
 
 /**
@@ -108,7 +116,8 @@ val LocalStillMomentColors = staticCompositionLocalOf {
         cardShadow = SmLightCardShadow,
         textOnInteractive = SmLightTextOnInteractive,
         playheadAccent = SmLightPlayheadAccent,
-        playheadAccentHi = SmLightPlayheadAccentHi
+        playheadAccentHi = SmLightPlayheadAccentHi,
+        isDark = false
     )
 }
 
@@ -130,7 +139,8 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         cardShadow = SmDarkCardShadow,
         textOnInteractive = SmDarkTextOnInteractive,
         playheadAccent = SmDarkPlayheadAccent,
-        playheadAccentHi = SmDarkPlayheadAccentHi
+        playheadAccentHi = SmDarkPlayheadAccentHi,
+        isDark = true
     )
 } else {
     buildStillMomentColors(
@@ -146,7 +156,8 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         cardShadow = SmLightCardShadow,
         textOnInteractive = SmLightTextOnInteractive,
         playheadAccent = SmLightPlayheadAccent,
-        playheadAccentHi = SmLightPlayheadAccentHi
+        playheadAccentHi = SmLightPlayheadAccentHi,
+        isDark = false
     )
 }
 
@@ -169,7 +180,8 @@ private fun buildStillMomentColors(
     cardShadow: Color,
     textOnInteractive: Color,
     playheadAccent: Color,
-    playheadAccentHi: Color
+    playheadAccentHi: Color,
+    isDark: Boolean
 ): StillMomentColors = StillMomentColors(
     interactive = interactive,
     textPrimary = textPrimary,
@@ -192,7 +204,8 @@ private fun buildStillMomentColors(
     accentBubbleBackground = interactive.copy(alpha = 0.18f),
     playheadAccent = playheadAccent,
     playheadAccentHi = playheadAccentHi,
-    textOnPlayhead = SmTextOnPlayhead
+    textOnPlayhead = SmTextOnPlayhead,
+    isDark = isDark
 )
 
 /**

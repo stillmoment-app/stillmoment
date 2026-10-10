@@ -39,7 +39,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
 | [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [ ] | - |
 | [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [ ] | - |
@@ -323,6 +322,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-080](archive/android/android-080-waveform-generierung-beschleunigen.md) | Waveform-Generierung langer Meditationen beschleunigen (Sampling) | 4-Polish | [x] | - |
 | [android-081](archive/android/android-081-target-sdk-36-android-16.md) | Target API Level 36 (Android 16) fuer Google Play — Frist 31.08.2026 | 2-Architektur | [x] | - |
 | [android-082](archive/android/android-082-instrumented-tests-android-16.md) | Instrumented Tests auf Android 16 wieder gruen | 5-QA | [-] | [android-081](archive/android/android-081-target-sdk-36-android-16.md) |
+| [android-083](archive/android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [x] | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) |
 | [android-084](archive/android/android-084-timer-idle-kleine-bildschirme.md) | Timer-Startbildschirm auf kleinen Bildschirmen abgeschnitten | 4-Polish | [x] | - |
 | [android-085](archive/android/android-085-vorbereitungszeit-titel-einstellungen.md) | Vorbereitungszeit in den Einstellungen mit Titel und Untertitel wie auf iOS | 4-Polish | [x] | - |
 | [android-089](archive/android/android-089-dependabot-android-actions.md) | Automatische Dependency-Updates für Android und GitHub Actions (Dependabot) | 5-QA | [x] | - |

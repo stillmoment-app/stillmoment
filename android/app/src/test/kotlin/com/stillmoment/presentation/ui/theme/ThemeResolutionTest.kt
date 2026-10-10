@@ -1,9 +1,12 @@
 package com.stillmoment.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import java.io.File
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -241,4 +244,43 @@ class ThemeResolutionTest {
     // endregion
 
     // endregion
+
+    // region android-083 — app appearance, not device setting
+
+    @Nested
+    inner class AppAppearanceFlag {
+        @Test
+        fun `app set to dark yields the dark palette flag even on a light device`() {
+            // The theme only receives the app's resolved appearance (MainActivity resolves
+            // "System" via the device setting; "Dark"/"Light" ignore it). Whatever the
+            // device says cannot leak in — the flag is exactly what the app chose.
+            assertTrue(resolveStillMomentColors(darkTheme = true).isDark)
+        }
+
+        @Test
+        fun `app set to light yields the light palette flag even on a dark device`() {
+            assertFalse(resolveStillMomentColors(darkTheme = false).isDark)
+        }
+
+        @Test
+        fun `only the system-mode resolution reads the device setting`() {
+            // Moon, player disc, search bar, list item and action pill follow the app
+            // appearance (LocalStillMomentColors.current.isDark). The device setting may
+            // only be read in MainActivity, where "System" is resolved to light/dark.
+            val sourceRoot = File(SOURCE_ROOT)
+            assertTrue(sourceRoot.isDirectory, "Source root not found: ${sourceRoot.absolutePath}")
+            val offenders = sourceRoot.walkTopDown()
+                .filter { it.isFile && it.extension == "kt" && it.name != "MainActivity.kt" }
+                .filter { it.readText().contains("isSystemInDarkTheme(") }
+                .map { it.name }
+                .toList()
+            assertEquals(emptyList<String>(), offenders, "Composables reading the device setting")
+        }
+    }
+
+    // endregion
+
+    private companion object {
+        const val SOURCE_ROOT = "src/main/kotlin"
+    }
 }
