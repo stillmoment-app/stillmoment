@@ -230,6 +230,13 @@ class FakeCustomAudioRepository : CustomAudioRepository {
     fun addFile(file: CustomAudioFile) {
         _files.value = _files.value + file
     }
+
+    /** Simulates the play length arriving after the import (android-079 background detection). */
+    fun completeDurationDetection(id: String, durationMs: Long) {
+        _files.value = _files.value.map { file ->
+            if (file.id == id) file.copy(durationMs = durationMs) else file
+        }
+    }
     var importResult: Result<CustomAudioFile> = Result.success(
         CustomAudioFile(
             id = "fake-id",

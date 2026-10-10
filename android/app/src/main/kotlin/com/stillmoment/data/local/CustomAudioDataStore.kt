@@ -117,6 +117,20 @@ constructor(
         }
     }
 
+    /**
+     * Stores a play length detected after the import (android-079). A no-op if the
+     * file has been deleted in the meantime.
+     *
+     * @param id The ID of the file
+     * @param durationMs The detected play length in milliseconds
+     */
+    suspend fun updateDuration(id: String, durationMs: Long) {
+        context.customAudioDataStore.edit { preferences ->
+            val updated = getAllFiles(preferences).withDetectedDuration(id, durationMs)
+            preferences[Keys.FILES] = json.encodeToString(updated)
+        }
+    }
+
     private fun getAllFiles(preferences: Preferences): List<CustomAudioFile> {
         val jsonString = preferences[Keys.FILES] ?: "[]"
         return try {
@@ -131,3 +145,11 @@ constructor(
         private const val TAG = "CustomAudioDataStore"
     }
 }
+
+/**
+ * Returns the list with [durationMs] set on the file with [id]. All other fields
+ * (e.g. a name changed while the length was being detected) stay as stored; an
+ * unknown [id] (file deleted meanwhile) leaves the list unchanged.
+ */
+internal fun List<CustomAudioFile>.withDetectedDuration(id: String, durationMs: Long): List<CustomAudioFile> =
+    map { file -> if (file.id == id) file.copy(durationMs = durationMs) else file }

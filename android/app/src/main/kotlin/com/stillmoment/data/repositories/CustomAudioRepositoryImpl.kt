@@ -1,7 +1,6 @@
 package com.stillmoment.data.repositories
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
@@ -23,16 +22,21 @@ import kotlinx.coroutines.withContext
 /**
  * Implementation of CustomAudioRepository.
  *
- * Handles importing audio files via Storage Access Framework (SAF),
- * extracting duration metadata, and persisting to DataStore.
- * Files are copied to internal storage under type-specific subdirectories.
+ * Handles importing audio files via Storage Access Framework (SAF) and
+ * persisting them to DataStore. Files are copied to internal storage under
+ * type-specific subdirectories.
+ *
+ * The play length is not part of the import: the file is saved without it and
+ * [CustomAudioDurationBackfill] adds it in the background (android-079), because
+ * detecting the length of a long MP3 can take minutes on slow devices.
  */
 @Singleton
 class CustomAudioRepositoryImpl
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val dataStore: CustomAudioDataStore
+    private val dataStore: CustomAudioDataStore,
+    private val durationBackfill: CustomAudioDurationBackfill
 ) : CustomAudioRepository {
 
     override fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> = dataStore.filesFlow(type)
@@ -52,7 +56,6 @@ constructor(
                     )
                 }
 
-                val durationMs = extractDuration(uri)
                 val localFile = copyFileToInternalStorage(uri, originalFileName, type)
                 val displayName = originalFileName.substringBeforeLast(".")
 
@@ -60,11 +63,12 @@ constructor(
                     CustomAudioFile(
                         name = displayName,
                         filename = localFile.name,
-                        durationMs = durationMs,
+                        durationMs = null,
                         type = type
                     )
 
                 dataStore.addFile(audioFile)
+                durationBackfill.schedule(audioFile.id, localFile.absolutePath)
                 Log.d(TAG, "Imported custom audio: ${audioFile.name} (${audioFile.type})")
                 Result.success(audioFile)
             } catch (e: IOException) {
@@ -166,28 +170,6 @@ constructor(
             }
         }
         return fileName
-    }
-
-    /**
-     * Extracts audio duration using MediaMetadataRetriever.
-     * Returns null if duration cannot be determined.
-     */
-    private fun extractDuration(uri: Uri): Long? {
-        val retriever = MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(context, uri)
-            retriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_DURATION
-            )?.toLongOrNull()
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "Invalid data source for duration extraction", e)
-            null
-        } catch (e: IllegalStateException) {
-            Log.w(TAG, "MediaMetadataRetriever in invalid state", e)
-            null
-        } finally {
-            retriever.release()
-        }
     }
 
     companion object {

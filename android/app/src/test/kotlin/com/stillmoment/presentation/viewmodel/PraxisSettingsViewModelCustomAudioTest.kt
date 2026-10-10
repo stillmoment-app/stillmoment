@@ -56,6 +56,15 @@ class PraxisSettingsViewModelCustomAudioTest {
         )
     }
 
+    private fun longSoundscapeWithoutLength() = CustomAudioFile(
+        id = "long-soundscape",
+        name = "Long Rain",
+        filename = "long-rain.mp3",
+        durationMs = null,
+        type = CustomAudioType.SOUNDSCAPE,
+        dateAdded = 1000L
+    )
+
     // MARK: - Import Custom Audio
 
     @Nested
@@ -82,6 +91,43 @@ class PraxisSettingsViewModelCustomAudioTest {
             assertEquals(1, state.customSoundscapes.size)
             assertEquals("Ocean Waves", state.customSoundscapes.first().name)
             assertEquals(CustomAudioType.SOUNDSCAPE, state.customSoundscapes.first().type)
+        }
+
+        @Test
+        fun `play length detected after import appears in the list`() = runTest {
+            fakeCustomAudioRepository.importResult = Result.success(longSoundscapeWithoutLength())
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.importCustomAudio(mock<Uri>(), CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+            assertNull(viewModel.uiState.value.customSoundscapes.single().durationMs)
+
+            fakeCustomAudioRepository.completeDurationDetection("long-soundscape", 1_800_000L)
+            advanceUntilIdle()
+
+            assertEquals("30:00", viewModel.uiState.value.customSoundscapes.single().formattedDuration)
+        }
+
+        @Test
+        fun `play length arriving later keeps selection and running preview`() = runTest {
+            fakeCustomAudioRepository.importResult = Result.success(longSoundscapeWithoutLength())
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.importCustomAudio(mock<Uri>(), CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+            viewModel.selectBackgroundSound("long-soundscape")
+            advanceUntilIdle()
+            fakeAudioService.backgroundPreviewStopped = false
+
+            fakeCustomAudioRepository.completeDurationDetection("long-soundscape", 1_800_000L)
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals("long-soundscape", state.backgroundSoundId)
+            assertEquals("long-soundscape", state.previewingSoundscapeId)
+            assertEquals(false, fakeAudioService.backgroundPreviewStopped)
         }
 
         @Test

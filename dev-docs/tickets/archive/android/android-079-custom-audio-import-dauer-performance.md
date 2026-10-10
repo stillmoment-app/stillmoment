@@ -1,7 +1,7 @@
 ---
 id: android-079
 title: Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung)
-status: todo
+status: done
 phase: 4-Polish
 priority: mittel
 ---
@@ -50,6 +50,13 @@ Der Flaschenhals ist die Dauer-Erkennung via `MediaMetadataRetriever.setDataSour
 
 - Android: `android/app/src/main/kotlin/com/stillmoment/data/repositories/CustomAudioRepositoryImpl.kt` (`importFile`, `extractDuration` ~Zeile 175, `copyFileToInternalStorage`)
 - iOS-Vergleich (schnell): `ios/StillMoment/Infrastructure/Services/CustomAudioRepository.swift` (`detectDuration` via `AVAudioPlayer`)
+
+---
+
+## Umsetzungsnotiz
+
+- **Scope:** Umgesetzt nur für Custom-Audio (Soundscapes, „Meine Klänge"). Der Import geführter Meditationen ist bewusst ausgenommen: Dort wird die Dauer (zusammen mit den ID3-Tags für das Vorausfüllen) schon vor dem Bearbeiten-Blatt ermittelt und ist fachlich Pflicht — `GuidedMeditation.duration` speist Kürzen, Player und den Dauer-Filter der Bibliothek. Ob der Guided-Import auf dem Fairphone ebenfalls spürbar zu langsam ist, ist ungeprüft.
+- **Bekannte Grenze:** Stirbt der Prozess während der Dauer-Erkennung oder läuft der Timeout ab, bleibt die Datei dauerhaft ohne Dauer. Ein Nachholen beim App-Start gibt es bewusst nicht, weil die Dauer hier nur eine Anzeige-Information ist.
 
 ---
 

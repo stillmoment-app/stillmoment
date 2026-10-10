@@ -125,9 +125,8 @@ constructor(
                     resolvedBackgroundSoundName = bgName
                 )
             }
-
-            loadCustomAudio()
         }
+        observeCustomSoundscapes()
     }
 
     // MARK: - Setter Methods
@@ -314,7 +313,6 @@ constructor(
             result.fold(
                 onSuccess = {
                     lastImportedUri = uri
-                    loadCustomAudio()
                 },
                 onFailure = { error ->
                     _uiState.update { it.copy(customAudioError = error.message) }
@@ -335,7 +333,6 @@ constructor(
         }
         viewModelScope.launch {
             customAudioRepository.rename(id, trimmed)
-            loadCustomAudio()
         }
     }
 
@@ -351,7 +348,6 @@ constructor(
                 stopBackgroundPreviewAndClear()
             }
             customAudioRepository.delete(id)
-            loadCustomAudio()
 
             // Reset backgroundSoundId if it references the deleted file
             if (current.backgroundSoundId == id) {
@@ -369,11 +365,16 @@ constructor(
     }
 
     /**
-     * Loads custom soundscapes from the repository.
-     * Called after init and after every CRUD mutation — mirrors iOS approach.
+     * Keeps the custom soundscape list in sync with the repository. Besides
+     * import, rename and delete this also picks up a play length that is
+     * detected in the background after an import (android-079), without
+     * touching selection or a running preview.
      */
-    private suspend fun loadCustomAudio() {
-        val soundscapes = customAudioRepository.loadAll(CustomAudioType.SOUNDSCAPE)
-        _uiState.update { it.copy(customSoundscapes = soundscapes) }
+    private fun observeCustomSoundscapes() {
+        viewModelScope.launch {
+            customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE).collect { soundscapes ->
+                _uiState.update { it.copy(customSoundscapes = soundscapes) }
+            }
+        }
     }
 }
