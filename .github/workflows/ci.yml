@@ -412,3 +412,83 @@ jobs:
         name: android-debug-apk
         path: android/app/build/outputs/apk/debug/*.apk
         retention-days: 7
+
+  # Alle Tests unter app/src/androidTest (inkl. Screengrab-Screenshot-Tests) auf
+  # einem Emulator — derselbe Gradle-Task wie lokal `make test-ui`. Ohne diesen
+  # Check wurden UI-Tests monatelang unbemerkt rot (android-095/android-096).
+  android-ui-tests:
+    name: Android UI Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # API 36 = targetSdk und lokaler Emulator. google_apis/x86_64 laeuft auf
+      # ubuntu-latest mit KVM-Hardwarebeschleunigung.
+      EMULATOR_API_LEVEL: 36
+      EMULATOR_TARGET: google_apis
+      EMULATOR_ARCH: x86_64
+      EMULATOR_PROFILE: pixel_6
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v6
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+        # Siehe android-code-quality.
+        cache-dependency-path: |
+          android/**/*.gradle*
+          android/**/gradle.properties
+          android/**/gradle-wrapper.properties
+          android/gradle/libs.versions.toml
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+
+    # Beide APKs vor dem Emulatorstart bauen: Ein Compile-Fehler bricht ab, ohne
+    # einen Emulator hochzufahren, und der Testschritt installiert nur noch.
+    - name: Build App and Test APKs
+      run: cd android && ./gradlew assembleDebug assembleDebugAndroidTest
+
+    # Laut Doku von reactivecircus/android-emulator-runner noetig, damit der
+    # Emulator auf Linux-Runnern KVM nutzen darf.
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Run UI Tests
+      timeout-minutes: 20
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ env.EMULATOR_API_LEVEL }}
+        target: ${{ env.EMULATOR_TARGET }}
+        arch: ${{ env.EMULATOR_ARCH }}
+        profile: ${{ env.EMULATOR_PROFILE }}
+        ram-size: 4096M
+        # Frischer Emulator ohne Snapshot bei jedem Lauf: kein Zustand aus
+        # frueheren Laeufen, zwei Laeufe auf demselben Stand sind vergleichbar.
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+        disable-animations: true
+        working-directory: android
+        script: make test-ui
+
+    - name: Summarize UI Test Results
+      if: always()
+      run: python3 android/scripts/ui-test-summary.py android/app/build/outputs/androidTest-results/connected/debug
+
+    - name: Upload UI Test Results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: android-ui-test-results
+        path: |
+          android/app/build/outputs/androidTest-results/connected/
+          android/app/build/reports/androidTests/connected/
+        retention-days: 7
+        if-no-files-found: ignore

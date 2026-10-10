@@ -1,4 +1,4 @@
-.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
+.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-ui test-ui-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -34,6 +34,12 @@ test-single: ## Run single test (usage: make test-single TEST=ClassName or Class
 
 test-single-agent: ## Run single test with agent output (usage: make test-single-agent TEST=ClassName or ClassName/method)
 	@./scripts/run-tests-agent.sh --single $(TEST)
+
+test-ui: ## Run all UI tests (androidTest) on the running emulator/device - same as CI check "Android UI Tests"
+	@./gradlew connectedDebugAndroidTest
+
+test-ui-agent: ## Run all UI tests with agent-optimized output (needs a running emulator/device)
+	@./scripts/run-tests-agent.sh --ui
 
 test-failures: ## List failing tests from last run
 	@./scripts/list-test-failures.sh

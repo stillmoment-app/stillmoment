@@ -43,7 +43,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
 | [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
-| [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [ ] | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) |
+| [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [~] | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) |
 | [android-097](android/android-097-bearbeiten-blatt-tab-wechsel-verwirft-eingaben.md) | Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage | 4-Polish | [ ] | - |
 | [android-098](android/android-098-gefuehrte-meditation-start-gong-gesperrt.md) | Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird | 1-Quick Fix | [ ] | [android-094](android/android-094-media3-session-statt-compat.md) |
 

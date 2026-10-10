@@ -1,7 +1,7 @@
 ---
 id: android-096
 title: "Android-UI-Tests in der CI ausführen"
-status: todo
+status: in-progress
 phase: 5-QA
 priority: mittel
 depends_on: [android-095]
