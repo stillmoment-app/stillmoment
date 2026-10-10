@@ -1,6 +1,5 @@
 package com.stillmoment.presentation.ui.meditations
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,24 +8,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -48,7 +37,8 @@ import kotlinx.coroutines.flow.filter
  *
  * - Header: "N von M Meditationen" (pluralisiert am Gesamtbestand [totalCount]).
  * - Pro Zeile: [MeditationListItem] mit Lehrer-Untertitel + Match-Highlight.
- * - Swipe links → Delete, Swipe rechts → Edit (identisch zur normalen Liste).
+ * - Swipe links → Delete, Swipe rechts → Edit — derselbe [SwipeToEditDeleteBox] wie in der
+ *   normalen Liste (android-093).
  * - Scrollt der Nutzer → Tastatur ausblenden (`LazyListState.isScrollInProgress`).
  *
  * Long-Press auf den Play-Button startet weiterhin die Vorschau — dieselbe
@@ -56,7 +46,6 @@ import kotlinx.coroutines.flow.filter
  * den Long-Press-Pfad selbst kapselt.
  */
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchResultsList(
     query: String,
@@ -137,7 +126,6 @@ private fun ResultsHeader(count: Int, totalCount: Int) {
 }
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchResultItem(
     meditation: GuidedMeditation,
@@ -152,31 +140,9 @@ private fun SearchResultItem(
     onStopPreview: () -> Unit,
     onSeekPreview: (Long) -> Unit
 ) {
-    // android-078: rememberSwipeToDismissBoxState cached die confirmValueChange-Lambda —
-    // rememberUpdatedState verhindert dass eine stale meditation-Referenz haengen bleibt.
-    val currentOnEditClick by rememberUpdatedState { onEditClick(meditation) }
-    val currentOnDelete by rememberUpdatedState { onDeleteMeditation(meditation) }
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            when (value) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    currentOnEditClick()
-                    false
-                }
-                SwipeToDismissBoxValue.EndToStart -> {
-                    currentOnDelete()
-                    false
-                }
-                else -> false
-            }
-        }
-    )
-
-    SwipeToDismissBox(
-        state = dismissState,
-        backgroundContent = { SwipeResultBackground(direction = dismissState.dismissDirection) },
-        enableDismissFromStartToEnd = true,
-        enableDismissFromEndToStart = true
+    SwipeToEditDeleteBox(
+        onEdit = { onEditClick(meditation) },
+        onDelete = { onDeleteMeditation(meditation) }
     ) {
         MeditationListItem(
             meditation = meditation,
@@ -190,36 +156,5 @@ private fun SearchResultItem(
             previewDurationMs = previewDurationMs,
             onSeekPreview = onSeekPreview
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SwipeResultBackground(direction: SwipeToDismissBoxValue) {
-    val color = when (direction) {
-        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary
-        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-        else -> Color.Transparent
-    }
-    val alignment = when (direction) {
-        SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-        else -> Alignment.Center
-    }
-    val icon = when (direction) {
-        SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Edit
-        SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
-        else -> null
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(horizontal = 20.dp),
-        contentAlignment = alignment
-    ) {
-        if (icon != null) {
-            Icon(imageVector = icon, contentDescription = null, tint = Color.White)
-        }
     }
 }
