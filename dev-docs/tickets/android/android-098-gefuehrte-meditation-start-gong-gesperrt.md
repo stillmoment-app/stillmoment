@@ -50,6 +50,8 @@ Das ist der Kern-Anwendungsfall: Meditation starten, Telefon weglegen. Wer den S
 - Baut auf android-094 auf (Vordergrund-Dienst und Sperrbildschirm-Steuerung für geführte Meditationen sind dort erstmals angeschlossen).
 - Gefunden 2026-10-10 bei der Emulator-Prüfung von android-094.
 - Bekannte Grenze (Umsetzung): Während Vorbereitung und Start-Gong zeigt die Benachrichtigung einen Play-Knopf, der nichts bewirkt – es gibt noch nichts fortzusetzen. Pausieren der Vorbereitung ist nicht vorgesehen.
+- Emulator-Prüfung 2026-10-11 (API 36, Bildschirm per `KEYCODE_SLEEP` direkt nach dem Start-Tipp aus): Audiofokus und Vordergrund-Dienst kommen beim Tipp (`uidState: TOP`), der zweite Fokus-Request nach Countdown/Gong wird bei ausgeschaltetem Bildschirm gewährt, kein `HardeningEnforcer`, kein Absturz. Gong, Vorbereitung, beides, Startbildschirm statt Sperre, End-Gong bei Sperre (Dienst endet erst nach Ausklingen), Abbruch und externer Stopp während Vorbereitung/Gong geprüft. Externen Stopp bei ausgeschaltetem Bildschirm mit `cmd media_session dispatch stop` auslösen – `input keyevent 86` bleibt dann im InputDispatcher hängen und erreicht die Session nicht.
+- Nach einem externen Stopp steht der Player auf Anfang; ein Tipp auf Play startet die Meditation dann direkt, ohne Vorbereitung und Start-Gong (der Play-Knopf ruft `togglePlayPause`, wie auf iOS im Zustand idle).
 
 ---
 

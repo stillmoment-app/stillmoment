@@ -11,5 +11,11 @@ Evidence without screenshots: `dumpsys media_session` (session, PlaybackState wi
 
 Importing an MP3: `adb push` to /sdcard/Download, send `MEDIA_SCANNER_SCAN_FILE`, get the id with `content query --uri content://media/external/audio/media`, then `am start -a VIEW -t audio/mpeg -d content://media/external/audio/media/<id> --grant-read-uri-permission -n <pkg>/com.stillmoment.MainActivity`. A trim set in the import dialog was not saved (as of 2026-10-10). Set the trim via the edit dialog instead: swipe right from x=250, not from the edge, because the edge swipe is the back gesture.
 
+From android-098 (2026-10-11):
+- **Use `cmd media_session dispatch stop|play|pause` for media keys with the screen off.** With the screen off (`KEYCODE_SLEEP`), `input keyevent 86` waits in InputDispatcher ("no window has focus") and is dropped after 5 s, so it never reaches the session. That looks like an app bug but isn't one. `cmd media_session dispatch` goes through MediaSessionService like a headset would.
+- "Lock right away" = `input tap` followed immediately by `input keyevent KEYCODE_SLEEP` as separate calls. Proof of background focus: in `logcat`, the `MediaFocusControl: requestAudioFocus()` after the gong is followed by `AudioFocusManager: Audio focus granted`; for the FGS start, `ActivityManager: Background started FGS: Allowed ... uidState: TOP`.
+- `connectedDebugAndroidTest` uninstalls the dev app afterwards. Run `installDebug` again before handing over.
+- Taps right after closing the player or switching tabs get lost (animation). Check the UI dump before tapping again.
+
 **Why:** android-094 cost a lot of time finding these paths. [[shared-emulator-parallel-agents]]
 **How to apply:** For any Android ticket that touches the lock screen, notification or media session.
