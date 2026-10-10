@@ -44,7 +44,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
 | [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [ ] | - |
 | [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [ ] | - |
-| [android-089](android/android-089-dependabot-android-actions.md) | Automatische Dependency-Updates für Android und GitHub Actions (Dependabot) | 5-QA | [~] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
 
 ## Archiv
@@ -321,3 +320,4 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-081](archive/android/android-081-target-sdk-36-android-16.md) | Target API Level 36 (Android 16) fuer Google Play — Frist 31.08.2026 | 2-Architektur | [x] | - |
 | [android-084](archive/android/android-084-timer-idle-kleine-bildschirme.md) | Timer-Startbildschirm auf kleinen Bildschirmen abgeschnitten | 4-Polish | [x] | - |
 | [android-085](archive/android/android-085-vorbereitungszeit-titel-einstellungen.md) | Vorbereitungszeit in den Einstellungen mit Titel und Untertitel wie auf iOS | 4-Polish | [x] | - |
+| [android-089](archive/android/android-089-dependabot-android-actions.md) | Automatische Dependency-Updates für Android und GitHub Actions (Dependabot) | 5-QA | [x] | - |
