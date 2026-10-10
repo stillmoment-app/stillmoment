@@ -1,7 +1,7 @@
 ---
 id: android-093
 title: "Wischgesten in Bibliothek und Suche ohne veraltete Compose-API"
-status: in-progress
+status: done
 phase: 5-QA
 priority: niedrig
 depends_on: [android-091]
@@ -36,6 +36,14 @@ Fällt die veraltete API in einer späteren Compose-Version weg, funktionieren B
 3. Eine Meditation nach links wischen
 4. Beides in den Suchergebnissen wiederholen
 5. Erwartung: Bearbeiten zeigt den neuen Titel, Löschen wird ausgelöst, die Zeilen springen jeweils zurück
+
+---
+
+## Umsetzungsnotiz
+
+- Die Zeile gleitet jetzt erst ganz hinaus, dann startet Bearbeiten bzw. die Lösch-Rückfrage, und sie gleitet animiert zurück. Bisher sprang sie beim Loslassen sofort zurück. Das ist durch die nicht-veraltete Material3-API bedingt: `SwipeToDismissBox` ruft `onDismiss` erst auf, wenn die Zeile am Endanker angekommen ist. Das alte Verhalten gäbe es nur mit einem eigenen `anchoredDraggable` (deutlich mehr Code und Risiko). Bewusst so belassen; das weiche Hinaus- und Zurückgleiten passt zur ruhigen App.
+- Bibliothek und Suche teilen sich jetzt `SwipeToEditDeleteBox`; die Suche bekommt dadurch denselben Wisch-Hintergrund samt Bedienhilfen-Beschriftungen wie die Bibliothek.
+- `SwipeToEditDeleteTest` (androidTest) deckt Bearbeiten, Löschen und android-078 für Bibliothek und Suche ab.
 
 ---
 
