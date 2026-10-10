@@ -46,7 +46,8 @@ interface GuidedMeditationRepository {
      * with the caller-provided teacher and name (already prefilled or edited).
      *
      * The gong settings (shared-106) are persisted together with the entry in the
-     * same operation, so an import can never leave a gong-less entry behind.
+     * same operation, so an import can never leave a gong-less entry behind. The
+     * same holds for the playback range chosen in the import sheet (android-099).
      *
      * @param sourceUri URI string of the source audio file (will be copied)
      * @param fileName Original file name to preserve for display
@@ -56,6 +57,8 @@ interface GuidedMeditationRepository {
      * @param startGongEnabled Whether a start gong rings when playback begins
      * @param endGongEnabled Whether an end gong rings when playback finishes
      * @param gongSoundId Identifier of the gong sound used for both gongs
+     * @param trimStartMs Start of the playback range in ms (null = file start)
+     * @param trimEndMs End of the playback range in ms (null = file end)
      */
     suspend fun addMeditation(
         sourceUri: String,
@@ -65,7 +68,9 @@ interface GuidedMeditationRepository {
         name: String,
         startGongEnabled: Boolean = false,
         endGongEnabled: Boolean = false,
-        gongSoundId: String = GongSound.DEFAULT_SOUND_ID
+        gongSoundId: String = GongSound.DEFAULT_SOUND_ID,
+        trimStartMs: Long? = null,
+        trimEndMs: Long? = null
     ): Result<GuidedMeditation>
 
     /**
