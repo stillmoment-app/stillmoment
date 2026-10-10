@@ -2,6 +2,7 @@
 
 package com.stillmoment.presentation.ui.meditations.components
 
+import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -68,9 +68,11 @@ data class WaveformWindowSpec(
  *
  * 1:1 visual port of iOS `WaveformWindowView` (windowSec 60, height 188, barStep 3.2, barWidth
  * 2.0, maxHalfFactor 0.40, edge-fade 56). The scroll glides between the audio service's coarse
- * position updates by interpolating on each frame ([withFrameNanos]) while playing, anchored to
- * the true position so it recovers cleanly after a seek/background pause — the real audio
- * position stays the source of truth.
+ * position updates by interpolating on each frame ([withInfiniteAnimationFrameNanos]) while
+ * playing, anchored to the true position so it recovers cleanly after a seek/background pause —
+ * the real audio position stays the source of truth. The "infinite" frame variant behaves like
+ * `withFrameNanos` in the app, but lets the Compose test framework stop the endless loop so UI
+ * tests can wait for an idle UI.
  *
  * The samples in [waveform] span the full file, so they are mapped through the trim start in
  * [spec] when drawn. See [WaveformWindowSpec] for the position/track inputs.
@@ -156,7 +158,7 @@ private fun rememberInterpolatedNow(
         var lastFrameNs = 0L
         visualNowMs = latestPosition
         while (true) {
-            withFrameNanos { frameNs ->
+            withInfiniteAnimationFrameNanos { frameNs ->
                 if (lastFrameNs == 0L) {
                     lastFrameNs = frameNs
                 }

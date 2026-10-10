@@ -1,7 +1,7 @@
 ---
 id: android-095
 title: "Neun veraltete Android-UI-Tests reparieren"
-status: todo
+status: in-progress
 phase: 5-QA
 priority: mittel
 depends_on: []
