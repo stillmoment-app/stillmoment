@@ -26,6 +26,8 @@ import kotlinx.coroutines.withTimeoutOrNull
  * - detection failed or exceeded [timeoutMs] → nothing stored, the row simply shows
  *   no length
  * - file deleted in the meantime → the store ignores the unknown ID
+ * - process killed while detecting → the file keeps no length; there is
+ *   deliberately no retry on app start, the length is display-only
  *
  * The native scan itself cannot be aborted; the timeout only guarantees that a
  * late result is discarded.

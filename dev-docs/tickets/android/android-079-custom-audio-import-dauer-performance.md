@@ -53,6 +53,13 @@ Der Flaschenhals ist die Dauer-Erkennung via `MediaMetadataRetriever.setDataSour
 
 ---
 
+## Umsetzungsnotiz
+
+- **Scope:** Umgesetzt nur für Custom-Audio (Soundscapes, „Meine Klänge"). Der Import geführter Meditationen ist bewusst ausgenommen: Dort wird die Dauer (zusammen mit den ID3-Tags für das Vorausfüllen) schon vor dem Bearbeiten-Blatt ermittelt und ist fachlich Pflicht — `GuidedMeditation.duration` speist Kürzen, Player und den Dauer-Filter der Bibliothek. Ob der Guided-Import auf dem Fairphone ebenfalls spürbar zu langsam ist, ist ungeprüft.
+- **Bekannte Grenze:** Stirbt der Prozess während der Dauer-Erkennung oder läuft der Timeout ab, bleibt die Datei dauerhaft ohne Dauer. Ein Nachholen beim App-Start gibt es bewusst nicht, weil die Dauer hier nur eine Anzeige-Information ist.
+
+---
+
 ## Hinweise
 
 - Aufgedeckt während shared-121 (Hintergrundklang-Redesign); dort bewusst ausgeklammert, weil vorbestehend und plattformübergreifend relevant.
