@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -44,6 +46,7 @@ import com.stillmoment.domain.models.DurationFilter
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.LibrarySearchState
+import com.stillmoment.presentation.ui.theme.BottomFadeContentInset
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -186,11 +189,17 @@ internal fun GuidedMeditationsListScreenContent(
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
+            // android-088: Die aeussere NavHost-Scaffold rechnet Statusleiste,
+            // Tab-Leiste und Systemnavigation bereits heraus (wie android-084 beim
+            // Timer). Die Standard-Insets hier zogen Statusleiste und
+            // Systemnavigation ein zweites Mal ab. Ohne eigene Insets sitzt auch
+            // die Snackbar direkt ueber der Tab-Leiste.
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { padding ->
             // shared-102: Kein StillMomentTopAppBar mehr. Der Body sitzt direkt
-            // unter der StatusBar (Scaffold-Padding ist die Safe-Area), der neue
-            // LibraryHeaderBar wandert in LibraryWithHeader und bleibt durch die
+            // unter der StatusBar, der LibraryHeaderBar wandert in
+            // LibraryWithHeader und bleibt durch die
             // Column { Header; Body }-Struktur fix beim Scrollen.
             Box(
                 modifier = Modifier
@@ -480,11 +489,10 @@ private fun MeditationsList(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
+            .testTag("library.list")
             .bottomFadeMask(),
-        // shared-094: keep the last card visible above the fade start by
-        // extending the bottom content padding (140 dp fade region * 18 %
-        // opaque + breathing room). The horizontal/top padding is unchanged.
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 80.dp)
+        // shared-094: keep the last card clear of the fade transition.
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = BottomFadeContentInset)
     ) {
         groups.forEach { group ->
             // Section Header

@@ -1,7 +1,7 @@
 ---
 id: android-088
 title: "Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände"
-status: todo
+status: in-progress
 phase: 4-Polish
 priority: mittel
 depends_on: []

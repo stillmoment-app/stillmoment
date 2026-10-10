@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -24,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.presentation.ui.theme.BottomFadeContentInset
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.bottomFadeMask
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
@@ -79,8 +81,9 @@ fun SearchResultsList(
         state = listState,
         modifier = modifier
             .fillMaxSize()
+            .testTag("library.searchResults")
             .bottomFadeMask(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 80.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = BottomFadeContentInset)
     ) {
         item(key = "results-count") {
             ResultsHeader(count = results.size, totalCount = totalCount)

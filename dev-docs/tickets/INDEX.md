@@ -40,7 +40,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
 | [android-086](android/android-086-lehrer-feld-beschriftung-ueberlappt.md) | Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen | 4-Polish | [ ] | - |
-| [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [ ] | - |
+| [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [~] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
 | [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
 | [android-095](android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [ ] | - |

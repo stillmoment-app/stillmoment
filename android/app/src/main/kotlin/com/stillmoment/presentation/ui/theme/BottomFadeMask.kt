@@ -46,3 +46,15 @@ fun Modifier.bottomFadeMask(fadeHeight: Dp = 140.dp): Modifier = this
             blendMode = BlendMode.DstIn
         )
     }
+
+/**
+ * Air below the last row of a list that sits under [bottomFadeMask] — mirrors
+ * `BottomFadeMask.contentInset` (80 pt) on iOS.
+ *
+ * Use it as the list's bottom `contentPadding`. Scrolled to the end, the last
+ * row then sits above the fade transition (the lowest 18 % of the 140 dp zone)
+ * instead of fading out. Since android-088 the library lists end directly at
+ * the tab bar, as on iOS; before that the system navigation height was added a
+ * second time underneath.
+ */
+val BottomFadeContentInset: Dp = 80.dp
