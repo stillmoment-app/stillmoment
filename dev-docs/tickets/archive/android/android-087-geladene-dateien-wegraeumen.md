@@ -1,7 +1,7 @@
 ---
 id: android-087
 title: "Beim Link- und Podcast-Import geladene Dateien werden weggeräumt"
-status: in-progress
+status: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
