@@ -332,8 +332,9 @@ constructor(
     fun saveImportedMeditation(edited: GuidedMeditation) {
         val pending = _uiState.value.pendingImport ?: return
         viewModelScope.launch {
-            // Persist the entry complete with its gong settings (shared-106) in a
-            // single operation, so a failure can never leave a gong-less entry behind.
+            // Persist the entry complete with its gong settings (shared-106) and the
+            // playback range chosen in the import sheet (android-099) in a single
+            // operation, so a failure can never leave a half-configured entry behind.
             repository.addMeditation(
                 sourceUri = pending.uri,
                 fileName = pending.fileName,
@@ -342,7 +343,9 @@ constructor(
                 name = edited.name.trim(),
                 startGongEnabled = edited.startGongEnabled,
                 endGongEnabled = edited.endGongEnabled,
-                gongSoundId = edited.gongSoundId
+                gongSoundId = edited.gongSoundId,
+                trimStartMs = edited.trimStartMs,
+                trimEndMs = edited.trimEndMs
             ).onSuccess { imported ->
                 // Precompute the waveform in the background so the trim editor opens
                 // without a decode wait (Phase C). Import itself stays fast.

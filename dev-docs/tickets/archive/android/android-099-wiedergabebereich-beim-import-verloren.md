@@ -1,7 +1,7 @@
 ---
 id: android-099
 title: "Beim Import gewählter Wiedergabe-Bereich geht verloren"
-status: todo
+status: done
 phase: 1-Quick Fix
 priority: hoch
 depends_on: []

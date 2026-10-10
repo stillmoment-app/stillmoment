@@ -222,6 +222,59 @@ class GuidedMeditationsListViewModelTest {
         }
 
         @Test
+        fun `saveImportedMeditation keeps the playback range chosen during import`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            seedPendingImport()
+
+            viewModel.saveImportedMeditation(
+                GuidedMeditation(
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan",
+                    trimStartMs = 5_000L,
+                    trimEndMs = 540_000L
+                )
+            )
+            advanceUntilIdle()
+
+            // android-099: the range chosen in the import sheet arrives in the library
+            // together with the entry — the library shows the shortened duration.
+            val saved = fakeRepository.addedMeditations
+            assertEquals(1, saved.size)
+            assertEquals(5_000L, saved.first().trimStartMs)
+            assertEquals(540_000L, saved.first().trimEndMs)
+            assertEquals(535_000L, saved.first().effectiveDurationMs)
+            assertEquals("Tara Brach", saved.first().teacher)
+            assertFalse(fakeRepository.updateWasCalled)
+        }
+
+        @Test
+        fun `saveImportedMeditation without a playback range keeps the whole file`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            seedPendingImport()
+
+            viewModel.saveImportedMeditation(
+                GuidedMeditation(
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan"
+                )
+            )
+            advanceUntilIdle()
+
+            val saved = fakeRepository.addedMeditations.first()
+            assertNull(saved.trimStartMs)
+            assertNull(saved.trimEndMs)
+            assertEquals(600_000L, saved.effectiveDurationMs)
+        }
+
+        @Test
         fun `saveImportedMeditation precomputes the waveform after a successful import`() = runTest {
             fakeRepository.emitMeditations(emptyList())
             advanceUntilIdle()
@@ -1077,7 +1130,9 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         name: String,
         startGongEnabled: Boolean,
         endGongEnabled: Boolean,
-        gongSoundId: String
+        gongSoundId: String,
+        trimStartMs: Long?,
+        trimEndMs: Long?
     ): Result<GuidedMeditation> {
         addFailure?.let { return Result.failure(it) }
         val item = GuidedMeditation(
@@ -1088,7 +1143,9 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
             name = name,
             startGongEnabled = startGongEnabled,
             endGongEnabled = endGongEnabled,
-            gongSoundId = gongSoundId
+            gongSoundId = gongSoundId,
+            trimStartMs = trimStartMs,
+            trimEndMs = trimEndMs
         )
         addedMeditations += item
         _meditations.value = _meditations.value + item
