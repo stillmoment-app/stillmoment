@@ -1,7 +1,7 @@
 ---
 id: android-089
 title: "Automatische Dependency-Updates für Android und GitHub Actions (Dependabot)"
-status: todo
+status: done
 phase: 5-QA
 priority: niedrig
 depends_on: []

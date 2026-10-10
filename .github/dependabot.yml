@@ -1,0 +1,47 @@
+# Dependabot: monatliche, gebuendelte Update-PRs fuer Android und GitHub Actions.
+# Bewusst NICHT ueberwacht: iOS (keine Swift-Packages), Fastlane-Gemfiles, docs/Gemfile.
+# Hintergrund: dev-docs/tickets/archive/android/android-089-dependabot-android-actions.md
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/android"   # build.gradle.kts, gradle/libs.versions.toml, gradle/wrapper/*
+    schedule:
+      interval: "monthly"
+    # Reihenfolge ist relevant: Eine Abhaengigkeit landet in der ersten passenden Gruppe.
+    # Abhaengigkeiten mit gemeinsamem version.ref im Catalog muessen in derselben Gruppe
+    # liegen, sonst bearbeiten zwei PRs dieselbe Versionszeile.
+    groups:
+      # AGP, Kotlin, KSP und Hilt muessen zueinander passen — einzeln angehoben bricht der
+      # Build (Praezedenzfall AGP-9-Upgrade: Hilt war mit der neuen KSP-Version inkompatibel).
+      toolchain:
+        patterns:
+          - "com.android.application"   # AGP (Plugin-ID aus dem Catalog)
+          - "org.jetbrains.kotlin.*"    # Kotlin-Compiler-Plugins (compose, serialization) — nicht kotlinx
+          - "org.jetbrains.kotlin:*"    # Kotlin-Artefakte, falls je direkt deklariert
+          - "com.google.devtools.ksp"
+          - "com.google.dagger*"        # Hilt-Plugin, hilt-android/-compiler/-android-testing (ref "hilt")
+          - "gradle-wrapper"            # AGP gibt die Mindestversion von Gradle vor
+      test:
+        patterns:
+          - "junit:*"
+          - "org.junit*"
+          - "androidx.test*"
+          - "org.mockito*"
+          - "tools.fastlane:*"          # screengrab
+        # kotlinx-coroutines-test teilt den ref "coroutines" mit core/android und
+        # laeuft deshalb mit ihnen in "other".
+      androidx:
+        patterns:
+          - "androidx.*"                # inkl. Compose-BOM, Media3, androidx.hilt
+      other:
+        patterns:
+          - "*"                         # kotlinx, detekt, ktlint, ...
+
+  - package-ecosystem: "github-actions"
+    directory: "/"                      # durchsucht .github/workflows
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
