@@ -17,6 +17,7 @@ import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AudioDurationProbe
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
 import com.stillmoment.domain.services.AudioFrameReader
 import com.stillmoment.domain.services.AudioMetadataService
@@ -57,6 +58,7 @@ import com.stillmoment.infrastructure.logging.AndroidLogger
 import com.stillmoment.infrastructure.network.ApplePodcastsEpisodeResolver
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
 import com.stillmoment.infrastructure.services.AndroidAudioMetadataService
+import com.stillmoment.infrastructure.services.MediaMetadataDurationProbe
 import com.stillmoment.presentation.viewmodel.TrimPreviewDurations
 import dagger.Module
 import dagger.Provides
@@ -219,6 +221,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAudioMetadataService(impl: AndroidAudioMetadataService): AudioMetadataService {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioDurationProbe(impl: MediaMetadataDurationProbe): AudioDurationProbe {
         return impl
     }
 

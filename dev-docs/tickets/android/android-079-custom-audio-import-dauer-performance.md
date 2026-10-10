@@ -1,7 +1,7 @@
 ---
 id: android-079
 title: Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung)
-status: todo
+status: in-progress
 phase: 4-Polish
 priority: mittel
 ---

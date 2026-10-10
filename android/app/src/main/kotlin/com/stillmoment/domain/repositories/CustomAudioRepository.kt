@@ -27,7 +27,9 @@ interface CustomAudioRepository {
     /**
      * Imports an audio file from the given URI.
      *
-     * Copies the file to local storage, detects duration, creates metadata record.
+     * Copies the file to local storage and creates the metadata record right away,
+     * without the play length. The length is detected in the background and shows up
+     * later via [filesFlow]; it stays null if detection fails (android-079).
      * Supported formats: mp3, m4a, wav.
      *
      * @param uri Content URI from Storage Access Framework
