@@ -359,7 +359,8 @@ fun `create timer with zero duration throws exception`() {
 - JUnit 5 for tests (`useJUnitPlatform()`)
 - Detekt for static analysis
 - Media3 (ExoPlayer) for audio playback
-- `minSdk = 26`, `compileSdk = 36`, `targetSdk = 36`, `jvmTarget = 17`
+- `minSdk = 26`, `compileSdk = 37`, `targetSdk = 36`, `jvmTarget = 17`
+  (compileSdk 37 brauchen die aktuellen AndroidX-/Compose-Versionen; targetSdk bleibt wegen des Opt-outs unten auf 36)
 
 ### Portrait-Only auf grossen Displays — temporaerer Opt-out
 

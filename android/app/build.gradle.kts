@@ -20,7 +20,9 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.stillmoment"
-    compileSdk = 36
+    // compileSdk 37 verlangen AndroidX/Compose ab core 1.19 bzw. Compose 1.12. targetSdk bleibt
+    // bewusst 36 — ab 37 entfaellt der Portrait-Opt-out auf grossen Displays (siehe android/CLAUDE.md).
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.stillmoment"
