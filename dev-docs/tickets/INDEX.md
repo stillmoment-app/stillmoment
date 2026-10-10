@@ -49,6 +49,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-093](android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [ ] | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) |
 | [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
 | [android-095](android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [ ] | - |
+| [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [ ] | [android-095](android/android-095-veraltete-ui-tests-reparieren.md) |
 
 ## Archiv
 
