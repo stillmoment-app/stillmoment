@@ -1,7 +1,7 @@
 ---
 id: android-091
 title: "Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen"
-status: in-progress
+status: done
 phase: 5-QA
 priority: niedrig
 depends_on: []
