@@ -1,7 +1,7 @@
 ---
 id: android-092
 title: "CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog"
-status: in-progress
+status: done
 phase: 5-QA
 priority: niedrig
 depends_on: []
