@@ -149,7 +149,7 @@ class ScreengrabScreenshotTests {
             activity.resources.updateConfiguration(config, activity.resources.displayMetrics)
         }
 
-        composeRule.waitForIdle()
+        waitForAppShell()
     }
 
     @After
@@ -178,11 +178,29 @@ class ScreengrabScreenshotTests {
     private fun localizedText(en: String, de: String) = hasText(en, substring = true, ignoreCase = true)
         .or(hasText(de, substring = true, ignoreCase = true))
 
+    private val timerTabMatcher = localizedContentDescription("Navigate to timer", "Zum Timer navigieren")
+    private val libraryTabMatcher = localizedContentDescription("Navigate to meditations", "Zu den Meditationen")
+
+    /**
+     * Waits until the app shell (NavHost + tab bar) is composed.
+     *
+     * StillMomentNavHost renders nothing until the saved tab has been read from the DataStore
+     * (`produceState { settingsDataStore.getSelectedTab() }`, then `?: return`). That read runs on
+     * an IO thread Compose's idling does not track, so `waitForIdle()` can return while the
+     * screen is still empty — on a slow CI emulator the first tab click then failed with
+     * "Failed to inject touch input … could not find any node". Waiting for both tab items makes
+     * every test start from a fully composed shell.
+     */
+    private fun waitForAppShell() {
+        composeRule.waitUntil(timeoutMillis = APP_SHELL_TIMEOUT_MS) {
+            composeRule.onAllNodes(timerTabMatcher, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() &&
+                composeRule.onAllNodes(libraryTabMatcher, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun navigateToTimerTab() {
-        composeRule.onNode(
-            localizedContentDescription("Navigate to timer", "Zum Timer navigieren"),
-            useUnmergedTree = true
-        ).performClick()
+        composeRule.onNode(timerTabMatcher, useUnmergedTree = true).performClick()
         composeRule.waitForIdle()
 
         // Wait for Timer screen to be fully loaded (Start button visible)
@@ -190,10 +208,7 @@ class ScreengrabScreenshotTests {
     }
 
     private fun navigateToLibraryTab() {
-        composeRule.onNode(
-            localizedContentDescription("Navigate to meditations", "Zu den Meditationen"),
-            useUnmergedTree = true
-        ).performClick()
+        composeRule.onNode(libraryTabMatcher, useUnmergedTree = true).performClick()
         composeRule.waitForIdle()
     }
 
@@ -483,6 +498,10 @@ class ScreengrabScreenshotTests {
     private companion object {
         // UiAutomator lookup timeout for finding the play button / player content.
         const val FIND_TIMEOUT_MS = 5_000L
+
+        // Upper bound for the saved-tab DataStore read before the NavHost and tab bar appear.
+        // Generous because the CI emulator (swiftshader) is slow; normally this takes < 1 s.
+        const val APP_SHELL_TIMEOUT_MS = 15_000L
 
         // The player auto-plays on open; it must load, generate its (sampled) waveform and start
         // playing before capturing. We pump the frame clock in steps interleaved with real-time
