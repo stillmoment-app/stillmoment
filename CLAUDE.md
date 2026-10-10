@@ -94,6 +94,7 @@ Both platforms use `make help` to show all available commands.
 make check              # Format + lint (+ localization on iOS)
 make test-unit          # Fast TDD loop
 make test               # Full suite (with coverage on iOS)
+make test-ui            # UI tests (iOS: simulator; Android: running emulator) — same as the CI "UI Tests" checks
 ```
 
 **Testing rules (Claude Code):**
