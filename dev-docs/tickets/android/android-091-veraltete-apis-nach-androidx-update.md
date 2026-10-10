@@ -26,7 +26,7 @@ Veraltete APIs verschwinden in späteren Bibliotheksversionen. Dependabot bringt
 - [ ] Im Dialog „Keine Mail-App“ (Rückmeldung → „Schreib uns“ ohne Mail-App) kopiert „Adresse kopieren“ die Adresse weiterhin in die Zwischenablage und schließt den Dialog
 - [ ] In den Einstellungen für geführte Meditationen öffnet sich die Auswahl der Vorbereitungszeit weiterhin, und die gewählte Dauer wird übernommen
 - [ ] Der Bearbeiten-Dialog einer Meditation zeigt seine Titelleiste unverändert
-- [ ] Alle Unit-Tests und alle UI-Tests auf dem Emulator laufen grün
+- [ ] Alle Unit-Tests laufen grün. Auf dem Emulator wird kein UI-Test rot, der vor der Änderung grün war
 
 ---
 
@@ -44,6 +44,7 @@ Veraltete APIs verschwinden in späteren Bibliotheksversionen. Dependabot bringt
 
 - Wischen-zum-Löschen in Bibliothek und Suche: Die veraltete Möglichkeit, eine Wischgeste per Rückfrage abzubrechen, hat keinen direkten Ersatz. Folgeticket android-093.
 - Steuerung auf dem Sperrbildschirm und Wiedergabe-Benachrichtigung über die alte MediaSession-Kompatibilitätsbibliothek. Der Umstieg ist eine Architekturänderung am Kern-Anwendungsfall. Folgeticket android-094.
+- Neun UI-Tests, die schon vor den Dependabot-Updates rot waren (Stand 6f636fee geprüft): veraltete Texte, Beschriftungen und Endlos-Animationen aus Feature-Tickets im Mai und Juni. Folgeticket android-095.
 
 ---
 

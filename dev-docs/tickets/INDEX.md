@@ -49,6 +49,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-092](android/android-092-ci-gradle-cache-version-catalog.md) | CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog | 5-QA | [ ] | - |
 | [android-093](android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [ ] | [android-091](android/android-091-veraltete-apis-nach-androidx-update.md) |
 | [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
+| [android-095](android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [ ] | - |
 
 ## Archiv
 
