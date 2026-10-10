@@ -4,6 +4,7 @@ kotlin = "2.4.20"
 ktlint = "14.2.0"
 ktlintEngine = "1.0.1"
 detekt = "1.23.7"
+# compose-rules ab 0.5 braucht detekt 2.x — bis zum Umstieg bei 0.4.x bleiben (siehe .github/dependabot.yml)
 detektCompose = "0.4.22"
 serialization = "1.7.3"
 collectionsImmutable = "0.3.8"

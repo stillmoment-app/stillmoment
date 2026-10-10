@@ -36,6 +36,11 @@ updates:
       other:
         patterns:
           - "*"                         # kotlinx, detekt, ktlint, ...
+    ignore:
+      # compose-rules ab 0.5 setzt detekt 2.x voraus; mit detekt 1.x schlaegt `detekt`
+      # fehl. Erst zusammen mit dem Umstieg auf detekt 2 anheben.
+      - dependency-name: "io.nlopez.compose.rules:detekt"
+        versions: [">= 0.5.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"                      # durchsucht .github/workflows
