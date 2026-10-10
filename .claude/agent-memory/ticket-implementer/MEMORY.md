@@ -17,6 +17,7 @@
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 - [Worktree-Guard: git nicht in Ketten](feedback_worktree_guard_compound_git.md) — `git` allein aufrufen; lange Code-Einfügungen per Edit statt Python-Heredoc.
 - [class=A,B-Filter überspringt Parameterized](feedback_connected_test_class_filter.md) — UI-Testklassen einzeln laufen lassen, Testanzahl im XML prüfen.
+- [CI-UI-Test-Fehler: Artefakt lesen](feedback_ci_ui_test_failure_artifacts.md) — Stacktrace/Logcat nur im Artefakt; "Failed to inject touch input" kann "Knoten fehlt" heißen.
 
 ## Feature-Entfernungen (Refactoring)
 
