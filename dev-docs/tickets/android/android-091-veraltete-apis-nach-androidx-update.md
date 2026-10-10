@@ -1,7 +1,7 @@
 ---
 id: android-091
 title: "Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen"
-status: todo
+status: in-progress
 phase: 5-QA
 priority: niedrig
 depends_on: []
@@ -11,7 +11,7 @@ depends_on: []
 
 ## Was
 
-Seit dem ersten Dependabot-Update der AndroidX- und Compose-Bibliotheken (PR #10: Compose 1.12, hilt-navigation-compose 1.4) meldet der Kotlin-Compiler beim Android-Build Veraltungswarnungen im App-Code. Danach baut die App wieder ohne diese Warnungen, und alle betroffenen Bildschirme verhalten sich wie vorher.
+Seit den ersten Dependabot-Updates (PRs #9 und #10: Compose 1.12, hilt-navigation-compose 1.4, mockito-kotlin 6) meldet der Kotlin-Compiler beim Android-Build Veraltungswarnungen und fehlende Opt-ins, im App-Code wie in den Tests. Nach diesem Ticket sind alle Warnungen behoben, die sich durch einen direkten Ersatz lösen lassen. Alle betroffenen Bildschirme verhalten sich wie vorher.
 
 ## Warum
 
@@ -21,30 +21,36 @@ Veraltete APIs verschwinden in späteren Bibliotheksversionen. Dependabot bringt
 
 ## Akzeptanzkriterien
 
-- [ ] Der Android-Build meldet keine Veraltungswarnungen mehr für den App-Code
-- [ ] Timer, Timer-Fokus, Intervall-Editor, Auswahl der Vorbereitungszeit, Soundscape-Auswahl und Gong-Auswahl öffnen weiterhin und zeigen die gespeicherten Einstellungen
-- [ ] Im Dialog „Keine Mail-App“ (Rückmeldung → „Schreib uns“ ohne Mail-App) kopiert ein Tippen auf die Adresse sie weiterhin in die Zwischenablage, und die Bestätigung erscheint
+- [ ] Der Android-Build (App, Unit-Tests, UI-Tests; Debug und Release) meldet keine Veraltungswarnungen und keine fehlenden Opt-ins mehr. Ausgenommen sind nur die beiden Fälle aus „Nicht Teil dieses Tickets“.
+- [ ] Bibliothek, Player, Trim-Editor, Timer, Timer-Fokus, Intervall-Editor, Auswahl der Vorbereitungszeit, Soundscape-Auswahl und Gong-Auswahl öffnen weiterhin und zeigen die gespeicherten Daten bzw. Einstellungen
+- [ ] Im Dialog „Keine Mail-App“ (Rückmeldung → „Schreib uns“ ohne Mail-App) kopiert „Adresse kopieren“ die Adresse weiterhin in die Zwischenablage und schließt den Dialog
 - [ ] In den Einstellungen für geführte Meditationen öffnet sich die Auswahl der Vorbereitungszeit weiterhin, und die gewählte Dauer wird übernommen
+- [ ] Der Bearbeiten-Dialog einer Meditation zeigt seine Titelleiste unverändert
+- [ ] Alle Unit-Tests und alle UI-Tests auf dem Emulator laufen grün
 
 ---
 
 ## Manueller Test
 
-1. Android-Build ausführen und die Compiler-Ausgabe nach `deprecated` durchsuchen
-2. Alle oben genannten Timer-Bildschirme nacheinander öffnen und eine Einstellung ändern
-3. Auf einem Gerät ohne Mail-App Einstellungen → „Schreib uns“ tippen, im Dialog die Adresse kopieren und irgendwo einfügen
+1. Android-Build ausführen und die Compiler-Ausgabe nach `w:` durchsuchen
+2. Alle oben genannten Bildschirme nacheinander öffnen und eine Einstellung ändern
+3. Im Dialog „Keine Mail-App“ die Adresse kopieren und irgendwo einfügen
 4. Einstellungen für geführte Meditationen → Vorbereitungszeit einschalten, die Dauer auf 30 s ändern
-5. Erwartung: keine Veraltungswarnungen; alle Bildschirme, das Kopieren und die Auswahl funktionieren wie vorher
+5. Erwartung: Es bleiben nur die Warnungen aus den Folgetickets; alle Bildschirme, das Kopieren und die Auswahl funktionieren wie vorher
+
+---
+
+## Nicht Teil dieses Tickets
+
+- Wischen-zum-Löschen in Bibliothek und Suche: Die veraltete Möglichkeit, eine Wischgeste per Rückfrage abzubrechen, hat keinen direkten Ersatz. Folgeticket android-093.
+- Steuerung auf dem Sperrbildschirm und Wiedergabe-Benachrichtigung über die alte MediaSession-Kompatibilitätsbibliothek. Der Umstieg ist eine Architekturänderung am Kern-Anwendungsfall. Folgeticket android-094.
 
 ---
 
 ## Hinweise
 
-- Beobachtete Warnungen (lokaler Build am 2026-10-10; erfasst sind nur die letzten Zeilen der Ausgabe, die Liste kann unvollständig sein):
-  - `hiltViewModel` ist in ein anderes Package umgezogen. Betroffen sind die sechs Timer-Bildschirme aus dem Akzeptanzkriterium.
-  - `LocalClipboardManager` ist veraltet (Dialog „Keine Mail-App“).
-  - `MenuAnchorType` ist umbenannt (Auswahl der Vorbereitungszeit für geführte Meditationen).
-- Voraussetzung ist, dass die App mit den neuen Bibliotheken überhaupt baut. Dafür muss PR #12 (compileSdk 37) gemergt sein.
+- Vollständige Warnungsliste aus einem Build mit `--rerun-tasks` am 2026-10-10: 76 Veraltungswarnungen und 50 fehlende Opt-ins, davon 37 in den beiden ausgenommenen Fällen.
+- Entscheidung (2026-10-10): Was einen direkten Ersatz hat, gehört in dieses Ticket, auch die Umstellung der UI-Test-Regeln auf die v2-API. Wischen-zum-Löschen und MediaSession kommen in eigene Tickets.
 
 ---
 

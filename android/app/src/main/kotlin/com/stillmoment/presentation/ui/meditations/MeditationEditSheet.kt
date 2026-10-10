@@ -243,7 +243,7 @@ private fun EditorTopBar(mode: EditSheetMode, saveEnabled: Boolean, onCancel: ()
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background
         )
     )

@@ -29,7 +29,6 @@ import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Behavioral tests for the trim-aware playback mapping (shared-105):
@@ -69,7 +68,7 @@ class GuidedMeditationPlayerViewModelTrimTest {
         mockGongPlayer = mock()
         mockPraxisRepository = mock()
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
-        wheneverBlocking { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
+        whenever { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
 
         viewModel =
             GuidedMeditationPlayerViewModel(

@@ -45,8 +45,10 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-087](android/android-087-geladene-dateien-wegraeumen.md) | Beim Link- und Podcast-Import geladene Dateien werden weggeräumt | 4-Polish | [ ] | - |
 | [android-088](android/android-088-bibliothek-doppelter-randabstand.md) | Bibliothek und Bearbeiten-Blatt verschenken Höhe an doppelte Randabstände | 4-Polish | [ ] | - |
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
-| [android-091](android/android-091-veraltete-apis-nach-androidx-update.md) | Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen | 5-QA | [ ] | - |
+| [android-091](android/android-091-veraltete-apis-nach-androidx-update.md) | Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen | 5-QA | [~] | - |
 | [android-092](android/android-092-ci-gradle-cache-version-catalog.md) | CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog | 5-QA | [ ] | - |
+| [android-093](android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [ ] | [android-091](android/android-091-veraltete-apis-nach-androidx-update.md) |
+| [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
 
 ## Archiv
 

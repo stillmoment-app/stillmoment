@@ -5,6 +5,7 @@ import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.LinkImportFailure
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
@@ -22,6 +23,7 @@ import org.mockito.kotlin.mock
  * shared-132: Sharing links with Still Moment several times in a row never leads
  * to a message; the last shared address wins, the same address loads only once.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class SharedLinkImportTest {
 
     private val talk25401 = "https://www.audiodharma.org/talks/25401/download"
