@@ -4,13 +4,17 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.stillmoment.LocalizedTestContent
+import com.stillmoment.LocalizedTestResources
+import com.stillmoment.R
+import com.stillmoment.SUPPORTED_TEST_LANGUAGES
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * UI Tests for GuidedMeditationPlayerScreen.
@@ -18,11 +22,21 @@ import org.junit.runner.RunWith
  *
  * Note: These tests render isolated composables without real dependencies,
  * so no Hilt injection is needed.
+ *
+ * Runs once per app language; expected labels come from the string resources.
  */
-@RunWith(AndroidJUnit4::class)
-class PlayerScreenTest {
+@RunWith(Parameterized::class)
+class PlayerScreenTest(languageTag: String) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun languages(): List<String> = SUPPORTED_TEST_LANGUAGES
+    }
+
     @get:Rule
     val composeRule = createComposeRule()
+
+    private val strings = LocalizedTestResources(languageTag)
 
     private val testMeditation =
         GuidedMeditation(
@@ -52,14 +66,16 @@ class PlayerScreenTest {
         uiState: PlayerUiState = testUiState
     ) {
         composeRule.setContent {
-            StillMomentTheme {
-                GuidedMeditationPlayerScreenContent(
-                    meditation = meditation,
-                    uiState = uiState,
-                    onBack = {},
-                    onTogglePlayPause = {},
-                    onClearError = {}
-                )
+            LocalizedTestContent(strings) {
+                StillMomentTheme {
+                    GuidedMeditationPlayerScreenContent(
+                        meditation = meditation,
+                        uiState = uiState,
+                        onBack = {},
+                        onTogglePlayPause = {},
+                        onClearError = {}
+                    )
+                }
             }
         }
     }
@@ -83,14 +99,14 @@ class PlayerScreenTest {
     @Test
     fun playerScreen_showsPlayButton_whenPaused() {
         renderPlayerScreen(uiState = testUiState.copy(isPlaying = false))
-        composeRule.onNodeWithContentDescription("Play", substring = true, ignoreCase = true)
+        composeRule.onNodeWithContentDescription(strings.string(R.string.accessibility_play_button))
             .assertIsDisplayed()
     }
 
     @Test
     fun playerScreen_showsPauseButton_whenPlaying() {
         renderPlayerScreen(uiState = testUiState.copy(isPlaying = true))
-        composeRule.onNodeWithContentDescription("Pause", substring = true, ignoreCase = true)
+        composeRule.onNodeWithContentDescription(strings.string(R.string.accessibility_pause_button_player))
             .assertIsDisplayed()
     }
 
@@ -99,7 +115,7 @@ class PlayerScreenTest {
     @Test
     fun playerScreen_showsBackButton() {
         renderPlayerScreen()
-        composeRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
+        composeRule.onNodeWithContentDescription(strings.string(R.string.accessibility_back_to_library))
             .assertIsDisplayed()
     }
 }

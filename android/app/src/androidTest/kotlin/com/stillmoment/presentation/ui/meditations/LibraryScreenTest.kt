@@ -4,7 +4,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.stillmoment.LocalizedTestContent
+import com.stillmoment.LocalizedTestResources
+import com.stillmoment.R
+import com.stillmoment.SUPPORTED_TEST_LANGUAGES
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
@@ -12,6 +15,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * UI Tests for GuidedMeditationsListScreen (Library).
@@ -19,11 +23,21 @@ import org.junit.runner.RunWith
  *
  * Note: These tests render isolated composables without real dependencies,
  * so no Hilt injection is needed.
+ *
+ * Runs once per app language; expected texts come from the string resources.
  */
-@RunWith(AndroidJUnit4::class)
-class LibraryScreenTest {
+@RunWith(Parameterized::class)
+class LibraryScreenTest(languageTag: String) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun languages(): List<String> = SUPPORTED_TEST_LANGUAGES
+    }
+
     @get:Rule
     val composeRule = createComposeRule()
+
+    private val strings = LocalizedTestResources(languageTag)
 
     // MARK: - Helper to render LibraryScreenContent
 
@@ -33,23 +47,25 @@ class LibraryScreenTest {
         )
     ) {
         composeRule.setContent {
-            StillMomentTheme {
-                GuidedMeditationsListScreenContent(
-                    uiState = uiState,
-                    onMeditationClick = {},
-                    onImportClick = {},
-                    onEditClick = {},
-                    onConfirmDelete = {},
-                    onExecuteDelete = {},
-                    onCancelDelete = {},
-                    onDismissEditSheet = {},
-                    onSaveMeditation = {},
-                    onClearError = {},
-                    onPreviewStart = {},
-                    onStopPreview = {},
-                    onOpenGuide = {},
-                    onCloseGuide = {}
-                )
+            LocalizedTestContent(strings) {
+                StillMomentTheme {
+                    GuidedMeditationsListScreenContent(
+                        uiState = uiState,
+                        onMeditationClick = {},
+                        onImportClick = {},
+                        onEditClick = {},
+                        onConfirmDelete = {},
+                        onExecuteDelete = {},
+                        onCancelDelete = {},
+                        onDismissEditSheet = {},
+                        onSaveMeditation = {},
+                        onClearError = {},
+                        onPreviewStart = {},
+                        onStopPreview = {},
+                        onOpenGuide = {},
+                        onCloseGuide = {}
+                    )
+                }
             }
         }
     }
@@ -61,7 +77,8 @@ class LibraryScreenTest {
         renderLibraryScreen(
             uiState = GuidedMeditationsListUiState(isLoading = false, groups = persistentListOf())
         )
-        composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_empty_title))
+            .assertIsDisplayed()
     }
 
     @Test
@@ -69,11 +86,7 @@ class LibraryScreenTest {
         renderLibraryScreen(
             uiState = GuidedMeditationsListUiState(isLoading = false, groups = persistentListOf())
         )
-        composeRule.onNodeWithText(
-            "Import meditation audio files",
-            substring = true,
-            ignoreCase = true
-        )
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_empty_description))
             .assertIsDisplayed()
     }
 
@@ -82,7 +95,8 @@ class LibraryScreenTest {
         renderLibraryScreen(
             uiState = GuidedMeditationsListUiState(isLoading = false, groups = persistentListOf())
         )
-        composeRule.onNodeWithText("Import Meditation", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_import))
+            .assertIsDisplayed()
     }
 
     // MARK: - FAB Tests
@@ -111,7 +125,7 @@ class LibraryScreenTest {
             uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups)
         )
         // With data shown, only the FAB has the import description
-        composeRule.onNodeWithContentDescription("Import", substring = true, ignoreCase = true)
+        composeRule.onNodeWithContentDescription(strings.string(R.string.accessibility_import_meditation))
             .assertIsDisplayed()
     }
 
@@ -120,17 +134,17 @@ class LibraryScreenTest {
     @Test
     fun emptyLibraryState_showsCorrectUI() {
         composeRule.setContent {
-            StillMomentTheme {
-                EmptyLibraryState(onImportClick = {}, onFindSourcesClick = {})
+            LocalizedTestContent(strings) {
+                StillMomentTheme {
+                    EmptyLibraryState(onImportClick = {}, onFindSourcesClick = {})
+                }
             }
         }
-        composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()
-        composeRule.onNodeWithText(
-            "Import meditation audio files",
-            substring = true,
-            ignoreCase = true
-        )
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_empty_title))
             .assertIsDisplayed()
-        composeRule.onNodeWithText("Import Meditation", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_empty_description))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_import))
+            .assertIsDisplayed()
     }
 }
