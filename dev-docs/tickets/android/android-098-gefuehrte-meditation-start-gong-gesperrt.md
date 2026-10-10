@@ -1,7 +1,7 @@
 ---
 id: android-098
 title: "Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird"
-status: todo
+status: in-progress
 phase: 1-Quick Fix
 priority: kritisch
 depends_on: [android-094]

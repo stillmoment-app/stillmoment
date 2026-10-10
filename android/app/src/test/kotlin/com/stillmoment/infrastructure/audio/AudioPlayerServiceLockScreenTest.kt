@@ -10,6 +10,7 @@ import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -242,6 +243,72 @@ class AudioPlayerServiceLockScreenTest {
             sut.pause()
 
             assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+    }
+
+    /**
+     * Start gong and preparation time (android-098): the meditation is announced at the
+     * user's tap, so notification and foreground service exist before the app goes to the
+     * background. Android 15+ only grants audio focus in the background with a foreground
+     * service.
+     */
+    @Nested
+    inner class AnnouncedBeforeAudio {
+        @Test
+        fun `announcing shows the meditation and starts the notification without playing audio`() {
+            sut.announce(trimmedMeditation)
+
+            verify(mockMediaSessionManager).createSession(any())
+            verify(mockMediaSessionManager).updateMetadata(trimmedMeditation)
+            verify(mockServiceLauncher).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+            verify(mockMediaPlayer, never()).start()
+            assertFalse(sut.playbackState.value.isPlaying)
+        }
+
+        @Test
+        fun `the lock screen shows the announced meditation as not yet playing`() {
+            sut.announce(trimmedMeditation)
+
+            verify(mockMediaSessionManager).updatePlaybackState(
+                isPlaying = false,
+                position = 0L,
+                duration = 480_000L
+            )
+        }
+
+        @Test
+        fun `playing the announced meditation keeps its session and does not start the service again`() {
+            sut.announce(trimmedMeditation)
+
+            startPlaying()
+
+            // Starting the service again from the background could be refused (Android 12+)
+            verify(mockServiceLauncher, Mockito.times(1)).start()
+            verify(mockMediaSessionManager, Mockito.times(1)).createSession(any())
+            verify(mockMediaPlayer).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `stopping during the announcement ends notification and lock screen controls`() {
+            sut.announce(trimmedMeditation)
+
+            sut.stop()
+
+            assertNull(sut.nowPlaying.value)
+            verify(mockMediaSessionManager).release()
+        }
+
+        @Test
+        fun `a new start after stopping announces the meditation again`() {
+            sut.announce(trimmedMeditation)
+            sut.stop()
+
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher, Mockito.times(2)).start()
+            verify(mockMediaSessionManager, Mockito.times(2)).createSession(any())
         }
     }
 

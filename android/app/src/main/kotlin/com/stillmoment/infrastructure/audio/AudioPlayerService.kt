@@ -106,14 +106,34 @@ constructor(
         }
 
     /**
+     * Shows the meditation on the lock screen and in the notification before its audio
+     * begins (preparation time, start gong) and starts the foreground service while the
+     * user's tap keeps the app in the foreground (android-098).
+     */
+    override fun announce(meditation: GuidedMeditation) {
+        showOnLockScreen(meditation)
+        // Not playing yet: the lock screen shows the meditation at its start.
+        mediaSessionManager.updatePlaybackState(
+            isPlaying = false,
+            position = 0L,
+            duration = meditation.effectiveDurationMs
+        )
+        serviceLauncher.start()
+    }
+
+    /**
      * Plays a guided meditation, honouring its trim range (shared-105), and shows it on the
      * lock screen and in the media notification until it stops or ends.
+     *
+     * After [announce] the meditation is already shown and the service runs; playback then
+     * only starts the audio. Starting the service again could be refused, because by now the
+     * app may be in the background (screen locked during the start gong).
      */
     override fun play(meditation: GuidedMeditation) {
-        _nowPlaying.value = meditation
-
-        mediaSessionManager.createSession(lockScreenControls)
-        mediaSessionManager.updateMetadata(meditation)
+        val alreadyAnnounced = _nowPlaying.value == meditation
+        if (!alreadyAnnounced) {
+            showOnLockScreen(meditation)
+        }
 
         play(
             Uri.parse(meditation.fileUri),
@@ -125,9 +145,15 @@ constructor(
         // Start the notification now, while the user's tap keeps the app in the foreground,
         // not later in the prepared callback (Android 12+ refuses background starts).
         // A file that failed to load has already cleared nowPlaying.
-        if (_nowPlaying.value != null) {
+        if (!alreadyAnnounced && _nowPlaying.value != null) {
             serviceLauncher.start()
         }
+    }
+
+    private fun showOnLockScreen(meditation: GuidedMeditation) {
+        _nowPlaying.value = meditation
+        mediaSessionManager.createSession(lockScreenControls)
+        mediaSessionManager.updateMetadata(meditation)
     }
 
     /**

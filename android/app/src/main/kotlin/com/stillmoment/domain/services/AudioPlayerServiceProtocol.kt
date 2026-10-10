@@ -44,6 +44,18 @@ interface AudioPlayerServiceProtocol {
     fun play(meditation: GuidedMeditation)
 
     /**
+     * Shows the meditation on the lock screen and in the media notification before its
+     * audio begins — while the preparation time runs or the start gong rings.
+     *
+     * Must be called while the app is in the foreground (the user's tap): it starts the
+     * foreground service, without which Android 15+ refuses audio focus once the screen is
+     * locked. A following [play] of the same meditation keeps this presence; [stop] ends it.
+     *
+     * @param meditation The meditation about to play
+     */
+    fun announce(meditation: GuidedMeditation)
+
+    /**
      * Pauses the current playback.
      */
     fun pause()

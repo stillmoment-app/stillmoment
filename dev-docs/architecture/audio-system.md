@@ -291,15 +291,18 @@ Die Wiedergabe selbst läuft über `android.media.MediaPlayer`, nicht über ExoP
 | Datei | Rolle |
 |-------|-------|
 | `AudioPlayerService.play(meditation)` | Einziger Einstieg: legt die Session an, setzt die Metadaten, spielt ab und startet sofort (beim Tipp, App im Vordergrund) den Foreground-Service. Rechnet zwischen Trim-Bereich und Dateizeit um (shared-105). `nowPlaying` (StateFlow) ist die laufende Meditation oder null |
+| `AudioPlayerService.announce(meditation)` | Mit Vorbereitungszeit oder Start-Gong (android-098): zeigt die Meditation beim Tipp schon als „noch nicht spielend“ an und startet den Foreground-Service. Ein folgendes `play()` derselben Meditation übernimmt Session und Service und startet nur noch das Audio |
 | `MeditationPlayerServiceLauncher` | Startet den Service; lehnt Android den Start aus dem Hintergrund ab, wird das geloggt und die Wiedergabe läuft weiter |
 | `MediaSessionManager` | Besitzt Session und Adapter, ruft Media3 auf dem Main-Thread auf |
 | `GuidedMeditationSessionPlayer` | `SimpleBasePlayer`-Adapter ohne eigenes Audio: meldet Titel, Lehrer, gekürzte Länge, relative Position und Play/Pause; leitet Play/Pause, Spulen und Stopp an `AudioPlayerService` weiter |
 | `MeditationNotificationManager` | Benachrichtigung mit `MediaStyleNotificationHelper.MediaStyle(session)`; ab Android 13 baut das System die Steuerung aus der Session |
 | `MeditationPlayerForegroundService` | Foreground-Service (`mediaPlayback`). Ruft bei **jedem** Start sofort `startForeground` auf (notfalls mit Platzhalter-Benachrichtigung), folgt dann `nowPlaying` + Play/Pause und beendet sich selbst bei `nowPlaying == null`. Es gibt keine Stop-/Update-Intents |
 
-Lebensdauer: Die Session entsteht bei `play(meditation)` und wird bei `stop()`, beim Ende (Dateiende wie Trim-Ende) und bei Ladefehlern freigegeben. Damit verschwinden Benachrichtigung und Sperrbildschirm-Steuerung. Bei Pause bleibt sie bestehen.
+Lebensdauer: Die Session entsteht bei `announce(meditation)` bzw. `play(meditation)` und wird bei `stop()`, beim Ende (Dateiende wie Trim-Ende) und bei Ladefehlern freigegeben. Damit verschwinden Benachrichtigung und Sperrbildschirm-Steuerung. Bei Pause bleibt sie bestehen.
 Kopfhörertasten erreichen die Session direkt über Media3 (Laufzeit-Receiver), der Service braucht keinen `MEDIA_BUTTON`-Filter.
 Der Timer (`TimerForegroundService`) hat keine Media-Session.
+
+**Start mit Vorbereitungszeit oder Start-Gong (android-098):** Ab Android 15 bekommt eine App im Hintergrund nur mit laufendem Vordergrund-Dienst Audiofokus. `GuidedMeditationPlayerViewModel` fordert deshalb beim Tipp (App im Vordergrund) die Audio-Session an und ruft `announce()` auf, bevor Countdown oder Gong laufen – wie iOS, das die Session zu Beginn von Countdown/Gong aktiviert, und wie der Timer, der seinen Dienst beim Tipp startet. Wird die Session nach Countdown/Gong doch verweigert, beendet `stop()` die Anzeige. Abbruch (`stop()`) gibt Dienst, Session und Fokus frei.
 
 ---
 

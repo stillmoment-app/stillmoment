@@ -305,6 +305,7 @@ private class ScrubFakePlayerService : AudioPlayerServiceProtocol {
         completion?.invoke()
     }
 
+    override fun announce(meditation: GuidedMeditation) = Unit
     override fun play(meditation: GuidedMeditation) = Unit
     override fun pause() {
         paused = true

@@ -97,7 +97,12 @@ class GuidedMeditationPlayerViewModelGongTest {
 
     private suspend fun load(meditation: GuidedMeditation, prepSeconds: Int = 0) {
         whenever(mockSettingsRepository.getSettings())
-            .thenReturn(GuidedMeditationSettings.Default.copy(preparationTimeSeconds = prepSeconds))
+            .thenReturn(
+                GuidedMeditationSettings.Default.copy(
+                    preparationTimeEnabled = prepSeconds > 0,
+                    preparationTimeSeconds = prepSeconds
+                )
+            )
         whenever(mockPraxisRepository.load())
             .thenReturn(Praxis.Default.copy(gongVolume = 0.8f))
         viewModel.loadMeditation(meditation)
@@ -175,6 +180,145 @@ class GuidedMeditationPlayerViewModelGongTest {
                 assertEquals(gongCountAfterStart, fakeGong.playCount)
             }
         }
+    }
+
+    /**
+     * Start gong or preparation time with the screen locked right away (android-098).
+     * Android 15+ refuses audio focus in the background without a foreground service, so
+     * both are taken at the tap, before gong or countdown run.
+     */
+    @Nested
+    inner class StartWithScreenLocked {
+        @Test
+        fun `with a start gong the meditation is announced and the audio session taken at the tap`() =
+            runTest(testDispatcher) {
+                load(gongMeditation)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                // Gong rings, audio not yet started — but the session is already ours and the
+                // meditation is on the lock screen and in the notification.
+                assertTrue(fakeGong.played)
+                assertFalse(fakePlayer.playCalled)
+                verify(mockCoordinator).requestAudioSession(AudioSource.GUIDED_MEDITATION)
+                assertEquals(gongMeditation, fakePlayer.announcedMeditation)
+            }
+
+        @Test
+        fun `with preparation time the meditation is announced and the audio session taken at the tap`() =
+            runTest(testDispatcher) {
+                load(noGongMeditation, prepSeconds = 10)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                testScheduler.runCurrent()
+
+                assertTrue(viewModel.uiState.value.isPreparing)
+                assertFalse(fakePlayer.playCalled)
+                verify(mockCoordinator).requestAudioSession(AudioSource.GUIDED_MEDITATION)
+                assertEquals(noGongMeditation, fakePlayer.announcedMeditation)
+            }
+
+        @Test
+        fun `after preparation and start gong the meditation plays`() = runTest(testDispatcher) {
+            Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                load(gongMeditation, prepSeconds = 5)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+                fakeGong.completeGong()
+                advanceUntilIdle()
+
+                assertTrue(fakePlayer.playCalled)
+            }
+        }
+
+        @Test
+        fun `without start gong and preparation nothing is announced beforehand`() = runTest(testDispatcher) {
+            Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                load(noGongMeditation)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                assertEquals(null, fakePlayer.announcedMeditation)
+                assertTrue(fakePlayer.playCalled)
+            }
+        }
+
+        @Test
+        fun `when the audio session is refused at the tap, neither gong nor countdown starts`() =
+            runTest(testDispatcher) {
+                whenever(mockCoordinator.requestAudioSession(any())).thenReturn(false)
+                load(gongMeditation, prepSeconds = 10)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                assertFalse(fakeGong.played)
+                assertFalse(viewModel.uiState.value.isPreparing)
+                assertEquals(null, fakePlayer.announcedMeditation)
+                assertTrue(viewModel.uiState.value.error != null)
+            }
+
+        @Test
+        fun `closing the player during the start gong ends everything and nothing plays afterwards`() =
+            runTest(testDispatcher) {
+                load(gongMeditation)
+                advanceUntilIdle()
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                viewModel.stop()
+                fakeGong.completeGong()
+                advanceUntilIdle()
+
+                assertTrue(fakePlayer.stopCalled)
+                verify(mockCoordinator).releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+                assertFalse(fakePlayer.playCalled)
+            }
+
+        @Test
+        fun `closing the player during preparation ends everything and nothing plays afterwards`() =
+            runTest(testDispatcher) {
+                load(gongMeditation, prepSeconds = 5)
+                advanceUntilIdle()
+                viewModel.startPlayback()
+                testScheduler.runCurrent()
+
+                viewModel.stop()
+                advanceUntilIdle()
+
+                assertTrue(fakePlayer.stopCalled)
+                verify(mockCoordinator).releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+                assertFalse(fakeGong.played)
+                assertFalse(fakePlayer.playCalled)
+            }
+
+        @Test
+        fun `if the audio session is lost before the meditation begins, the announcement ends`() =
+            runTest(testDispatcher) {
+                // Granted at the tap, refused after the countdown (e.g. a phone call took it)
+                whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true, false)
+                load(noGongMeditation, prepSeconds = 3)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                // No notification may stay behind for a meditation that never plays
+                assertFalse(fakePlayer.playCalled)
+                assertTrue(fakePlayer.stopCalled)
+            }
     }
 
     @Nested
@@ -256,6 +400,13 @@ private class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
 
     fun completePlayback() {
         completionCallback?.invoke()
+    }
+
+    var announcedMeditation: GuidedMeditation? = null
+        private set
+
+    override fun announce(meditation: GuidedMeditation) {
+        announcedMeditation = meditation
     }
 
     override fun play(meditation: GuidedMeditation) {

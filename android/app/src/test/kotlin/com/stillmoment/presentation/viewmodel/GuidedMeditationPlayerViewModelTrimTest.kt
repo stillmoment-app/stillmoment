@@ -223,6 +223,8 @@ private class FakeAudioPlayerService : AudioPlayerServiceProtocol {
         completionCallback?.invoke()
     }
 
+    override fun announce(meditation: GuidedMeditation) {}
+
     override fun play(meditation: GuidedMeditation) {}
 
     override fun pause() {}
