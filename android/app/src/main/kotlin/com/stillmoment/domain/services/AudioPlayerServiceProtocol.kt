@@ -1,6 +1,6 @@
 package com.stillmoment.domain.services
 
-import android.net.Uri
+import com.stillmoment.domain.models.GuidedMeditation
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -30,20 +30,18 @@ interface AudioPlayerServiceProtocol {
     val playbackState: StateFlow<PlaybackState>
 
     /**
-     * Plays audio from the given URI.
+     * Plays a guided meditation and shows it on the lock screen and in the media
+     * notification until it stops or ends.
      *
-     * Trim points (shared-105) make playback non-destructive: playback starts at
-     * [trimStartMs] (after prepare) and ends at [trimEndMs] via the progress loop,
-     * triggering the same completion path as the natural file end. Positions reported
-     * in [playbackState] stay in absolute file time; range-relative display is the
-     * caller's concern.
+     * Trim points (shared-105) make playback non-destructive: playback starts at the
+     * meditation's trim start and ends at its trim end, triggering the same completion
+     * path as the natural file end. Positions reported in [playbackState] stay in absolute
+     * file time; range-relative display is the caller's concern. The lock screen shows the
+     * trimmed range.
      *
-     * @param uri Content URI of the audio file
-     * @param duration Full file duration in milliseconds (for progress calculation)
-     * @param trimStartMs Playback start offset in ms, or null to start at the file start
-     * @param trimEndMs Playback end offset in ms, or null to play to the file end
+     * @param meditation The meditation to play
      */
-    fun play(uri: Uri, duration: Long, trimStartMs: Long? = null, trimEndMs: Long? = null)
+    fun play(meditation: GuidedMeditation)
 
     /**
      * Pauses the current playback.

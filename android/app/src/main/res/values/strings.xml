@@ -62,6 +62,8 @@
     <string name="notification_channel_description">Shows when meditation timer is active</string>
     <string name="notification_title">Meditation in progress</string>
     <string name="notification_text">Your meditation session is running</string>
+    <string name="notification_playback_channel_name">Guided Meditation</string>
+    <string name="notification_playback_channel_description">Play and pause a guided meditation from the lock screen</string>
 
     <!-- Guided Meditations Library -->
     <string name="guided_meditations_empty_title">Your Personal Meditation Space</string>

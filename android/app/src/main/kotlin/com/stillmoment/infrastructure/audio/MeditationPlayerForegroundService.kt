@@ -20,11 +20,11 @@ import javax.inject.Inject
  * This service:
  * - Keeps the app alive during background audio playback
  * - Displays a persistent notification with media controls
- * - Handles media button events from notifications and lock screen
- * - Integrates with MediaSession for system-wide media control
+ * - Handles the play/pause action of the notification (Android 12 and older)
  *
- * The service delegates actual playback to AudioPlayerService and uses
- * MediaSessionManager for system integration.
+ * The service delegates actual playback to AudioPlayerService. Lock screen controls and
+ * headset buttons reach AudioPlayerService through the Media3 session of
+ * MediaSessionManager, not through this service.
  */
 @AndroidEntryPoint
 class MeditationPlayerForegroundService : Service() {
@@ -47,10 +47,6 @@ class MeditationPlayerForegroundService : Service() {
                     MeditationNotificationManager.ACTION_PAUSE -> {
                         audioPlayerService.pause()
                     }
-                    MeditationNotificationManager.ACTION_STOP -> {
-                        audioPlayerService.stop()
-                        stopSelf()
-                    }
                 }
             }
         }
@@ -58,12 +54,11 @@ class MeditationPlayerForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // Register broadcast receiver for notification button events
+        // Register broadcast receiver for the notification's play/pause action
         val filter =
             IntentFilter().apply {
                 addAction(MeditationNotificationManager.ACTION_PLAY)
                 addAction(MeditationNotificationManager.ACTION_PAUSE)
-                addAction(MeditationNotificationManager.ACTION_STOP)
             }
         ContextCompat.registerReceiver(
             this,

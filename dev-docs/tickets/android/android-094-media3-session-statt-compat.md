@@ -1,7 +1,7 @@
 ---
 id: android-094
 title: "Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek"
-status: todo
+status: in-progress
 phase: 2-Architektur
 priority: niedrig
 depends_on: []
@@ -44,6 +44,20 @@ Die Kompatibilitätsbibliothek wird nicht mehr weiterentwickelt. Fällt sie weg 
 
 - Ausgeklammert aus android-091 (Entscheidung 2026-10-10): Das ist eine Architekturänderung am Kern-Anwendungsfall, kein mechanischer Ersatz. Vor der Umsetzung `/plan-ticket` und die iOS-Seite (Now Playing) zum Abgleich ansehen.
 - Muss auf einem echten Gerät mit gesperrtem Bildschirm geprüft werden, nicht nur im Emulator.
+
+---
+
+## Umsetzungsnotiz
+
+**Befund vor der Umsetzung (2026-10-10):** Die Sperrbildschirm-Steuerung war auf Android nie aktiv. Die Session wurde nur in `AudioPlayerService.playMeditation()` angelegt, und diese Methode hat niemand aufgerufen. Der Player-ViewModel ruft `play(uri, …)` auf. Ohne Session und ohne `currentMeditation` startete auch der Wiedergabe-Foreground-Service nicht. Am Emulator (API 36) bestätigt: Während eine geführte Meditation läuft, gibt es keine Media-Session (`dumpsys media_session`), keine Benachrichtigung und keine Steuerung auf dem Sperrbildschirm. Die Wiedergabe lief trotzdem weiter, weil die gestoppte, aber oberste Activity den Prozess wach hält. Ursache laut git-Historie: android-006 (8a8b02ee) und android-010 (f410ada3) entstanden beide am 2025-12-18. Der ViewModel ruft seit android-006 `play(uri, …)` auf, und kein Commit hat je einen Aufruf von `playMeditation()` eingeführt. Die Steuerung war also nicht wieder verloren gegangen, sie war nie verdrahtet. Die Akzeptanzkriterien beschreiben das Verhalten aus android-010, das so nie ausgeliefert wurde. Nach diesem Ticket erscheinen Benachrichtigung und Sperrbildschirm-Steuerung zum ersten Mal. Deshalb gibt es einen CHANGELOG-Eintrag.
+
+**Entscheidung:** Media3-`MediaSession` (`media3-session`) in unserem bestehenden eigenen Foreground-Service, **kein** `MediaSessionService`. Die Wiedergabe bleibt beim `android.media.MediaPlayer` (Media3/ExoPlayer wird für die Wiedergabe gar nicht genutzt, nur die Abhängigkeit ist da).
+
+- `GuidedMeditationSessionPlayer` (ein `SimpleBasePlayer`) ist nur ein Adapter. Er meldet der Session Titel, Lehrer, gekürzte Länge, Position relativ zum Trim-Start und Play/Pause. Befehle vom Sperrbildschirm, aus der Benachrichtigung und vom Kopfhörer (Play/Pause, Spulen, Stopp) reicht er an `AudioPlayerService` weiter. Die Umrechnung zwischen Trim-Bereich und Dateizeit (shared-105) bleibt in `AudioPlayerService`.
+- Die Benachrichtigung baut weiterhin `MeditationNotificationManager`, jetzt mit `MediaStyleNotificationHelper.MediaStyle(session)`. Den Foreground-Service steuert weiterhin `MeditationPlayerForegroundService` (start/update/stop).
+- Lebensdauer der Session: Sie entsteht beim Abspielen (`play(meditation)`) und wird freigegeben, wenn die Meditation stoppt oder endet (natürliches Dateiende wie Trim-Ende).
+- `MediaSessionService` verworfen, weil er einen exportierten Service, eine eigene Lebenszyklus-Logik (Start durch Controller, 10-Minuten-Regel) und eine automatische Benachrichtigung mitbringt. Das ist mehr Umbau, und es gibt mehr Stellen, an denen sich das Verhalten unbemerkt ändert. Der Timer-Foreground-Service bleibt unberührt.
+- `androidx.media` ist danach unbenutzt und entfällt als Abhängigkeit.
 
 ---
 

@@ -283,6 +283,23 @@ class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorPro
 3. Coordinator ruft Conflict Handler der aktuellen Source auf
 4. Services geben Session frei wenn fertig
 
+### Sperrbildschirm-Steuerung (Guided Meditations, seit android-094)
+
+Media3 `MediaSession` (`media3-session`) in einem eigenen Foreground-Service, **kein** `MediaSessionService`.
+Die Wiedergabe selbst läuft über `android.media.MediaPlayer`, nicht über ExoPlayer.
+
+| Datei | Rolle |
+|-------|-------|
+| `AudioPlayerService.play(meditation)` | Einziger Einstieg: legt die Session an, setzt die Metadaten und spielt ab. Rechnet zwischen Trim-Bereich und Dateizeit um (shared-105) |
+| `MediaSessionManager` | Besitzt Session und Adapter, ruft Media3 auf dem Main-Thread auf |
+| `GuidedMeditationSessionPlayer` | `SimpleBasePlayer`-Adapter ohne eigenes Audio: meldet Titel, Lehrer, gekürzte Länge, relative Position und Play/Pause; leitet Play/Pause, Spulen und Stopp an `AudioPlayerService` weiter |
+| `MeditationNotificationManager` | Benachrichtigung mit `MediaStyleNotificationHelper.MediaStyle(session)`; ab Android 13 baut das System die Steuerung aus der Session |
+| `MeditationPlayerForegroundService` | Foreground-Service (`mediaPlayback`), gestartet beim Abspielen, gestoppt bei Ende/Stopp |
+
+Lebensdauer: Die Session entsteht bei `play(meditation)` und wird bei `stop()` und beim Ende (Dateiende wie Trim-Ende) freigegeben. Damit verschwinden Benachrichtigung und Sperrbildschirm-Steuerung. Bei Pause bleibt sie bestehen.
+Kopfhörertasten erreichen die Session direkt über Media3 (Laufzeit-Receiver), der Service braucht keinen `MEDIA_BUTTON`-Filter.
+Der Timer (`TimerForegroundService`) hat keine Media-Session.
+
 ---
 
 ## Audio-bezogene Einstellungen

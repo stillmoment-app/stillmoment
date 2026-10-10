@@ -1,27 +1,31 @@
 package com.stillmoment.infrastructure.audio
 
+import android.app.PendingIntent
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import com.stillmoment.R
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaSession
+import com.stillmoment.MainActivity
 import com.stillmoment.domain.models.GuidedMeditation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Manages MediaSession for lock screen controls and media notifications.
+ * Owns the Media3 [MediaSession] of a guided meditation.
  *
- * Uses MediaSessionCompat for:
- * - Lock screen Now Playing info
- * - Play/Pause controls from lock screen
- * - Notification with media controls
- * - Bluetooth/headphone button support (including wired headphones)
+ * The session feeds:
+ * - the lock screen (title, teacher, trimmed length, progress, play/pause, seek)
+ * - the media notification (see [MeditationNotificationManager])
+ * - Bluetooth and wired headset buttons (play/pause toggle)
  *
- * IMPORTANT: ACTION_PLAY_PAUSE is enabled for wired headphone inline remotes
- * which send toggle events rather than separate play/pause events.
+ * The session lives from the start of a meditation until it stops or ends. Audio is played
+ * by [AudioPlayerService]; [GuidedMeditationSessionPlayer] only mirrors its state.
+ * Media3 requires the session to be used on the main thread, so calls from other threads
+ * are posted there.
  */
 @Singleton
 open class MediaSessionManager
@@ -29,16 +33,19 @@ open class MediaSessionManager
 constructor(
     @ApplicationContext protected val context: Context
 ) {
-    private var _mediaSession: MediaSessionCompat? = null
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
+    private var session: MediaSession? = null
+    private var player: GuidedMeditationSessionPlayer? = null
 
     /**
      * The active MediaSession, or null if not created.
      */
-    val mediaSession: MediaSessionCompat?
-        get() = _mediaSession
+    val mediaSession: MediaSession?
+        get() = session
 
     /**
-     * Callbacks for media button events from lock screen/notifications/headphones.
+     * Commands from the lock screen, the notification and headset buttons.
+     * Seek positions are relative to the trimmed range (shared-105).
      */
     interface MediaSessionCallback {
         fun onPlay()
@@ -51,96 +58,78 @@ constructor(
     }
 
     /**
-     * Creates and activates a MediaSession with the given callbacks.
-     *
-     * @param callback Handler for media button events
-     * @return The created MediaSession
+     * Creates and activates a session that forwards its commands to [callback].
+     * Replaces a previous session.
      */
-    open fun createSession(callback: MediaSessionCallback): MediaSessionCompat {
-        release()
-
-        _mediaSession =
-            MediaSessionCompat(context, "StillMomentPlayer").apply {
-                setCallback(
-                    object : MediaSessionCompat.Callback() {
-                        override fun onPlay() {
-                            callback.onPlay()
-                        }
-
-                        override fun onPause() {
-                            callback.onPause()
-                        }
-
-                        override fun onStop() {
-                            callback.onStop()
-                        }
-
-                        override fun onSeekTo(pos: Long) {
-                            callback.onSeekTo(pos)
-                        }
-                    }
-                )
-                isActive = true
-            }
-
-        return _mediaSession!!
+    open fun createSession(callback: MediaSessionCallback) {
+        onMainThread {
+            releaseOnMainThread()
+            val newPlayer = GuidedMeditationSessionPlayer(Looper.getMainLooper(), callback)
+            player = newPlayer
+            session =
+                MediaSession.Builder(context, newPlayer)
+                    .setId(SESSION_ID)
+                    .setSessionActivity(openAppIntent())
+                    .build()
+        }
     }
 
     /**
-     * Updates the Now Playing metadata for the current meditation.
-     *
-     * @param meditation The meditation being played
+     * Shows the meditation's title and teacher.
      */
     open fun updateMetadata(meditation: GuidedMeditation) {
-        val appIcon = BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
-
-        _mediaSession?.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.name)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.teacher)
-                // Lock screen shows the trimmed (effective) length, not the full file (shared-105)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, meditation.effectiveDurationMs)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, appIcon)
-                .build()
-        )
+        onMainThread {
+            player?.updateMetadata(title = meditation.name, teacher = meditation.teacher)
+        }
     }
 
     /**
-     * Updates the playback state for lock screen and notification display.
+     * Updates play/pause state and progress.
      *
      * @param isPlaying Whether audio is currently playing
-     * @param position Current playback position in milliseconds
-     * @param duration Total duration in milliseconds (reserved for future progress display)
+     * @param position Position relative to the trim start in milliseconds
+     * @param duration Effective (trimmed) length in milliseconds
      */
-    @Suppress("UNUSED_PARAMETER")
-    fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long) {
-        val state =
-            if (isPlaying) {
-                PlaybackStateCompat.STATE_PLAYING
-            } else {
-                PlaybackStateCompat.STATE_PAUSED
-            }
-
-        _mediaSession?.setPlaybackState(
-            PlaybackStateCompat.Builder()
-                .setState(state, position, 1f)
-                .setActions(
-                    PlaybackStateCompat.ACTION_PLAY or
-                        PlaybackStateCompat.ACTION_PAUSE or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE or // CRITICAL: For wired headphones!
-                        PlaybackStateCompat.ACTION_SEEK_TO or
-                        PlaybackStateCompat.ACTION_STOP
-                )
-                .build()
-        )
+    open fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long) {
+        onMainThread {
+            player?.updatePlayback(isPlaying = isPlaying, positionMs = position, durationMs = duration)
+        }
     }
 
     /**
-     * Releases the MediaSession and cleans up resources.
+     * Releases the session; lock screen controls disappear.
      */
     open fun release() {
-        _mediaSession?.isActive = false
-        _mediaSession?.release()
-        _mediaSession = null
+        onMainThread { releaseOnMainThread() }
+    }
+
+    // SimpleBasePlayer.release() is part of Media3's unstable API surface
+    @OptIn(UnstableApi::class)
+    private fun releaseOnMainThread() {
+        session?.release()
+        player?.release()
+        session = null
+        player = null
+    }
+
+    private fun openAppIntent(): PendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        },
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    private fun onMainThread(block: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            block()
+        } else {
+            mainHandler.post(block)
+        }
+    }
+
+    private companion object {
+        const val SESSION_ID = "StillMomentPlayer"
     }
 }

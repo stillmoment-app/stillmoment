@@ -295,6 +295,17 @@ interface AudioFocusManagerProtocol {
 
 ---
 
+## Lock Screen Controls (Media3)
+
+Guided meditations use a Media3 `MediaSession` (`media3-session`), never `MediaSessionCompat`/`androidx.media`.
+Audio plays through `MediaPlayer`; `GuidedMeditationSessionPlayer` (a `SimpleBasePlayer`) only mirrors state
+to the session and forwards its commands. Start playback via `AudioPlayerService.play(meditation)`, the only path
+that creates the session and the foreground service. Lock-screen positions/length are relative to the trim range.
+Media3 `@UnstableApi` calls need `@OptIn(UnstableApi::class)` (`androidx.annotation.OptIn`), or lint fails.
+Details: `dev-docs/architecture/audio-system.md` → "Sperrbildschirm-Steuerung".
+
+---
+
 ## Testing
 
 ### Test Commands
@@ -373,7 +384,7 @@ emulator attached, set `ANDROID_SERIAL=<serial>`, otherwise the suite runs on ev
 - Hilt + KSP for annotation processing
 - JUnit 5 for tests (`useJUnitPlatform()`)
 - Detekt for static analysis
-- Media3 (ExoPlayer) for audio playback
+- Media3 `media3-session` for lock screen controls (audio itself plays via `MediaPlayer`)
 - `minSdk = 26`, `compileSdk = 37`, `targetSdk = 36`, `jvmTarget = 17`
   (compileSdk 37 brauchen die aktuellen AndroidX-/Compose-Versionen; targetSdk bleibt wegen des Opt-outs unten auf 36)
 

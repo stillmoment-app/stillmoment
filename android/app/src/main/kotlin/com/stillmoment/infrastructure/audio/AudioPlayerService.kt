@@ -30,13 +30,11 @@ import kotlinx.serialization.json.Json
  * - Progress tracking via StateFlow
  * - Audio focus handling
  * - Completion callbacks
- * - MediaSession integration for lock screen controls
+ * - Media3 session for lock screen controls (via MediaSessionManager)
  * - Foreground service with media notification
  *
- * Integrates with MediaSessionManager for:
- * - Lock screen Now Playing info
- * - Play/Pause controls from lock screen and notifications
- * - Bluetooth/headphone button support (including wired headphones with inline remote)
+ * The lock screen, the notification and headset buttons (Bluetooth and wired) control
+ * playback through the session; it shows the trimmed range (shared-105).
  */
 @Singleton
 class AudioPlayerService
@@ -84,38 +82,31 @@ constructor(
         private set
 
     /**
-     * Plays a guided meditation with full MediaSession integration.
-     *
-     * @param meditation The meditation to play
+     * Commands from the lock screen, the media notification and headset buttons.
      */
-    fun playMeditation(meditation: GuidedMeditation) {
-        // Request exclusive audio session
-        if (!coordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
-            logger.w(TAG, "Failed to acquire audio session for guided meditation")
-            return
+    private val lockScreenControls =
+        object : MediaSessionManager.MediaSessionCallback {
+            override fun onPlay() = resume()
+
+            override fun onPause() = pause()
+
+            override fun onStop() = stop()
+
+            // Lock-screen seek is relative to the trimmed range; convert to absolute
+            // file time (shared-105). seekTo clamps it to the trim range.
+            override fun onSeekTo(position: Long) = seekTo(effectiveStartMs + position)
         }
 
+    /**
+     * Plays a guided meditation, honouring its trim range (shared-105), and shows it on the
+     * lock screen and in the media notification until it stops or ends.
+     */
+    override fun play(meditation: GuidedMeditation) {
         currentMeditation = meditation
 
-        // Create MediaSession with callbacks
-        mediaSessionManager.createSession(
-            object : MediaSessionManager.MediaSessionCallback {
-                override fun onPlay() = resume()
-
-                override fun onPause() = pause()
-
-                override fun onStop() = stop()
-
-                // Lock-screen seek is relative to the trimmed range; convert to absolute
-                // file time (shared-105). seekTo clamps it to the trim range.
-                override fun onSeekTo(position: Long) = seekTo(effectiveStartMs + position)
-            }
-        )
-
-        // Update metadata
+        mediaSessionManager.createSession(lockScreenControls)
         mediaSessionManager.updateMetadata(meditation)
 
-        // Play the audio, honouring the trim range (shared-105)
         play(
             Uri.parse(meditation.fileUri),
             meditation.duration,
@@ -124,7 +115,20 @@ constructor(
         )
     }
 
-    override fun play(uri: Uri, duration: Long, trimStartMs: Long?, trimEndMs: Long?) {
+    /**
+     * Plays audio from the given URI without lock screen integration.
+     *
+     * Trim points (shared-105) make playback non-destructive: playback starts at
+     * [trimStartMs] (after prepare) and ends at [trimEndMs] via the progress loop,
+     * triggering the same completion path as the natural file end. Positions reported
+     * in [playbackState] stay in absolute file time.
+     *
+     * @param uri Content URI of the audio file
+     * @param duration Full file duration in milliseconds (for progress calculation)
+     * @param trimStartMs Playback start offset in ms, or null to start at the file start
+     * @param trimEndMs Playback end offset in ms, or null to play to the file end
+     */
+    internal fun play(uri: Uri, duration: Long, trimStartMs: Long? = null, trimEndMs: Long? = null) {
         stopMediaPlayer()
 
         // Resolve the trim range into absolute file time (null = file edge).
@@ -266,8 +270,8 @@ constructor(
     }
 
     /**
-     * Runs the regular completion path: stop progress, release the session/service,
-     * fire the completion callback. Shared by the natural file-end listener and the
+     * Runs the regular completion path: stop progress, remove the lock screen controls and
+     * the notification, fire the completion callback. Shared by the natural file-end listener and the
      * trim end-boundary check so a trimmed end behaves exactly like a file end.
      *
      * @param fileDuration Full file duration in ms (the reported end position is clamped to it)
@@ -280,7 +284,7 @@ constructor(
             )
         }
         stopProgressUpdates()
-        updateMediaSessionState()
+        mediaSessionManager.release()
         stopForegroundService()
         onCompletionCallback?.invoke()
     }

@@ -1,6 +1,5 @@
 package com.stillmoment.presentation.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.AudioSource
@@ -467,8 +466,7 @@ constructor(
         _uiState.update { it.copy(isLoading = true) }
 
         // Start playback, honouring the trim range (shared-105)
-        val uri = Uri.parse(meditation.fileUri)
-        audioPlayerService.play(uri, meditation.duration, meditation.trimStartMs, meditation.trimEndMs)
+        audioPlayerService.play(meditation)
 
         _uiState.update { it.copy(isCompleted = false) }
     }

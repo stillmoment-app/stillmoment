@@ -90,15 +90,12 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
-        <!-- Foreground Service for guided meditation playback with MediaSession -->
+        <!-- Foreground Service for guided meditation playback (media notification).
+             Headset buttons reach the Media3 session directly, no MEDIA_BUTTON filter needed. -->
         <service
             android:name=".infrastructure.audio.MeditationPlayerForegroundService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </service>
+            android:foregroundServiceType="mediaPlayback" />
 
     </application>
 

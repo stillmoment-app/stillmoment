@@ -62,6 +62,8 @@
     <string name="notification_channel_description">Zeigt an, wenn der Meditations-Timer aktiv ist</string>
     <string name="notification_title">Meditation läuft</string>
     <string name="notification_text">Deine Meditationssitzung ist aktiv</string>
+    <string name="notification_playback_channel_name">Geführte Meditation</string>
+    <string name="notification_playback_channel_description">Geführte Meditation auf dem Sperrbildschirm pausieren und fortsetzen</string>
 
     <!-- Guided Meditations Library -->
     <string name="guided_meditations_empty_title">Dein persönlicher Meditationsraum</string>

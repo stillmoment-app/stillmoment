@@ -305,7 +305,7 @@ private class ScrubFakePlayerService : AudioPlayerServiceProtocol {
         completion?.invoke()
     }
 
-    override fun play(uri: android.net.Uri, duration: Long, trimStartMs: Long?, trimEndMs: Long?) = Unit
+    override fun play(meditation: GuidedMeditation) = Unit
     override fun pause() {
         paused = true
         backing.value = backing.value.copy(isPlaying = false)
