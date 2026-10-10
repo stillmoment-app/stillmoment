@@ -45,6 +45,7 @@ class TimerScreenTest {
 
     @Test
     fun timerScreen_showsDurationQuestion_whenIdle() {
+        throw AssertionError("Absichtlich rot: Wegwerf-PR fuer android-096")
         renderTimerScreen(uiState = TimerUiState())
         composeRule.onNodeWithText("How much time", substring = true, ignoreCase = true)
             .assertIsDisplayed()
