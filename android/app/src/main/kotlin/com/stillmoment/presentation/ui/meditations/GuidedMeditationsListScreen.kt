@@ -4,8 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,23 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -552,7 +543,6 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
 }
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToEditDeleteItem(
     meditation: GuidedMeditation,
@@ -567,35 +557,7 @@ private fun SwipeToEditDeleteItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // android-078: rememberSwipeToDismissBoxState caches the confirmValueChange lambda.
-    // Without rememberUpdatedState, the lambda would close over the original onEditClick/
-    // onDelete (which capture the original meditation), so opening the edit sheet a second
-    // time after a save would show stale metadata until the app is restarted.
-    val currentOnEditClick by rememberUpdatedState(onEditClick)
-    val currentOnDelete by rememberUpdatedState(onDelete)
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            when (value) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    currentOnEditClick()
-                    false
-                }
-                SwipeToDismissBoxValue.EndToStart -> {
-                    currentOnDelete()
-                    false
-                }
-                else -> false
-            }
-        }
-    )
-
-    SwipeToDismissBox(
-        state = dismissState,
-        backgroundContent = { SwipeBackground(direction = dismissState.dismissDirection) },
-        enableDismissFromStartToEnd = true,
-        enableDismissFromEndToStart = true,
-        modifier = modifier
-    ) {
+    SwipeToEditDeleteBox(onEdit = onEditClick, onDelete = onDelete, modifier = modifier) {
         MeditationListItem(
             meditation = meditation,
             onPlayClick = onPlayClick,
@@ -606,68 +568,6 @@ private fun SwipeToEditDeleteItem(
             previewDurationMs = previewDurationMs,
             onSeekPreview = onSeekPreview
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SwipeBackground(direction: SwipeToDismissBoxValue) {
-    val editDescription = stringResource(R.string.accessibility_edit_meditation)
-    val deleteDescription = stringResource(R.string.accessibility_delete_meditation)
-
-    val editColor by animateColorAsState(
-        targetValue = if (direction == SwipeToDismissBoxValue.StartToEnd) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            Color.Transparent
-        },
-        label = "swipe_edit_background"
-    )
-    val deleteColor by animateColorAsState(
-        targetValue = if (direction == SwipeToDismissBoxValue.EndToStart) {
-            MaterialTheme.colorScheme.error
-        } else {
-            Color.Transparent
-        },
-        label = "swipe_delete_background"
-    )
-
-    when (direction) {
-        SwipeToDismissBoxValue.StartToEnd -> EditBackground(
-            color = editColor,
-            contentDescription = editDescription
-        )
-        SwipeToDismissBoxValue.EndToStart -> DeleteBackground(
-            color = deleteColor,
-            contentDescription = deleteDescription
-        )
-        else -> Box(modifier = Modifier.fillMaxSize())
-    }
-}
-
-@Composable
-private fun EditBackground(color: Color, contentDescription: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Icon(imageVector = Icons.Default.Edit, contentDescription = contentDescription, tint = Color.White)
-    }
-}
-
-@Composable
-private fun DeleteBackground(color: Color, contentDescription: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Icon(imageVector = Icons.Default.Delete, contentDescription = contentDescription, tint = Color.White)
     }
 }
 

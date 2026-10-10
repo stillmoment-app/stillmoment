@@ -1,7 +1,7 @@
 ---
 id: android-093
 title: "Wischgesten in Bibliothek und Suche ohne veraltete Compose-API"
-status: todo
+status: in-progress
 phase: 5-QA
 priority: niedrig
 depends_on: [android-091]
