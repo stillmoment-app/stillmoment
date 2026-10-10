@@ -47,13 +47,18 @@ Rote Tests, die niemand mehr beachtet, verdecken echte Fehler. Bei android-091 l
 
 ## Nicht Teil dieses Tickets
 
-- Die Android-UI-Tests in die CI aufnehmen. Das wäre ein eigenes Ticket, weil es einen Emulator in der CI braucht.
+- Die Android-UI-Tests in die CI aufnehmen. Das ist android-096, weil es einen Emulator in der CI braucht.
 
 ---
 
 ## Hinweise
 
 - Die Diagnose stammt aus android-091 (2026-10-10). Vorgeschlagen, aber nicht ausprobiert: Für Animationen gibt es in Compose die Variante „unendliche Animation“, die das Test-Framework anhalten kann (`withInfiniteAnimationFrameMillis`/`…Nanos`).
+- Dieses Ticket ersetzt android-082 (als wontfix geschlossen). Dort waren im Mai 17 von 36 Tests rot; der Stand hier ist neuer. Übernommene Hinweise aus android-082:
+  - **Erst nach Ursache gruppieren, dann reparieren.** Einzeln geflickte Tests verstecken eine gemeinsame Ursache, statt sie zu beheben.
+  - **Navigation zum Player unter Instrumentierung:** Der Player kommt nie zur Ruhe. Die Navigation dorthin gelingt nur, wenn man die Compose-Frame-Clock von Hand weiterdreht: automatisches Vorrücken abschalten und die Zeit schrittweise vorschieben, dabei mit echten Wartezeiten verschränken. Ein reiner Tap pumpt die Clock nicht. Die Screenshot-Tests machen das bereits so.
+  - **Die Screenshot-Tests liegen in derselben Suite.** Ihr Zustand gehört vor und nach der Reparatur geprüft, sonst fällt ein Bruch erst beim nächsten Store-Release auf.
+  - **Espresso nicht zurückstufen.** Erst Espresso 3.7.0 hat die Tests auf Android 16 überhaupt lauffähig gemacht (android-081). Der Hinweis dazu steht im Versions-Katalog.
 
 ---
 
