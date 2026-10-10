@@ -13,6 +13,7 @@
 - [Doppelte Scaffold-Insets auf Android-Tabs](project_android_double_scaffold_insets.md) — innere Scaffold zieht Status-/Systemleiste nochmal ab (~65-70 dp); Timer gefixt, Library nicht.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
+- [Worktree-Guard: git nicht in Ketten](feedback_worktree_guard_compound_git.md) — `git` allein aufrufen; lange Code-Einfügungen per Edit statt Python-Heredoc.
 
 ## Feature-Entfernungen (Refactoring)
 
