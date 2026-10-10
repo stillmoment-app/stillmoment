@@ -46,7 +46,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-096](android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [ ] | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) |
 | [android-097](android/android-097-bearbeiten-blatt-tab-wechsel-verwirft-eingaben.md) | Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage | 4-Polish | [ ] | - |
 | [android-098](android/android-098-gefuehrte-meditation-start-gong-gesperrt.md) | Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird | 1-Quick Fix | [ ] | [android-094](android/android-094-media3-session-statt-compat.md) |
-| [android-099](android/android-099-wiedergabebereich-beim-import-verloren.md) | Beim Import gewählter Wiedergabe-Bereich geht verloren | 1-Quick Fix | [~] | - |
 
 ## Archiv
 
@@ -332,3 +331,4 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-092](archive/android/android-092-ci-gradle-cache-version-catalog.md) | CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog | 5-QA | [x] | - |
 | [android-093](archive/android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [x] | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) |
 | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [x] | - |
+| [android-099](archive/android/android-099-wiedergabebereich-beim-import-verloren.md) | Beim Import gewählter Wiedergabe-Bereich geht verloren | 1-Quick Fix | [x] | - |
