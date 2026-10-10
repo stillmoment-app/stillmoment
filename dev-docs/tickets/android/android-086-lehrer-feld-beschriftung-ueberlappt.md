@@ -30,6 +30,18 @@ Das Bearbeiten-Blatt ist nach jedem Import der erste Eindruck. Übereinanderlieg
 
 ---
 
+## Befund 2026-10-10: nicht reproduzierbar
+
+Am Emulator (Pixel 8, Englisch, Dunkel) zeigte das Lehrer-Feld die Beschriftung jedes Mal oben am Rahmen:
+
+- Stand vor dem Compose-Update (Material3 1.3.1) und aktueller Stand (Material3 1.4.0)
+- Teilen aus Chrome über das Menü, Teilen per Intent bei kalt gestarteter App
+- Teilen, während das Bearbeiten-Blatt von einem früheren Import mit geleertem Lehrer-Feld noch offen war und die App im Hintergrund lag
+
+Laut Material3-Quelltext liegt die Beschriftung nur bei leerem, nicht ausgewähltem Feld im Feld; ist sie oben, setzt Material3 den Text immer darunter. Die vermutete Ursache (wiederverwendetes Feld, dessen Animation nicht fertig läuft) ist damit am Gerät widerlegt. Ohne Nachstellung gibt es keinen Fix. Ein Compose-UI-Test (`MeditationEditSheetTeacherFieldTest`) sichert die Akzeptanzkriterien ab.
+
+Nicht geprüft: helle Darstellung, Deutsch, größere Schrift (eine per `adb` gesetzte Systemschriftgröße zeigte im offenen Blatt keine Wirkung).
+
 ## Manueller Test
 
 1. In Chrome eine Folge auf podcasts.apple.com öffnen, z.B. https://podcasts.apple.com/de/podcast/achtsam-deutschlandfunk-nova/id1528936478?i=1000792422344
