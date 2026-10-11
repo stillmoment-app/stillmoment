@@ -15,8 +15,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.FileNotFoundException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -53,13 +56,25 @@ constructor(
             stop()
         }
 
-        // Register pause handler for system audio focus loss (phone call, other app)
+        // Interruption (phone call, other app): pause, and continue once the system gives the
+        // sound back (shared-146)
         coordinator.registerPauseHandler(AudioSource.GUIDED_MEDITATION) {
-            logger.d(TAG, "Audio focus lost: pausing guided meditation")
-            pause()
+            onInterruptionBegan()
+        }
+        coordinator.registerResumeHandler(AudioSource.GUIDED_MEDITATION) {
+            onInterruptionEnded()
         }
     }
     private var mediaPlayer: MediaPlayerProtocol? = null
+
+    /**
+     * True when an interruption paused running playback. Pausing by the user, stop, a new
+     * playback and the end clear it — then the meditation does not continue by itself.
+     */
+    private var resumeAfterInterruption = false
+
+    /** True from [play] until the file is loaded and playback would begin. */
+    private var isPlayerLoading = false
     private var onCompletionCallback: (() -> Unit)? = null
 
     /** Effective playback start in absolute file time (0 unless trimmed). */
@@ -83,6 +98,12 @@ constructor(
      * [MeditationPlayerForegroundService] follows it and stops itself on null.
      */
     override val nowPlaying: StateFlow<GuidedMeditation?> = _nowPlaying.asStateFlow()
+
+    private val _interruptionBegan = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val interruptionBegan: SharedFlow<Unit> = _interruptionBegan.asSharedFlow()
+
+    private val _interruptionEnded = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val interruptionEnded: SharedFlow<Unit> = _interruptionEnded.asSharedFlow()
 
     /**
      * The currently playing meditation, or null if nothing is playing.
@@ -172,6 +193,7 @@ constructor(
      */
     internal fun play(uri: Uri, duration: Long, trimStartMs: Long? = null, trimEndMs: Long? = null) {
         stopMediaPlayer()
+        resumeAfterInterruption = false
 
         // Resolve the trim range into absolute file time (null = file edge).
         effectiveStartMs = trimStartMs ?: 0L
@@ -180,6 +202,7 @@ constructor(
 
         try {
             mediaPlayer = createMediaPlayer(uri, duration)
+            isPlayerLoading = mediaPlayer != null
         } catch (e: IllegalStateException) {
             logger.e(TAG, "MediaPlayer in invalid state: $uri", e)
             setPlaybackError("Player error: ${e.message}")
@@ -296,16 +319,23 @@ constructor(
      * from the seek-complete callback once a trim-start seek has landed (shared-105).
      */
     private fun beginPlayback(player: MediaPlayerProtocol, duration: Long) {
-        player.start()
+        isPlayerLoading = false
+        // Interrupted while loading: wait, paused at the start, for the sound to come back
+        val interrupted = resumeAfterInterruption
+        if (!interrupted) {
+            player.start()
+        }
         _playbackState.update {
             it.copy(
-                isPlaying = true,
+                isPlaying = !interrupted,
                 currentPosition = effectiveStartMs,
                 duration = duration,
                 error = null
             )
         }
-        startProgressUpdates()
+        if (!interrupted) {
+            startProgressUpdates()
+        }
         updateMediaSessionState()
     }
 
@@ -319,6 +349,7 @@ constructor(
      * @param fileDuration Full file duration in ms (the reported end position is clamped to it)
      */
     private fun handleCompletion(fileDuration: Long) {
+        resumeAfterInterruption = false
         _playbackState.update {
             it.copy(
                 isPlaying = false,
@@ -345,6 +376,30 @@ constructor(
     }
 
     override fun pause() {
+        resumeAfterInterruption = false
+        pausePlayer()
+    }
+
+    /**
+     * Resumes paused playback (app, lock screen, headset). Asks for the sound first: after an
+     * interruption Android 12+ keeps the player muted until the app requests audio focus again.
+     * Refused (e.g. during a phone call), the meditation stays paused — and still continues by
+     * itself once the call is over.
+     */
+    override fun resume() {
+        val player = mediaPlayer ?: return
+        if (player.isPlaying) {
+            return
+        }
+        if (!coordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
+            logger.w(TAG, "Audio session refused: guided meditation stays paused")
+            return
+        }
+        resumeAfterInterruption = false
+        startPlayer(player)
+    }
+
+    private fun pausePlayer() {
         mediaPlayer?.let { player ->
             if (player.isPlaying) {
                 player.pause()
@@ -355,15 +410,33 @@ constructor(
         }
     }
 
-    override fun resume() {
-        mediaPlayer?.let { player ->
-            if (!player.isPlaying) {
-                player.start()
-                _playbackState.update { it.copy(isPlaying = true) }
-                startProgressUpdates()
-                updateMediaSessionState()
-            }
+    private fun startPlayer(player: MediaPlayerProtocol) {
+        player.start()
+        _playbackState.update { it.copy(isPlaying = true) }
+        startProgressUpdates()
+        updateMediaSessionState()
+    }
+
+    /** Phone call, voice assistant, alarm or another app took the sound (shared-146). */
+    private fun onInterruptionBegan() {
+        if (mediaPlayer?.isPlaying == true || isPlayerLoading) {
+            logger.d(TAG, "Interruption: pausing guided meditation")
+            pausePlayer()
+            resumeAfterInterruption = true
         }
+        _interruptionBegan.tryEmit(Unit)
+    }
+
+    /** The system gave the sound back after a temporary interruption (shared-146). */
+    private fun onInterruptionEnded() {
+        val player = mediaPlayer
+        // Still loading: playback begins as usual once the file is loaded
+        if (resumeAfterInterruption && !isPlayerLoading && player?.isPlaying == false) {
+            logger.d(TAG, "Interruption ended: continuing guided meditation")
+            startPlayer(player)
+        }
+        resumeAfterInterruption = false
+        _interruptionEnded.tryEmit(Unit)
     }
 
     override fun seekTo(position: Long) {
@@ -379,6 +452,7 @@ constructor(
         stopProgressUpdates()
         endLockScreenPresence()
         coordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+        resumeAfterInterruption = false
         effectiveStartMs = 0L
         effectiveEndMs = Long.MAX_VALUE
         hasReachedEndBoundary = false
@@ -402,6 +476,7 @@ constructor(
             }
         }
         mediaPlayer = null
+        isPlayerLoading = false
     }
 
     override fun setOnCompletionListener(callback: () -> Unit) {

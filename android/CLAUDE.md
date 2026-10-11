@@ -299,16 +299,18 @@ val name = gongSound.localizedName(language)
 
 ## AudioFocusManager
 
-Protocol-based audio focus with callback on focus loss:
+Protocol-based audio focus with callbacks on focus loss and on focus coming back:
 
 ```kotlin
 interface AudioFocusManagerProtocol {
-    fun requestFocus(onFocusLost: () -> Unit): Boolean
+    fun requestFocus(onFocusLost: () -> Unit, onFocusGained: () -> Unit): Boolean
     fun releaseFocus()
 }
 ```
 
 `AudioSessionCoordinator` manages exclusive access between Timer and Guided Meditations — always go through the coordinator.
+On focus loss it calls the active source's pause handler; on `AUDIOFOCUS_GAIN` (only after a temporary loss) its
+resume handler, if registered. Guided meditations continue by themselves then (shared-146); the timer registers none.
 
 ---
 

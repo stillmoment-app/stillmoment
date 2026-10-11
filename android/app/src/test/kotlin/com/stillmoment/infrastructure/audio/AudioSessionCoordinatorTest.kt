@@ -25,7 +25,7 @@ class AudioSessionCoordinatorTest {
     @BeforeEach
     fun setUp() {
         mockAudioFocusManager = mock()
-        whenever(mockAudioFocusManager.requestFocus(any())).thenReturn(true)
+        whenever(mockAudioFocusManager.requestFocus(any(), any())).thenReturn(true)
 
         sut = AudioSessionCoordinator(mockAudioFocusManager)
     }
@@ -311,7 +311,7 @@ class AudioSessionCoordinatorTest {
     @Test
     fun `requestAudioSession returns false when audio focus denied`() = runTest {
         // Given: AudioFocusManager denies focus
-        whenever(mockAudioFocusManager.requestFocus(any())).thenReturn(false)
+        whenever(mockAudioFocusManager.requestFocus(any(), any())).thenReturn(false)
 
         // When
         val granted = sut.requestAudioSession(AudioSource.TIMER)
@@ -344,13 +344,74 @@ class AudioSessionCoordinatorTest {
         // Capture the onFocusLost callback
         val callbackCaptor = argumentCaptor<() -> Unit>()
         sut.requestAudioSession(AudioSource.TIMER)
-        verify(mockAudioFocusManager).requestFocus(callbackCaptor.capture())
+        verify(mockAudioFocusManager).requestFocus(callbackCaptor.capture(), any())
 
         // When: Audio focus is lost (simulated by invoking the callback)
         callbackCaptor.firstValue.invoke()
 
         // Then: Pause handler was called
         assertTrue(pauseHandlerCalled)
+    }
+
+    // MARK: - Resume Handler Tests (shared-146)
+
+    /** Starts [source] and returns the system's "focus is back" signal. */
+    private fun requestSessionAndCaptureFocusGained(source: AudioSource): () -> Unit {
+        sut.requestAudioSession(source)
+        val gainedCaptor = argumentCaptor<() -> Unit>()
+        verify(mockAudioFocusManager).requestFocus(any(), gainedCaptor.capture())
+        return gainedCaptor.firstValue
+    }
+
+    @Test
+    fun `resume handler of the active source is invoked when the system gives focus back`() {
+        var resumed = false
+        sut.registerResumeHandler(AudioSource.GUIDED_MEDITATION) { resumed = true }
+        val focusGained = requestSessionAndCaptureFocusGained(AudioSource.GUIDED_MEDITATION)
+
+        focusGained()
+
+        assertTrue(resumed)
+    }
+
+    @Test
+    fun `resume handler of an inactive source is not invoked`() {
+        var meditationResumed = false
+        sut.registerResumeHandler(AudioSource.GUIDED_MEDITATION) { meditationResumed = true }
+        val focusGained = requestSessionAndCaptureFocusGained(AudioSource.TIMER)
+
+        focusGained()
+
+        assertFalse(meditationResumed)
+    }
+
+    @Test
+    fun `timer stays paused when the system gives focus back`() {
+        // The timer registers no resume handler (shared-147 decides that separately)
+        var timerPauseCalls = 0
+        sut.registerPauseHandler(AudioSource.TIMER) { timerPauseCalls++ }
+        sut.requestAudioSession(AudioSource.TIMER)
+        val lostCaptor = argumentCaptor<() -> Unit>()
+        val gainedCaptor = argumentCaptor<() -> Unit>()
+        verify(mockAudioFocusManager).requestFocus(lostCaptor.capture(), gainedCaptor.capture())
+
+        lostCaptor.firstValue.invoke()
+        gainedCaptor.firstValue.invoke()
+
+        assertEquals(1, timerPauseCalls)
+        assertEquals(AudioSource.TIMER, sut.activeSource.value)
+    }
+
+    @Test
+    fun `focus coming back after the session was released resumes nothing`() {
+        var resumed = false
+        sut.registerResumeHandler(AudioSource.GUIDED_MEDITATION) { resumed = true }
+        val focusGained = requestSessionAndCaptureFocusGained(AudioSource.GUIDED_MEDITATION)
+        sut.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+
+        focusGained()
+
+        assertFalse(resumed)
     }
 
     // MARK: - Pause Handler Tests

@@ -219,6 +219,13 @@ constructor(
     /** Tracks whether the session has started (countdown or playback began) */
     private var hasSessionStarted = false
 
+    /**
+     * True when an interruption cut preparation time, start gong or breath pause short. The
+     * pre-roll then begins again — by itself when the system gives the sound back, otherwise
+     * at the next tap on play (shared-146).
+     */
+    private var preRollInterrupted = false
+
     /** Job for the countdown timer */
     private var countdownJob: Job? = null
 
@@ -244,6 +251,7 @@ constructor(
     init {
         observePlaybackState()
         observeStopFromOutside()
+        observeInterruptions()
         registerConflictHandler()
     }
 
@@ -256,13 +264,56 @@ constructor(
     private fun observeStopFromOutside() {
         viewModelScope.launch {
             audioPlayerService.nowPlaying.collect { meditation ->
-                if (meditation == null && isBeforeAudio()) {
+                if (meditation == null && (isBeforeAudio() || preRollInterrupted)) {
                     logger.d(TAG, "Stopped from outside before the meditation began")
                     stop()
                     hasSessionStarted = false
                 }
             }
         }
+    }
+
+    /**
+     * An interruption (phone call, voice assistant, alarm) during the pre-roll must not let the
+     * meditation start in the middle of it (shared-146). Running playback is paused and resumed
+     * by the audio service itself; only the pre-roll is the ViewModel's concern.
+     */
+    private fun observeInterruptions() {
+        viewModelScope.launch {
+            audioPlayerService.interruptionBegan.collect {
+                if (isBeforeAudio()) {
+                    abortPreRoll()
+                } else {
+                    // Interrupted while the file loads: the service holds it, paused at the start
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+            }
+        }
+        viewModelScope.launch {
+            audioPlayerService.interruptionEnded.collect {
+                if (preRollInterrupted) {
+                    logger.d(TAG, "Sound is back after an interruption: starting the pre-roll again")
+                    hasSessionStarted = true
+                    startPreRoll()
+                }
+            }
+        }
+    }
+
+    /**
+     * Stops countdown, start gong and breath pause. Audio session and announcement stay, so the
+     * lock screen keeps showing the meditation, paused at its start.
+     */
+    private fun abortPreRoll() {
+        logger.d(TAG, "Interrupted before the meditation began: stopping the pre-roll")
+        countdownJob?.cancel()
+        countdownJob = null
+        startGongJob?.cancel()
+        startGongJob = null
+        gongPlayer.stop()
+        hasSessionStarted = false
+        preRollInterrupted = true
+        _uiState.update { it.copy(preparationCountdown = null, isStartGongSequenceActive = false) }
     }
 
     /** True while preparation, start gong or breath pause run and the audio has not begun. */
@@ -350,6 +401,7 @@ constructor(
 
         // Reset session state
         hasSessionStarted = false
+        preRollInterrupted = false
 
         _uiState.update {
             it.copy(
@@ -399,12 +451,27 @@ constructor(
         // Mark session as started
         hasSessionStarted = true
 
-        // First start - use countdown if configured, otherwise start gong (if any), otherwise play
+        // First start - run the pre-roll (countdown and/or start gong) if any, otherwise play
+        if (hasPreRoll()) {
+            if (beginSessionBeforeAudio()) startPreRoll()
+        } else {
+            togglePlayPause()
+        }
+    }
+
+    private fun hasPreRoll(): Boolean {
         val prepTime = preparationTimeSeconds
-        when {
-            prepTime != null && prepTime > 0 -> if (beginSessionBeforeAudio()) startCountdown(prepTime)
-            _uiState.value.meditation?.startGongEnabled == true -> if (beginSessionBeforeAudio()) startGongSequence()
-            else -> togglePlayPause()
+        return (prepTime != null && prepTime > 0) || _uiState.value.meditation?.startGongEnabled == true
+    }
+
+    /** Starts the countdown if configured, otherwise the start gong. */
+    private fun startPreRoll() {
+        preRollInterrupted = false
+        val prepTime = preparationTimeSeconds
+        if (prepTime != null && prepTime > 0) {
+            startCountdown(prepTime)
+        } else {
+            startGongSequence()
         }
     }
 
@@ -423,7 +490,13 @@ constructor(
         val meditation = _uiState.value.meditation ?: return false
         if (!audioSessionCoordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
             hasSessionStarted = false
-            _uiState.update { it.copy(error = AUDIO_SESSION_ERROR) }
+            if (preRollInterrupted) {
+                // Tap during the call that cut the pre-roll short: stay quiet, the pre-roll
+                // begins by itself once the call is over (shared-146), like resume()
+                logger.w(TAG, "Audio session refused during the interruption: waiting for the sound to come back")
+            } else {
+                _uiState.update { it.copy(error = AUDIO_SESSION_ERROR) }
+            }
             return false
         }
         audioPlayerService.announce(meditation)
@@ -566,7 +639,10 @@ constructor(
         if (isBeforeAudio()) {
             return
         }
-        if (_uiState.value.isPlaying) {
+        if (preRollInterrupted) {
+            // An interruption cut the pre-roll short: begin it again (shared-146)
+            startPlayback()
+        } else if (_uiState.value.isPlaying) {
             pause()
         } else if (_uiState.value.isCompleted) {
             // Restart from beginning if completed
@@ -741,6 +817,7 @@ constructor(
 
         // Reset the countdown first: stopping the service clears nowPlaying, which must not
         // look like a stop from outside during preparation.
+        preRollInterrupted = false
         _uiState.update {
             it.copy(
                 isPlaying = false,

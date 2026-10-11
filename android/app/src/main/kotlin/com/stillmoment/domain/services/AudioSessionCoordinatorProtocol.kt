@@ -31,12 +31,23 @@ interface AudioSessionCoordinatorProtocol {
     /**
      * Register a pause handler for a specific audio source.
      * The handler is invoked when system audio focus is lost (e.g., phone call, other app).
-     * This should PAUSE audio playback so the user can resume later.
+     * This should PAUSE audio playback; it may continue once focus comes back.
      *
      * @param source The audio source registering the handler
      * @param handler The callback to invoke when audio focus is lost
      */
     fun registerPauseHandler(source: AudioSource, handler: () -> Unit)
+
+    /**
+     * Register a resume handler for a specific audio source.
+     * The handler is invoked when the system gives audio focus back after a temporary loss
+     * (e.g., the phone call ended) while the source is active. Optional: sources without a
+     * resume handler stay paused (shared-146).
+     *
+     * @param source The audio source registering the handler
+     * @param handler The callback to invoke when audio focus comes back
+     */
+    fun registerResumeHandler(source: AudioSource, handler: () -> Unit)
 
     /**
      * Request exclusive audio session access for a source.

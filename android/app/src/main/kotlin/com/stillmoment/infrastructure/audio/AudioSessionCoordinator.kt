@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * Also manages system AudioFocus to properly handle interruptions from phone calls,
  * other apps, and system events. When audio focus is lost, the active source is
- * paused (not stopped) so the user can resume manually.
+ * paused (not stopped). When the system gives focus back after a temporary loss, the
+ * active source's resume handler runs, if it registered one (shared-146).
  *
  * This mirrors the iOS AudioSessionCoordinator implementation for feature parity.
  */
@@ -33,6 +34,7 @@ constructor(
 
     private val conflictHandlers = mutableMapOf<AudioSource, () -> Unit>()
     private val pauseHandlers = mutableMapOf<AudioSource, () -> Unit>()
+    private val resumeHandlers = mutableMapOf<AudioSource, () -> Unit>()
 
     override fun registerConflictHandler(source: AudioSource, handler: () -> Unit) {
         conflictHandlers[source] = handler
@@ -40,6 +42,10 @@ constructor(
 
     override fun registerPauseHandler(source: AudioSource, handler: () -> Unit) {
         pauseHandlers[source] = handler
+    }
+
+    override fun registerResumeHandler(source: AudioSource, handler: () -> Unit) {
+        resumeHandlers[source] = handler
     }
 
     override fun requestAudioSession(source: AudioSource): Boolean {
@@ -51,13 +57,12 @@ constructor(
         }
 
         // Request system audio focus
-        val granted = audioFocusManager.requestFocus {
-            // Called when audio focus is lost - pause the active source
-            val activeSource = _activeSource.value
-            if (activeSource != null) {
-                pauseHandlers[activeSource]?.invoke()
-            }
-        }
+        val granted = audioFocusManager.requestFocus(
+            // Interruption began (phone call, other app) - pause the active source
+            onFocusLost = { _activeSource.value?.let { pauseHandlers[it]?.invoke() } },
+            // The system gave the sound back after a temporary loss - resume the active source
+            onFocusGained = { _activeSource.value?.let { resumeHandlers[it]?.invoke() } }
+        )
 
         if (!granted) {
             return false

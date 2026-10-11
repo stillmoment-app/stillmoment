@@ -1,6 +1,7 @@
 package com.stillmoment.domain.services
 
 import com.stillmoment.domain.models.GuidedMeditation
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -35,6 +36,19 @@ interface AudioPlayerServiceProtocol {
      * (lock screen, notification, headset or Bluetooth button) — or fails to load.
      */
     val nowPlaying: StateFlow<GuidedMeditation?>
+
+    /**
+     * Emits when an interruption (phone call, voice assistant, alarm, another app) takes the
+     * sound. Running playback is paused by the service itself (shared-146).
+     */
+    val interruptionBegan: SharedFlow<Unit>
+
+    /**
+     * Emits when the system gives the sound back after a temporary interruption. Playback the
+     * interruption paused has already continued by itself then. Never emits when another app
+     * keeps the sound for good (e.g. it plays music) — the user resumes by tapping play.
+     */
+    val interruptionEnded: SharedFlow<Unit>
 
     /**
      * Plays a guided meditation and shows it on the lock screen and in the media

@@ -245,8 +245,10 @@ Implementierung `AudioSessionCoordinator` ist ein Hilt-`@Singleton` (Bindung in 
 Android-Besonderheit: Neben dem Conflict Handler (andere Quelle der App uebernimmt) gibt es einen
 **Pause Handler** (`registerPauseHandler`). Der Koordinator fordert bei jeder Anfrage System-Audiofokus
 ueber `AudioFocusManager` an; verliert die App den Fokus (Anruf, andere App), ruft er den Pause Handler
-der aktiven Quelle auf. Wird der Fokus verweigert, liefert `requestAudioSession` `false` und die
-Quelle wird nicht aktiv.
+der aktiven Quelle auf. Gibt das System den Fokus nach einem voruebergehenden Verlust zurueck, ruft er
+deren **Resume Handler** auf (`registerResumeHandler`, optional; shared-146). Wird der Fokus verweigert,
+liefert `requestAudioSession` `false` und die Quelle wird nicht aktiv; eine fruehere, noch gueltige
+Fokus-Anfrage bleibt dabei bestehen.
 
 ### Wichtige Dateien
 
@@ -259,7 +261,8 @@ Quelle wird nicht aktiv.
 
 ### Ablauf
 
-1. `AudioService` und `AudioPlayerService` registrieren beim Erzeugen Conflict und Pause Handler fuer ihre Quellen.
+1. `AudioService` und `AudioPlayerService` registrieren beim Erzeugen Conflict und Pause Handler fuer ihre Quellen,
+   `AudioPlayerService` zusaetzlich einen Resume Handler.
    Auch `GuidedMeditationPlayerViewModel` registriert einen Conflict Handler fuer `GUIDED_MEDITATION`;
    pro Quelle gilt nur ein Handler (der zuletzt registrierte ueberschreibt den vorherigen).
 2. Vor der Wiedergabe fordern sie die Session an; bei `false` startet die Timer-Wiedergabe nicht.
@@ -286,6 +289,34 @@ Kopfhörertasten erreichen die Session direkt über Media3 (Laufzeit-Receiver), 
 Der Timer (`TimerForegroundService`) hat keine Media-Session.
 
 **Start mit Vorbereitungszeit oder Start-Gong (android-098):** Ab Android 15 bekommt eine App im Hintergrund nur mit laufendem Vordergrund-Dienst Audiofokus. `GuidedMeditationPlayerViewModel` fordert deshalb beim Tipp (App im Vordergrund) die Audio-Session an und ruft `announce()` auf, bevor Countdown oder Gong laufen – wie iOS, das die Session zu Beginn von Countdown/Gong aktiviert, und wie der Timer, der seinen Dienst beim Tipp startet. Wird die Session nach Countdown/Gong doch verweigert, beendet `stop()` die Anzeige. Abbruch (`stop()`) gibt Dienst, Session und Fokus frei. Ein Stopp von außen (Sperrbildschirm, Benachrichtigung, Kopfhörer-/Bluetooth-Taste) erreicht nur `AudioPlayerService`; der ViewModel beobachtet deshalb `nowPlaying` und bricht Vorbereitung, Start-Gong und Atempause ab, sobald es dort null wird. Bekannte Grenze: Während Vorbereitung und Start-Gong zeigt die Benachrichtigung einen Play-Knopf ohne Wirkung.
+
+### Unterbrechungen (Guided Meditations, seit shared-146)
+
+Regel: Eine Unterbrechung (Anruf, Sprachassistent, Wecker, andere App) haelt den Ton an; gibt das System ihn
+wieder frei, laeuft weiter, was lief. Abbildung der Fokus-Ereignisse in `AudioFocusManager`:
+
+| Fokus-Ereignis | Bedeutung | Gefuehrte Meditation (`AudioPlayerService`) |
+|----------------|-----------|---------------------------------------------|
+| `AUDIOFOCUS_LOSS_TRANSIENT`, `…_CAN_DUCK`, `AUDIOFOCUS_LOSS` | Unterbrechung beginnt | Laufende Wiedergabe pausieren (auch Sperrbildschirm) und sich merken, dass sie lief. Meldet immer `interruptionBegan` |
+| `AUDIOFOCUS_GAIN` | System gibt den Ton wieder frei | Lief die Wiedergabe vorher, setzt sie an derselben Stelle fort. Meldet immer `interruptionEnded` |
+
+Nach einem dauerhaften Verlust (`AUDIOFOCUS_LOSS`, z. B. eine andere App spielt Musik) schickt Android nie
+`AUDIOFOCUS_GAIN`; die Meditation bleibt pausiert. Pausieren durch den Nutzer (App, Sperrbildschirm, Kopfhoerer),
+Stopp, neue Wiedergabe und das Ende loeschen die Absicht, fortzusetzen. `resume()` (Play in App und auf dem
+Sperrbildschirm) fordert die Session neu an, weil Android 12+ die Player nach einem Fokusverlust stumm laesst,
+bis die App den Fokus erneut anfordert. Verweigert das System sie (laufender Anruf), bleibt die Meditation
+pausiert und laeuft nach dem Anruf von selbst weiter. Kommt die Unterbrechung, waehrend die Datei noch laedt,
+startet die Wiedergabe nach dem Laden nicht, sondern wartet pausiert am Anfang auf die Freigabe. Der Timer
+registriert keinen Resume Handler; fuer ihn aendert sich nichts.
+
+**Unterbrechung im Vorlauf:** Waehrend Vorbereitungszeit, Start-Gong oder Atempause bricht
+`GuidedMeditationPlayerViewModel` auf `interruptionBegan` hin den Vorlauf ab: Countdown und Atempause enden,
+der Gong verstummt. Session, Ankuendigung und Vordergrund-Dienst bleiben; der Player und der Sperrbildschirm
+zeigen die Meditation pausiert am Anfang. Auf `interruptionEnded` beginnt der Vorlauf von selbst neu (ohne
+erneute Session-Anfrage und Ankuendigung). Bleibt die Freigabe aus, startet der naechste Tipp auf Play den
+ganzen Vorlauf neu; verweigert das System dabei den Ton (Anruf laeuft noch), passiert still nichts, und
+der Vorlauf beginnt nach dem Anruf von selbst. In beiden Faellen beginnt die Meditation genau einmal. Ein Stopp von aussen nach dem
+Abbruch verhaelt sich wie ein Stopp im Vorlauf: Play startet danach direkt, ohne Vorlauf.
 
 ---
 

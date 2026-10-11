@@ -12,7 +12,9 @@ import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import com.stillmoment.domain.services.PlaybackState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -224,6 +226,8 @@ private class FakeAudioPlayerService : AudioPlayerServiceProtocol {
     }
 
     override val nowPlaying: StateFlow<GuidedMeditation?> = MutableStateFlow(null)
+    override val interruptionBegan: SharedFlow<Unit> = MutableSharedFlow()
+    override val interruptionEnded: SharedFlow<Unit> = MutableSharedFlow()
 
     override fun announce(meditation: GuidedMeditation) {}
 
