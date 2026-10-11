@@ -217,6 +217,44 @@ extension GuidedMeditationsListViewModelTests {
         XCTAssertEqual(self.sut.meditations.first?.gongSoundId, GongSound.defaultSoundId)
     }
 
+    // MARK: - Speichern trifft nur das offene Blatt (shared-138)
+
+    func testLateSecondSaveOfPreviousEditorLeavesNextImportOpen() async throws {
+        // Given — A ist gespeichert, das Blatt des wartenden B hat sich schon geoeffnet
+        await self.sut.importMeditation(from: URL(fileURLWithPath: "/tmp/a.mp3"))
+        let draftA = try XCTUnwrap(self.sut.meditationToEdit)
+        self.sut.handleEditSheetSave(draftA)
+        await self.sut.importMeditation(from: URL(fileURLWithPath: "/tmp/b.mp3"))
+        let draftB = try XCTUnwrap(self.sut.meditationToEdit)
+
+        // When — ein zweiter Tipp auf "Speichern" im ausblendenden Blatt von A kommt zu spaet an
+        self.sut.handleEditSheetSave(draftA)
+
+        // Then — das Blatt von B bleibt offen, nichts scheitert
+        XCTAssertTrue(self.sut.showingEditSheet)
+        XCTAssertEqual(self.sut.pendingImport?.draftId, draftB.id)
+        XCTAssertEqual(self.sut.meditationToEdit?.id, draftB.id)
+        XCTAssertEqual(self.sut.meditations.map(\.id), [draftA.id])
+        XCTAssertNil(self.sut.errorMessage)
+    }
+
+    func testSecondSaveTapAfterEditorClosedChangesNothing() async throws {
+        // Given — A ist gespeichert, das Blatt ist zu
+        await self.sut.importMeditation(from: URL(fileURLWithPath: "/tmp/a.mp3"))
+        let draftA = try XCTUnwrap(self.sut.meditationToEdit)
+        self.sut.handleEditSheetSave(draftA)
+
+        // When
+        var renamed = draftA
+        renamed.name = "Zweiter Tipp"
+        self.sut.handleEditSheetSave(renamed)
+
+        // Then
+        XCTAssertEqual(self.sut.meditations.first?.name, draftA.name)
+        XCTAssertFalse(self.sut.showingEditSheet)
+        XCTAssertNil(self.sut.errorMessage)
+    }
+
     // MARK: - Helpers (file-local)
 
     private func makeTestMeditation(teacher: String, name: String) -> GuidedMeditation {

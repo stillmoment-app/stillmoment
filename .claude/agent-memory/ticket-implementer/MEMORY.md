@@ -52,6 +52,7 @@
 ## iOS Build, Lint, Tests
 
 - [BUILD_FAILED ohne error: = Runner-Bootstrap-Crash](feedback_ios_test_runner_bootstrap_crash.md) — Simulator-Flake bei parallelen Sims; einmal neu laufen lassen. Auch: PASS mit winzigem TOTAL + Error 65.
+- [Rote Tests hängen 10 min (simctl diagnose)](feedback_xcodebuild_diagnose_hang.md) — Kindprozess des eigenen xcodebuild beenden; echte Share Extension per Dateien-App bedienen.
 - [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen. Android: `FAIL` mit alten Zahlen = Compile-Fehler.
 - [iOS-Agent-Testausgabe zählt Assertions](feedback_ios_agent_test_output_counts.md) — FAILED = fehlgeschlagene Assertions, nicht Tests; Liste gekürzt; bootstatus umleiten.
 - [SwiftLint --strict: max. 5 Parameter](feedback_ios_swiftlint_strict_param_count.md) — `make check` macht Warnungen zu Fehlern; mehr als 5 Parameter scheitert, Domain-Modell/Value Object übergeben statt Android-Signatur 1:1 portieren.

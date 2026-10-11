@@ -2,7 +2,7 @@
 id: shared-138
 title: "Teilen während eines laufenden Imports: erst den laufenden Import abschließen, dann den neu geteilten Eintrag übernehmen"
 status:
-  ios: todo
+  ios: in-progress
   android: todo
 phase: 4-Polish
 priority: hoch

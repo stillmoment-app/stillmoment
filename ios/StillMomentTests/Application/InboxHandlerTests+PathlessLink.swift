@@ -37,6 +37,9 @@ extension InboxHandlerTests {
             XCTAssertTrue(loadingWindowShown, "Ladefenster fuer \(address)")
             XCTAssertEqual(result, .error(.notAnAudioUrl), address)
             XCTAssertEqual(self.mockDownloadService.requestedURLs.last, link, address)
+
+            // Solange die Meldung steht, wartet der naechste geteilte Link (shared-138)
+            _ = await self.sut.closeMessage()
         }
     }
 
