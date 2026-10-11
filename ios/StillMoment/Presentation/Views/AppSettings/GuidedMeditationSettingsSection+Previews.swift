@@ -13,7 +13,8 @@ import SwiftUI
 #Preview("Preparation Disabled") {
     NavigationStack {
         Form {
-            GuidedMeditationSettingsSection(settingsRepository: AppDependencies.live().guidedSettingsRepository)
+            GuidedMeditationSettingsSection(settingsRepository: AppDependencies.live(storage: .production())
+                .guidedSettingsRepository)
         }
         .scrollContentBackground(.hidden)
     }
@@ -25,7 +26,7 @@ import SwiftUI
         Form {
             GuidedMeditationSettingsSection(
                 settingsRepository: {
-                    let repo = AppDependencies.live().guidedSettingsRepository
+                    let repo = AppDependencies.live(storage: .production()).guidedSettingsRepository
                     repo.save(GuidedMeditationSettings(preparationTimeSeconds: 15))
                     return repo
                 }()

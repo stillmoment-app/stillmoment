@@ -11,30 +11,23 @@ import XCTest
 final class GuidedMeditationServiceTests: XCTestCase {
     var sut: GuidedMeditationService?
     var testUserDefaults: UserDefaults?
+    var storage: TestStorage?
 
     // MARK: - Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
-        // Create isolated UserDefaults for testing
-        let suiteName = "test.stillmoment.GuidedMeditationServiceTests.\(UUID().uuidString)"
-        guard let userDefaults = UserDefaults(suiteName: suiteName) else {
-            XCTFail("Failed to create test UserDefaults")
-            return
-        }
-        self.testUserDefaults = userDefaults
-        self.testUserDefaults?.removePersistentDomain(forName: suiteName)
-
-        self.sut = GuidedMeditationService(userDefaults: userDefaults)
+        // Own UserDefaults suite and directory, so no test touches the app's real library
+        let storage = try TestStorage()
+        self.storage = storage
+        self.testUserDefaults = storage.userDefaults
+        self.sut = GuidedMeditationService(userDefaults: storage.userDefaults, baseDirectory: storage.baseDirectory)
     }
 
     override func tearDown() {
-        // Clean up test data
-        if let userDefaults = testUserDefaults,
-           let suiteName = userDefaults.dictionaryRepresentation().keys.first {
-            userDefaults.removePersistentDomain(forName: suiteName)
-        }
+        self.storage?.remove()
+        self.storage = nil
         self.testUserDefaults = nil
         self.sut = nil
 

@@ -24,7 +24,7 @@ struct StillMomentApp: App {
     // MARK: Lifecycle
 
     /// Theme manager - owns theme state, injected as @EnvironmentObject
-    @StateObject private var themeManager = ThemeManager()
+    @StateObject private var themeManager: ThemeManager
 
     /// Timer ViewModel
     @StateObject private var timerViewModel: TimerViewModel
@@ -40,8 +40,7 @@ struct StillMomentApp: App {
 
     /// Persisted tab selection - remembers last used tab across app launches.
     /// First launch (no stored value) lands on AppTab.defaultTab (shared-084).
-    @AppStorage("selectedTab")
-    private var selectedTab: String = AppTab.defaultTab.rawValue
+    @AppStorage private var selectedTab: String
 
     /// Navigation path for library tab (enables programmatic navigation)
     @State private var libraryPath = NavigationPath()
@@ -54,16 +53,23 @@ struct StillMomentApp: App {
     private var scenePhase
 
     init() {
+        // ios-056: the one place that decides where the app persists. Everything below
+        // (services, theme, tab, Share inbox, migrations) uses this storage. Unit and UI
+        // test runs get an emptied storage of their own (Debug builds only).
+        let storage = StorageLocation.forCurrentLaunch()
+
         // Composition Root (ios-055): every service of the app is created here, exactly once,
         // and handed down through initializers. Building the graph performs no persistence
         // reads, so the launch-argument overrides and migrations below still run first.
-        let dependencies = AppDependencies.live()
+        let dependencies = AppDependencies.live(storage: storage)
         self.dependencies = dependencies
+        _themeManager = StateObject(wrappedValue: ThemeManager(store: storage.userDefaults))
+        _selectedTab = AppStorage(wrappedValue: AppTab.defaultTab.rawValue, "selectedTab", store: storage.userDefaults)
 
         // Apply launch argument overrides before creating ViewModels
         // (UI tests use -DisablePreparation to configure preparation time behavior)
         if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
-            PreparationTimeConfigurer.disable()
+            PreparationTimeConfigurer.disable(userDefaults: storage.userDefaults)
         }
 
         // UI tests use -DurationMinutes <n> to override the session duration —
@@ -78,7 +84,7 @@ struct StillMomentApp: App {
 
         // One-time silent cleanup of legacy attunement data (shared-088).
         // Runs before any repository load so persisted state is already clean.
-        AttunementCleanupMigration.runIfNeeded()
+        AttunementCleanupMigration.runIfNeeded(userDefaults: storage.userDefaults, baseDirectory: storage.baseDirectory)
 
         // Seed test fixtures for screenshot automation (Screenshots target only).
         // Runs before the ViewModels are built, so nothing can hold a library state from
@@ -97,17 +103,12 @@ struct StillMomentApp: App {
         _guidedListViewModel = StateObject(wrappedValue: dependencies.makeGuidedListViewModel())
 
         let fileOpenHandler = dependencies.makeFileOpenHandler()
-        let inboxDir = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
-            .appendingPathComponent("ShareInbox")
-            ?? FileManager.default.temporaryDirectory.appendingPathComponent("ShareInbox")
-
         _fileOpenHandler = StateObject(wrappedValue: fileOpenHandler)
         _inboxHandler = StateObject(wrappedValue: InboxHandler(
             fileOpenHandler: fileOpenHandler,
             downloadService: dependencies.downloadService,
             episodeResolver: dependencies.episodeResolver,
-            inboxDirectoryURL: inboxDir
+            inboxDirectoryURL: storage.shareInboxDirectory
         ))
     }
 

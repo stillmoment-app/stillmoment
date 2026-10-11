@@ -30,6 +30,8 @@ final class FileOpenHandlerTests: XCTestCase {
     }
 
     override func tearDown() {
+        // Some tests place "already imported" files into the mock's temporary folder
+        try? FileManager.default.removeItem(at: self.mockMeditationService.getMeditationsDirectory())
         self.sut = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil

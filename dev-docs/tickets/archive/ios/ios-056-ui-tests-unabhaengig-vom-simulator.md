@@ -1,13 +1,15 @@
 ---
 id: ios-056
 title: Tests nutzen eigenen Speicher statt der App-Daten
-status: todo
+status: done
 phase: 5-QA
 priority: mittel
 depends_on: [ios-055]
 ---
 
 # Ticket ios-056: Tests nutzen eigenen Speicher statt der App-Daten
+
+**Plan**: `dev-docs/tickets/plans/ios-056.md`
 
 **Komplexitaet**: Überschaubar. Risiko: Der Test-Speicher gelangt versehentlich in den Store-Build, oder Screenshot-Tests mit Beispiel-Meditationen verlieren ihren Zustand.
 **Abhaengigkeiten**: ios-055
@@ -31,11 +33,11 @@ Ein eigener Test-Speicher behebt beides an einer Stelle. Er schont außerdem die
 
 ## Akzeptanzkriterien
 
-- [ ] `make test-ui` ist grün, auch wenn auf dem Simulator Meditationen gespeichert sind. Diese Meditationen sind danach unverändert.
-- [ ] Nach `make test-unit-agent` liegen im echten App-Speicher keine neuen Dateien und keine neuen Einträge in den Einstellungen.
-- [ ] Im Release-Build lässt sich der Test-Speicher nicht einschalten.
-- [ ] Screenshot-Tests mit Beispiel-Meditationen verhalten sich wie bisher.
-- [ ] `ios/CLAUDE.md`: eine Zeile dazu, wie Tests ihren Speicher bekommen.
+- [x] `make test-ui` ist grün, auch wenn auf dem Simulator Meditationen gespeichert sind. Diese Meditationen sind danach unverändert.
+- [x] Nach `make test-unit-agent` liegen im echten App-Speicher keine neuen Dateien und keine neuen Einträge in den Einstellungen.
+- [x] Im Release-Build lässt sich der Test-Speicher nicht einschalten.
+- [x] Screenshot-Tests mit Beispiel-Meditationen verhalten sich wie bisher.
+- [x] `ios/CLAUDE.md`: eine Zeile dazu, wie Tests ihren Speicher bekommen.
 
 ---
 
@@ -47,9 +49,20 @@ Ein eigener Test-Speicher behebt beides an einer Stelle. Er schont außerdem die
 
 ---
 
+## Nachweise
+
+Alle Läufe am 2026-10-11 auf „iPhone 17“, die Dev-App hatte dabei einen Eintrag in der Bibliothek.
+
+- **UI-Tests (AK-1):** Gegenprobe ohne `-UseTestStorage` in `LibraryFlowUITests`: die vier Bibliotheks-Tests rot („Executed 4 tests, with 4 failures“). Mit dem Argument grün („Executed 4 tests, with 0 failures“). Danach `make test-ui`: „Executed 31 tests, with 16 tests skipped and 0 failures“, Bibliothek der Dev-App unverändert.
+- **Unit-Tests (AK-2):** Vor und nach `make test-unit-agent` (1500 Tests grün) waren die Dateiliste in Application Support (763 Dateien, Größe und Änderungszeit) und die Einstellungen der Dev-App identisch. Neu sind nur die Einstellungsdateien des Test-Speichers (`StillMomentTestStorage`, `StillMomentTests.*`), einmalig mit festem Namen.
+- **Screenshots (AK-4):** `make screenshots` Exit 0, je „Executed 16 tests, with 0 failures“ für de-DE und en-GB, Bilder inhaltlich identisch mit main. Leere Bibliothek separat per `make screenshot-single` geprüft.
+- **Release-Schalter (AK-3):** `make build-release`, danach `strings -a` auf `Release-iphoneos/StillMoment.app/StillMoment`: `-UseTestStorage`, `StillMomentTestStorage` und `XCTestCase` kommen nicht vor. Gegenprobe: Debug-Build enthält `-UseTestStorage`, das Release-Binary enthält `-DisablePreparation`.
+
+---
+
 ## Hinweise
 
-- Recherche und Quellen: [ios-ui-test-isolation.md](../../concepts/ios-ui-test-isolation.md). Empfehlung, kein Lösungszwang:
+- Recherche und Quellen: [ios-ui-test-isolation.md](../../../concepts/ios-ui-test-isolation.md). Empfehlung, kein Lösungszwang:
   - Feste Pfade auf `applicationSupportDirectory` heute in `GuidedMeditationService.swift:138`, `CustomAudioRepository.swift:149`, `WaveformCacheService.swift:77`. Basisverzeichnis übergebbar machen.
   - Defaults wie `UserDefaults = .standard` und `FileManager = .default` entfernen und die Speicherorte ausdrücklich in `live()` übergeben. Dann muss jeder Test schon beim Kompilieren einen Speicherort wählen, und `live()` lässt sich mit temporären Speicherorten testen.
   - UI-Tests: Launch-Argument in `setUp` (WWDC25-344), an genau einer Stelle im App-Einstieg ausgewertet. Erst leeren, dann bei Bedarf seeden (nicht „seeden nur wenn leer“ wie heute im `TestFixtureSeeder`).

@@ -10,7 +10,7 @@ extension PraxisSettingsViewModel {
     /// Creates a view model for the default Praxis on the app's real services for SwiftUI previews.
     @MainActor
     static func preview() -> PraxisSettingsViewModel {
-        let dependencies = AppDependencies.live()
+        let dependencies = AppDependencies.live(storage: .production())
         return PraxisSettingsViewModel(
             praxis: .default,
             repository: dependencies.praxisRepository,

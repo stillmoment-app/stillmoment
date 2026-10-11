@@ -25,7 +25,7 @@ private let previewMeditation = GuidedMeditation(
         audioService: MockPreviewAudioService(),
         waveformProvider: PreviewWaveformProvider(),
         meditationService: PreviewMeditationService(),
-        praxisRepository: AppDependencies.live().praxisRepository,
+        praxisRepository: AppDependencies.live(storage: .production()).praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )
@@ -40,7 +40,7 @@ private let previewMeditation = GuidedMeditation(
         audioService: MockPreviewAudioService(),
         waveformProvider: PreviewWaveformProvider(),
         meditationService: PreviewMeditationService(),
-        praxisRepository: AppDependencies.live().praxisRepository,
+        praxisRepository: AppDependencies.live(storage: .production()).praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )
@@ -62,7 +62,7 @@ private let previewMeditation = GuidedMeditation(
         audioService: MockPreviewAudioService(),
         waveformProvider: PreviewWaveformProvider(),
         meditationService: PreviewMeditationService(),
-        praxisRepository: AppDependencies.live().praxisRepository,
+        praxisRepository: AppDependencies.live(storage: .production()).praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )

@@ -11,19 +11,22 @@ import XCTest
 // MARK: - Meditations Directory Tests
 
 extension GuidedMeditationServiceTests {
-    func testGetMeditationsDirectory_ReturnsValidPath() {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
+    func testImportedFilesLandInTheGivenStorage() throws {
+        // Given — a library on its own storage
+        let sut = try XCTUnwrap(self.sut)
+        let storage = try XCTUnwrap(self.storage)
+        let tempURL = createTemporaryAudioFile()
+        defer { try? FileManager.default.removeItem(at: tempURL) }
 
         // When
-        let directory = sut.getMeditationsDirectory()
+        let meditation = try sut.addMeditation(
+            from: tempURL,
+            draft: self.makeImportDraft(for: tempURL, teacher: "Teacher", name: "Test")
+        )
 
-        // Then
-        XCTAssertTrue(directory.path.contains("Meditations"))
-        XCTAssertTrue(directory.path.contains("Application Support"))
+        // Then — the copied audio file lives inside that storage, never in the app's own folder
+        let fileURL = try XCTUnwrap(sut.fileURL(for: meditation))
+        XCTAssertTrue(fileURL.standardizedFileURL.path.hasPrefix(storage.baseDirectory.standardizedFileURL.path))
     }
 }
 
@@ -225,13 +228,10 @@ extension GuidedMeditationServiceTests {
     }
 
     func testService_WithMultipleInstances_SharesUserDefaults() throws {
-        // Given - Two service instances with same UserDefaults
-        guard let testUserDefaults else {
-            XCTFail("Test UserDefaults not initialized")
-            return
-        }
-        let service1 = GuidedMeditationService(userDefaults: testUserDefaults)
-        let service2 = GuidedMeditationService(userDefaults: testUserDefaults)
+        // Given - Two service instances on the same storage
+        let storage = try XCTUnwrap(self.storage)
+        let service1 = GuidedMeditationService(userDefaults: storage.userDefaults, baseDirectory: storage.baseDirectory)
+        let service2 = GuidedMeditationService(userDefaults: storage.userDefaults, baseDirectory: storage.baseDirectory)
 
         // When - Save with service1
         let meditation = createTestMeditation(teacher: "Teacher", name: "Test")

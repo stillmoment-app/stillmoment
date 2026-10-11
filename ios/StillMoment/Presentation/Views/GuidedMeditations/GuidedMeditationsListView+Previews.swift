@@ -12,7 +12,7 @@ import SwiftUI
 /// library contents and audio. Preview files are exempt from the composition-root lint.
 @MainActor
 private func previewLibrary(meditations: [GuidedMeditation]) -> some View {
-    let dependencies = AppDependencies.live()
+    let dependencies = AppDependencies.live(storage: .production())
     let service = PreviewMeditationService(meditations: meditations)
     let viewModel = GuidedMeditationsListViewModel(
         meditationService: service,

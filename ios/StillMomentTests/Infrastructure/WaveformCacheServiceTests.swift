@@ -14,7 +14,7 @@ final class WaveformCacheServiceTests: XCTestCase {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("WaveformCacheTests-\(UUID().uuidString)")
         self.tempDirectory = directory
-        self.sut = WaveformCacheService(directory: directory)
+        self.sut = WaveformCacheService(baseDirectory: directory)
     }
 
     override func tearDownWithError() throws {

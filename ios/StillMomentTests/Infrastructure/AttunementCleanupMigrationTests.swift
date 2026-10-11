@@ -11,43 +11,26 @@ import XCTest
 final class AttunementCleanupMigrationTests: XCTestCase {
     // MARK: - Properties
 
-    private static let suiteName = "AttunementCleanupMigrationTests"
-
-    private var testDefaults: UserDefaults?
-    private var testAppSupport: URL?
+    private var storage: TestStorage?
 
     // MARK: - Setup / Teardown
 
-    override func setUp() {
-        super.setUp()
-        self.testDefaults = UserDefaults(suiteName: Self.suiteName)
-        self.testDefaults?.removePersistentDomain(forName: Self.suiteName)
-
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-        try? FileManager.default.createDirectory(
-            at: dir,
-            withIntermediateDirectories: true
-        )
-        self.testAppSupport = dir
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        self.storage = try TestStorage()
     }
 
     override func tearDown() {
-        if let dir = testAppSupport {
-            try? FileManager.default.removeItem(at: dir)
-        }
-        self.testDefaults?.removePersistentDomain(forName: Self.suiteName)
-        self.testDefaults = nil
-        self.testAppSupport = nil
+        self.storage?.remove()
+        self.storage = nil
         super.tearDown()
     }
 
     // MARK: - UserDefaults Cleanup
 
-    func testRunIfNeeded_removesLegacyIntroductionKeys() {
-        guard let defaults = testDefaults else {
-            return XCTFail("testDefaults not initialized")
-        }
+    func testRunIfNeeded_removesLegacyIntroductionKeys() throws {
+        let storage = try XCTUnwrap(self.storage)
+        let defaults = storage.userDefaults
         // Given - legacy persisted attunement settings from pre-shared-088 build
         defaults.set("breath", forKey: "introductionId")
         defaults.set(true, forKey: "introductionEnabled")
@@ -56,7 +39,7 @@ final class AttunementCleanupMigrationTests: XCTestCase {
         // When
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: self.testAppSupport
+            baseDirectory: storage.baseDirectory
         )
 
         // Then
@@ -65,15 +48,14 @@ final class AttunementCleanupMigrationTests: XCTestCase {
         XCTAssertNil(defaults.object(forKey: "customAudioFiles_attunement"))
     }
 
-    func testRunIfNeeded_setsMarkerAfterRun() {
-        guard let defaults = testDefaults else {
-            return XCTFail("testDefaults not initialized")
-        }
+    func testRunIfNeeded_setsMarkerAfterRun() throws {
+        let storage = try XCTUnwrap(self.storage)
+        let defaults = storage.userDefaults
 
         // When
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: self.testAppSupport
+            baseDirectory: storage.baseDirectory
         )
 
         // Then
@@ -82,14 +64,13 @@ final class AttunementCleanupMigrationTests: XCTestCase {
 
     // MARK: - Idempotency
 
-    func testRunIfNeeded_isIdempotent_doesNotTouchKeysOnSecondRun() {
-        guard let defaults = testDefaults else {
-            return XCTFail("testDefaults not initialized")
-        }
+    func testRunIfNeeded_isIdempotent_doesNotTouchKeysOnSecondRun() throws {
+        let storage = try XCTUnwrap(self.storage)
+        let defaults = storage.userDefaults
         // Given - first run completes, marker is set
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: self.testAppSupport
+            baseDirectory: storage.baseDirectory
         )
         // Simulate a legacy key being re-added between launches (shouldn't happen,
         // but proves the migration won't re-run and clobber it).
@@ -98,7 +79,7 @@ final class AttunementCleanupMigrationTests: XCTestCase {
         // When - second run
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: self.testAppSupport
+            baseDirectory: storage.baseDirectory
         )
 
         // Then - second run was a no-op, sentinel value survives
@@ -108,9 +89,9 @@ final class AttunementCleanupMigrationTests: XCTestCase {
     // MARK: - Filesystem Cleanup
 
     func testRunIfNeeded_removesAttunementDirectoryAndFiles() throws {
-        guard let defaults = testDefaults, let appSupport = testAppSupport else {
-            return XCTFail("setup not initialized")
-        }
+        let storage = try XCTUnwrap(self.storage)
+        let defaults = storage.userDefaults
+        let appSupport = storage.baseDirectory
         // Given - legacy attunement directory with two MP3 files
         let attunementDir = appSupport.appendingPathComponent("CustomAudio/attunements")
         try FileManager.default.createDirectory(
@@ -123,23 +104,23 @@ final class AttunementCleanupMigrationTests: XCTestCase {
         // When
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: appSupport
+            baseDirectory: appSupport
         )
 
         // Then
         XCTAssertFalse(FileManager.default.fileExists(atPath: attunementDir.path))
     }
 
-    func testRunIfNeeded_withoutAttunementDirectory_doesNotCrash() {
-        guard let defaults = testDefaults, let appSupport = testAppSupport else {
-            return XCTFail("setup not initialized")
-        }
+    func testRunIfNeeded_withoutAttunementDirectory_doesNotCrash() throws {
+        let storage = try XCTUnwrap(self.storage)
+        let defaults = storage.userDefaults
+        let appSupport = storage.baseDirectory
         // Given - fresh install: no legacy directory exists
 
         // When / Then - no crash, marker is set
         AttunementCleanupMigration.runIfNeeded(
             userDefaults: defaults,
-            applicationSupportURL: appSupport
+            baseDirectory: appSupport
         )
         XCTAssertTrue(defaults.bool(forKey: AttunementCleanupMigration.markerKey))
     }

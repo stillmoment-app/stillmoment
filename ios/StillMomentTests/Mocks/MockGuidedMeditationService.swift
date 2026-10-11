@@ -25,6 +25,11 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     /// Meditations whose audio file was requested via `fileURL(for:)`, in call order
     private(set) var fileURLRequests: [UUID] = []
 
+    /// Where `fileURL(for:)` points: a temporary folder of its own, never the app's real
+    /// Meditations folder (ios-056). Not created here; tests that write into it remove it.
+    let meditationsDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent("MockMeditations-\(UUID().uuidString)")
+
     func loadMeditations() throws -> [GuidedMeditation] {
         if self.loadShouldThrow {
             throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
@@ -76,10 +81,7 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     }
 
     func getMeditationsDirectory() -> URL {
-        // Must match the real service path so test helpers' files are found
-        // swiftlint:disable:next force_unwrapping
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("Meditations")
+        self.meditationsDirectory
     }
 
     func needsMigration() -> Bool {

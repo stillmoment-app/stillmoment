@@ -23,8 +23,6 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     var mockWaveformProvider: MockWaveformProvider!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var tempFileURL: URL!
 
     override func setUp() {
         super.setUp()
@@ -33,10 +31,7 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.mockWaveformProvider = MockWaveformProvider()
         self.cancellables = Set<AnyCancellable>()
 
-        // Create temporary file for tests
-        self.tempFileURL = GuidedMeditationTestHelpers.createTemporaryAudioFile()
-
-        let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
+        let meditation = GuidedMeditationTestHelpers.createTestMeditation()
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService,
@@ -56,10 +51,6 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.mockPlayerService = nil
         self.mockMeditationService = nil
         self.mockWaveformProvider = nil
-        // Clean up temp file and UserDefaults
-        GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
-        self.tempFileURL = nil
-        GuidedMeditationTestHelpers.cleanupUserDefaults()
         super.tearDown()
     }
 

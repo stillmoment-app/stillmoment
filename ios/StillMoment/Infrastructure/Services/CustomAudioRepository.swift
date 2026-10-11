@@ -12,18 +12,16 @@ import OSLog
 /// Concrete implementation of CustomAudioRepositoryProtocol
 ///
 /// Manages user-imported audio files (soundscapes) with UserDefaults persistence.
-/// Audio files are copied to Application Support/CustomAudio/soundscapes/.
+/// Audio files are copied to `<baseDirectory>/CustomAudio/soundscapes/` (in the app: Application Support).
 final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: Lifecycle
 
-    /// Initializes the repository with optional custom UserDefaults and FileManager
-    ///
     /// - Parameters:
-    ///   - userDefaults: UserDefaults instance (defaults to .standard)
-    ///   - fileManager: FileManager instance (defaults to .default)
-    init(userDefaults: UserDefaults = .standard, fileManager: FileManager = .default) {
+    ///   - userDefaults: Where the soundscape list is stored
+    ///   - baseDirectory: Folder that holds the `CustomAudio/soundscapes` subfolder with the audio files
+    init(userDefaults: UserDefaults, baseDirectory: URL) {
         self.userDefaults = userDefaults
-        self.fileManager = fileManager
+        self.directory = baseDirectory.appendingPathComponent("CustomAudio/soundscapes")
     }
 
     // MARK: Internal
@@ -97,7 +95,7 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         let file = files[index]
 
         // Remove file from disk
-        let fileURL = Self.directory(fileManager: self.fileManager).appendingPathComponent(file.filename)
+        let fileURL = self.directory.appendingPathComponent(file.filename)
         if self.fileManager.fileExists(atPath: fileURL.path) {
             try? self.fileManager.removeItem(at: fileURL)
             Logger.infrastructure.debug("Deleted custom audio file: \(fileURL.path)")
@@ -111,7 +109,7 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     }
 
     func fileURL(for audioFile: CustomAudioFile) -> URL? {
-        let url = Self.directory(fileManager: self.fileManager).appendingPathComponent(audioFile.filename)
+        let url = self.directory.appendingPathComponent(audioFile.filename)
         guard self.fileManager.fileExists(atPath: url.path) else {
             return nil
         }
@@ -135,7 +133,8 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: Private
 
     private let userDefaults: UserDefaults
-    private let fileManager: FileManager
+    private let directory: URL
+    private let fileManager = FileManager.default
     private let supportedFormats: Set<String> = ["mp3", "m4a", "wav"]
 
     /// UserDefaults key for the soundscape file metadata array.
@@ -143,18 +142,11 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     /// pre-shared-088 storage; renaming would require a data migration.
     private static let storageKey = "customAudioFiles_soundscape"
 
-    private static func directory(fileManager: FileManager) -> URL {
-        // Application Support directory is guaranteed to exist on iOS
-        // swiftlint:disable:next force_unwrapping
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("CustomAudio/soundscapes")
-    }
-
     // MARK: - File Operations
 
     @discardableResult
     private func copyFileToDirectory(from sourceURL: URL, filename: String) throws -> URL {
-        let directory = Self.directory(fileManager: self.fileManager)
+        let directory = self.directory
 
         // Create directory if needed
         if !self.fileManager.fileExists(atPath: directory.path) {

@@ -266,6 +266,10 @@ final class TimerViewModelTests: XCTestCase {
 }
 ```
 
+### Test Storage
+
+Tests never touch the app's real data (ios-056): unit tests pass their own storage (`TestStorage` helper), the unit-test host and UI tests launched with `TestLaunchArguments.useTestStorage` (`-UseTestStorage`) run on an emptied storage of their own (`StorageLocation.freshTestStorage`, Debug builds only).
+
 ### Fachlich, Not Technical
 
 ```swift

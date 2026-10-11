@@ -52,17 +52,22 @@ struct AppDependencies {
     let makeAudioPlayerService: () -> AudioPlayerServiceProtocol
 
     /// Builds the production dependency graph. Call exactly once per app launch.
+    ///
+    /// - Parameter storage: Where every service persists (ios-056) — the app's own storage,
+    ///   or a separate one for tests.
     @MainActor
-    static func live() -> AppDependencies {
+    static func live(storage: StorageLocation) -> AppDependencies {
+        let userDefaults = storage.userDefaults
+        let baseDirectory = storage.baseDirectory
         let coordinator = AudioSessionCoordinator.shared
         let clock = SystemClock()
         let backgroundSoundRepository = BackgroundSoundRepository()
-        let customAudioRepository = CustomAudioRepository()
+        let customAudioRepository = CustomAudioRepository(userDefaults: userDefaults, baseDirectory: baseDirectory)
         let soundscapeResolver = SoundscapeResolver(
             soundRepository: backgroundSoundRepository,
             customAudioRepository: customAudioRepository
         )
-        let meditationService = GuidedMeditationService()
+        let meditationService = GuidedMeditationService(userDefaults: userDefaults, baseDirectory: baseDirectory)
         let makeGongPlayer: () -> MeditationGongPlayerProtocol = { MeditationGongPlayer() }
 
         return AppDependencies(
@@ -73,16 +78,16 @@ struct AppDependencies {
             ),
             timerService: TimerService(clock: clock),
             clock: clock,
-            praxisRepository: UserDefaultsPraxisRepository(),
+            praxisRepository: UserDefaultsPraxisRepository(userDefaults: userDefaults),
             backgroundSoundRepository: backgroundSoundRepository,
             customAudioRepository: customAudioRepository,
             soundscapeResolver: soundscapeResolver,
             meditationService: meditationService,
             metadataService: AudioMetadataService(),
             meditationSourceRepository: MeditationSourceRepository(),
-            searchHistoryStore: UserDefaultsSearchHistoryStore(),
-            guidedSettingsRepository: GuidedMeditationSettingsRepository(),
-            waveformProvider: Self.makeWaveformProvider(meditationService: meditationService),
+            searchHistoryStore: UserDefaultsSearchHistoryStore(userDefaults: userDefaults),
+            guidedSettingsRepository: GuidedMeditationSettingsRepository(userDefaults: userDefaults),
+            waveformProvider: Self.makeWaveformProvider(meditationService, baseDirectory: baseDirectory),
             downloadService: AudioDownloadService(),
             episodeResolver: ApplePodcastsEpisodeResolver(),
             makeGongPlayer: makeGongPlayer,
@@ -97,10 +102,13 @@ struct AppDependencies {
     // MARK: Private
 
     @MainActor
-    private static func makeWaveformProvider(meditationService: GuidedMeditationServiceProtocol) -> WaveformProvider {
+    private static func makeWaveformProvider(
+        _ meditationService: GuidedMeditationServiceProtocol,
+        baseDirectory: URL
+    ) -> WaveformProvider {
         WaveformProvider(
             generationService: WaveformGenerationService(),
-            cacheService: WaveformCacheService(),
+            cacheService: WaveformCacheService(baseDirectory: baseDirectory),
             meditationService: meditationService
         )
     }

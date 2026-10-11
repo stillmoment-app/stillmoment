@@ -18,17 +18,14 @@ final class PlayerViewModelCompletionTests: XCTestCase {
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var tempFileURL: URL!
 
     override func setUp() {
         super.setUp()
         self.mockPlayerService = MockAudioPlayerService()
         self.mockMeditationService = MockGuidedMeditationService()
         self.cancellables = Set<AnyCancellable>()
-        self.tempFileURL = GuidedMeditationTestHelpers.createTemporaryAudioFile()
 
-        let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
+        let meditation = GuidedMeditationTestHelpers.createTestMeditation()
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService,
@@ -47,9 +44,6 @@ final class PlayerViewModelCompletionTests: XCTestCase {
         self.sut = nil
         self.mockPlayerService = nil
         self.mockMeditationService = nil
-        GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
-        self.tempFileURL = nil
-        GuidedMeditationTestHelpers.cleanupUserDefaults()
         super.tearDown()
     }
 
@@ -58,7 +52,7 @@ final class PlayerViewModelCompletionTests: XCTestCase {
     func testCompletionEventSetWhenAudioFinishesNaturally() async {
         // Given
         let mockClock = MockClock()
-        let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
+        let meditation = GuidedMeditationTestHelpers.createTestMeditation()
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService,

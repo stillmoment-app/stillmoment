@@ -17,7 +17,7 @@ import OSLog
 final class UserDefaultsPraxisRepository: PraxisRepository {
     // MARK: Lifecycle
 
-    init(userDefaults: UserDefaults = .standard) {
+    init(userDefaults: UserDefaults) {
         self.userDefaults = userDefaults
         // Implementation detail, not a standalone service: the legacy reader for the one-time
         // MeditationSettings migration must read from exactly these userDefaults (ios-055).

@@ -25,8 +25,6 @@ final class PlayerViewModelGongTests: XCTestCase {
     var mockGongPlayer: MockMeditationGongPlayer!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockPraxisRepository: MockPraxisRepository!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var tempFileURL: URL!
 
     override func setUp() {
         super.setUp()
@@ -39,7 +37,6 @@ final class PlayerViewModelGongTests: XCTestCase {
             startGongSoundId: "classic-bowl",
             gongVolume: 0.5
         )
-        self.tempFileURL = GuidedMeditationTestHelpers.createTemporaryAudioFile()
     }
 
     override func tearDown() {
@@ -50,8 +47,6 @@ final class PlayerViewModelGongTests: XCTestCase {
         self.mockClock = nil
         self.mockGongPlayer = nil
         self.mockPraxisRepository = nil
-        GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
-        self.tempFileURL = nil
         super.tearDown()
     }
 
@@ -268,7 +263,6 @@ final class PlayerViewModelGongTests: XCTestCase {
         preparationTimeSeconds: Int? = nil
     ) -> GuidedMeditationPlayerViewModel {
         let meditation = GuidedMeditationTestHelpers.createTestMeditation(
-            fileURL: self.tempFileURL,
             startGongEnabled: startGongEnabled,
             endGongEnabled: endGongEnabled,
             gongSoundId: gongSoundId
