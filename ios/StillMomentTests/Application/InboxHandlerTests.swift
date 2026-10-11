@@ -28,6 +28,15 @@ final class InboxHandlerTests: XCTestCase {
     var mockMetadataService: MockAudioMetadataService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var inboxDirectory: URL!
+    /// Ob in der Bibliothek ein Bearbeiten-Blatt offen ist (shared-138)
+    var isEditorOpen = false
+    /// Fuer Handler, deren Tests kein Bearbeiten-Blatt brauchen
+    static let noEditorOpen: @MainActor () -> Bool = { false }
+
+    /// Der Handler fragt hier ab, ob ein Bearbeiten-Blatt offen ist
+    var editorState: @MainActor () -> Bool {
+        { [weak self] in self?.isEditorOpen ?? false }
+    }
 
     override func setUp() {
         super.setUp()
@@ -52,7 +61,8 @@ final class InboxHandlerTests: XCTestCase {
             downloadService: self.mockDownloadService,
             episodeResolver: self.mockEpisodeResolver,
             fileManager: .default,
-            inboxDirectoryURL: self.inboxDirectory
+            inboxDirectoryURL: self.inboxDirectory,
+            isEditorOpen: self.editorState
         )
     }
 
@@ -65,6 +75,7 @@ final class InboxHandlerTests: XCTestCase {
         self.mockMetadataService = nil
         self.mockMeditationService = nil
         self.inboxDirectory = nil
+        self.isEditorOpen = false
         super.tearDown()
     }
 
@@ -267,60 +278,6 @@ final class InboxHandlerTests: XCTestCase {
         XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
     }
 
-    // MARK: - Stale Entry Cleanup
-
-    func testEntriesOlderThan24HoursAreCleanedUp() async {
-        // Given - a single entry older than 24 hours
-        let staleFilename = "\(UUID().uuidString)_stale.mp3"
-        let staleURL = self.inboxDirectory.appendingPathComponent(staleFilename)
-        FileManager.default.createFile(atPath: staleURL.path, contents: Data(repeating: 0xCC, count: 50))
-        try? FileManager.default.setAttributes(
-            [.modificationDate: Date().addingTimeInterval(-25 * 3600)],
-            ofItemAtPath: staleURL.path
-        )
-
-        // When
-        let result = await self.sut.processInbox()
-
-        // Then - stale entry removed, inbox effectively empty
-        XCTAssertEqual(result, .empty, "Stale entries should be cleaned up and not processed")
-        XCTAssertFalse(
-            FileManager.default.fileExists(atPath: staleURL.path),
-            "Stale entry should be deleted"
-        )
-    }
-
-    func testStaleEntriesCleanedUpWhileNewestIsProcessed() async {
-        // Given - one stale entry and one fresh entry
-        let staleURL = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_stale.mp3")
-        let freshURL = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_fresh.mp3")
-        FileManager.default.createFile(atPath: staleURL.path, contents: Data(repeating: 0xCC, count: 50))
-        try? FileManager.default.setAttributes(
-            [.modificationDate: Date().addingTimeInterval(-25 * 3600)],
-            ofItemAtPath: staleURL.path
-        )
-        FileManager.default.createFile(atPath: freshURL.path, contents: Data(repeating: 0xDD, count: 50))
-
-        // When
-        let result = await self.sut.processInbox()
-
-        // Then - fresh entry processed (imported + cleaned up), stale entry deleted
-        if case .audioFile = result {
-            XCTAssertFalse(
-                FileManager.default.fileExists(atPath: staleURL.path),
-                "Stale entry should be deleted"
-            )
-            XCTAssertFalse(
-                FileManager.default.fileExists(atPath: freshURL.path),
-                "Fresh entry should be cleaned up after direct import"
-            )
-            // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
-            XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
-        } else {
-            XCTFail("Expected .audioFile result, got \(result)")
-        }
-    }
-
     // MARK: - Download Failure
 
     func testDownloadFailureReturnsError() async throws {
@@ -481,7 +438,8 @@ final class InboxHandlerTests: XCTestCase {
             downloadService: self.mockDownloadService,
             episodeResolver: self.mockEpisodeResolver,
             fileManager: .default,
-            inboxDirectoryURL: nonExistentDir
+            inboxDirectoryURL: nonExistentDir,
+            isEditorOpen: Self.noEditorOpen
         )
 
         // When

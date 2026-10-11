@@ -45,9 +45,6 @@ struct StillMomentApp: App {
     /// Navigation path for library tab (enables programmatic navigation)
     @State private var libraryPath = NavigationPath()
 
-    /// Error from file open handling (title and message come from the error)
-    @State private var fileOpenError: FileOpenError?
-
     /// Scene phase for inbox polling
     @Environment(\.scenePhase)
     private var scenePhase
@@ -100,15 +97,21 @@ struct StillMomentApp: App {
         #endif
 
         _timerViewModel = StateObject(wrappedValue: dependencies.makeTimerViewModel())
-        _guidedListViewModel = StateObject(wrappedValue: dependencies.makeGuidedListViewModel())
+        let guidedListViewModel = dependencies.makeGuidedListViewModel()
+        _guidedListViewModel = StateObject(wrappedValue: guidedListViewModel)
 
         let fileOpenHandler = dependencies.makeFileOpenHandler()
         _fileOpenHandler = StateObject(wrappedValue: fileOpenHandler)
+        // shared-138: while the library shows an editor, a newly shared entry waits.
+        let isEditorOpen: @MainActor () -> Bool = { [weak guidedListViewModel] in
+            guidedListViewModel?.showingEditSheet ?? false
+        }
         _inboxHandler = StateObject(wrappedValue: InboxHandler(
             fileOpenHandler: fileOpenHandler,
             downloadService: dependencies.downloadService,
             episodeResolver: dependencies.episodeResolver,
-            inboxDirectoryURL: storage.shareInboxDirectory
+            inboxDirectoryURL: storage.shareInboxDirectory,
+            isEditorOpen: isEditorOpen
         ))
     }
 
@@ -168,6 +171,12 @@ struct StillMomentApp: App {
                     self.checkInbox()
                 }
             }
+            // shared-138: A share that arrived while the editor was open has waited — it starts now.
+            .onChange(of: self.guidedListViewModel.showingEditSheet) { isEditorOpen in
+                if !isEditorOpen {
+                    self.checkInbox()
+                }
+            }
             // ios-041: Verlaesst der User den Library-Tab waehrend einer Suche,
             // wird die Eingabe zurueckgesetzt — die Historie bleibt erhalten.
             // shared-081: Der Tab-Wechsel ist zugleich der einzige Punkt, an dem der
@@ -200,17 +209,17 @@ struct StillMomentApp: App {
                 )
             }
             .alert(
-                NSLocalizedString(self.fileOpenError?.alertTitleKey ?? "common.error", comment: ""),
+                NSLocalizedString(self.inboxHandler.importError?.alertTitleKey ?? "common.error", comment: ""),
                 isPresented: Binding(
-                    get: { self.fileOpenError != nil },
-                    set: { if !$0 { self.fileOpenError = nil } }
+                    get: { self.inboxHandler.importError != nil },
+                    set: { if !$0 { self.inboxHandler.importError = nil } }
                 )
             ) {
                 Button(NSLocalizedString("common.ok", comment: "")) {
-                    self.fileOpenError = nil
+                    self.closeMessage()
                 }
             } message: {
-                if let errorMessage = fileOpenError?.localizedDescription {
+                if let errorMessage = self.inboxHandler.importError?.localizedDescription {
                     Text(errorMessage)
                 }
             }
@@ -248,15 +257,14 @@ struct StillMomentApp: App {
     @ViewBuilder private var downloadAlertButtons: some View {
         if self.inboxHandler.downloadError?.isRetryable == true {
             Button(NSLocalizedString("share.download.error.retry", comment: "")) {
-                self.inboxHandler.downloadError = nil
                 self.retryShare()
             }
             Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
-                self.inboxHandler.downloadError = nil
+                self.closeMessage()
             }
         } else {
             Button(NSLocalizedString("common.close", comment: ""), role: .cancel) {
-                self.inboxHandler.downloadError = nil
+                self.closeMessage()
             }
         }
     }
@@ -277,17 +285,16 @@ struct StillMomentApp: App {
 
     /// Checks the Share Extension inbox for new entries
     ///
-    /// Download- und Netzwerk-Fehler werden vom InboxHandler ueber `downloadError`
-    /// publiziert (eigener Alert). Import-Fehler (Duplikat, Metadata, Persist)
-    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenError`
-    /// gemeldet — denselben Alert nutzt auch der "Open with"-Pfad.
+    /// Der InboxHandler publiziert seine Meldungen selbst: Download- und Netzwerk-Fehler
+    /// ueber `downloadError`, Import-Fehler (Duplikat, Metadata) ueber `importError`.
+    /// Waehrend ein Import offen ist, wartet ein neu geteilter Eintrag (shared-138).
     private func checkInbox() {
         Task {
             await self.handleInboxResult(self.inboxHandler.processInbox())
         }
     }
 
-    /// "Erneut versuchen" im Download-Alert: verarbeitet den zuletzt geteilten Link erneut
+    /// "Erneut versuchen" im Download-Alert: setzt den begonnenen Import fort
     /// (der Inbox-Eintrag ist nach dem ersten Versuch schon aufgeraeumt).
     private func retryShare() {
         Task {
@@ -295,15 +302,20 @@ struct StillMomentApp: App {
         }
     }
 
-    /// Wechselt nach einem erfolgreichen Import in die Bibliothek (Bearbeiten-Dialog oeffnet dort).
+    /// Schliessen/OK in einer Import-Meldung: der Import ist beendet, ein wartender Eintrag startet.
+    private func closeMessage() {
+        Task {
+            await self.handleInboxResult(self.inboxHandler.closeMessage())
+        }
+    }
+
+    /// Wechselt in die Bibliothek, wenn ein Import ein Bearbeiten-Blatt oder eine Import-Meldung zeigt.
     private func handleInboxResult(_ result: InboxResult) {
         switch result {
         case .audioFile,
-             .downloadCompleted:
+             .downloadCompleted,
+             .audioImportFailed:
             self.selectedTab = AppTab.library.rawValue
-        case let .audioImportFailed(error):
-            self.selectedTab = AppTab.library.rawValue
-            self.fileOpenError = error
         case .empty,
              .downloadStarted,
              .error:
@@ -351,22 +363,14 @@ struct StillMomentApp: App {
 
     /// Handles a file URL received via "Open with" (CFBundleDocumentTypes).
     ///
-    /// Validates the file and publishes a pending import; the Library reacts
-    /// to `pendingImportSignal` and opens the Edit-Sheet with a Prefill-Draft.
+    /// The file goes through the Share inbox like a shared one (shared-138): it waits while
+    /// an import is open, otherwise its editor opens right away.
     private func handleFileOpen(url: URL) {
         Logger.guidedMeditation.info(
             "Received file open URL",
             metadata: ["file": url.lastPathComponent]
         )
-
-        Task {
-            let result = await self.fileOpenHandler.importFile(from: url)
-            switch result {
-            case .success:
-                self.selectedTab = AppTab.library.rawValue
-            case let .failure(error):
-                self.fileOpenError = error
-            }
-        }
+        self.inboxHandler.acceptOpenedFile(url)
+        self.checkInbox()
     }
 }

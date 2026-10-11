@@ -12,18 +12,18 @@ import OSLog
 
 /// Result of processing the Share Extension inbox
 enum InboxResult: Equatable {
-    /// Inbox was empty or only contained stale/unrecognized entries
+    /// Nothing was started: the inbox was empty, the entry waits, or the import was cancelled
     case empty
-    /// An audio file was successfully imported as a meditation
+    /// A shared audio file was handed to the editor (pending import, persisted on "Save")
     case audioFile(URL)
-    /// An audio file was recognized but the import itself failed
-    /// (duplicate, metadata failure, persistence failure)
+    /// An audio file was recognized but cannot be imported (duplicate, unreadable);
+    /// the message is published via `importError`
     case audioImportFailed(FileOpenError)
     /// A download was started for a URL reference
     case downloadStarted
-    /// A download completed and the resulting file was imported successfully
+    /// A download completed and the resulting file was handed to the editor
     case downloadCompleted(URL)
-    /// An error occurred during processing
+    /// An error occurred during processing; the message is published via `downloadError`
     case error(InboxError)
 }
 
@@ -32,37 +32,35 @@ enum InboxResult: Equatable {
 /// Processes entries placed in the Share Extension inbox directory
 ///
 /// The Share Extension writes audio files or URL references (JSON) into a shared
-/// inbox directory. This handler picks up those entries, processes the newest one,
-/// and cleans up the rest.
+/// inbox directory; "Open in" puts audio files there too. This handler takes the newest
+/// entry over, processes it, and removes the older ones ("the last shared wins", shared-132).
 ///
-/// Flow:
-/// 1. Check inbox directory exists
-/// 2. Remove stale entries (>24h old)
-/// 3. Filter to supported types (.mp3, .m4a, .json)
-/// 4. Remove unrecognized files and all entries except the newest
-/// 5. Take the newest entry over: move it out of the inbox into `tmp/share_<UUID>/` (shared-138)
-/// 6. Process it (audio file or URL reference)
-///
-/// Taking the entry over before processing keeps the inbox for waiting entries only: an entry
-/// shared meanwhile under the same name (`download.json` for two audiodharma talks) is never
-/// mistaken for the one in progress. A shared audio file stays in `tmp` until "Save" in the
-/// editor copies it into the library.
+/// **What the app has begun, it finishes (shared-138).** While an import is open — it loads,
+/// its editor is shown, or its message stands (`hasOpenImport`) — entries shared meanwhile
+/// wait in the inbox. When the import ends, the app calls back (`processInbox()` after the
+/// editor closed, `closeMessage()`, or "Cancel" in the loading window) and the newest waiting
+/// entry starts by itself. The entry in progress is moved out of the inbox when it starts,
+/// so the inbox holds waiting entries only (see `InboxDirectory`).
 @MainActor
 final class InboxHandler: ObservableObject {
     // MARK: Lifecycle
 
+    /// - Parameter isEditorOpen: Whether the library shows an editor — for a share, a file
+    ///   from the document picker, or a meditation already in the library. Every editor counts.
     init(
         fileOpenHandler: FileOpenHandler,
         downloadService: AudioDownloadServiceProtocol,
         episodeResolver: PodcastEpisodeResolverProtocol,
         fileManager: FileManager = .default,
-        inboxDirectoryURL: URL
+        inboxDirectoryURL: URL,
+        isEditorOpen: @escaping @MainActor () -> Bool
     ) {
         self.fileOpenHandler = fileOpenHandler
         self.downloadService = downloadService
         self.episodeResolver = episodeResolver
         self.fileManager = fileManager
-        self.inboxDirectoryURL = inboxDirectoryURL
+        self.inbox = InboxDirectory(url: inboxDirectoryURL, fileManager: fileManager)
+        self.isEditorOpen = isEditorOpen
     }
 
     // MARK: Internal
@@ -70,71 +68,82 @@ final class InboxHandler: ObservableObject {
     /// Whether a download is currently in progress
     @Published var isDownloading = false
 
-    /// The most recent download error, if any
+    /// Message for a shared link that could not be imported, if any (download alert)
     @Published var downloadError: InboxError?
 
-    /// Processes all entries in the inbox directory
+    /// Message for a shared or opened audio file that is not imported, if any
+    /// ("already there", unreadable, unsupported format)
+    @Published var importError: FileOpenError?
+
+    /// Takes the newest waiting entry over and processes it.
     ///
-    /// - Returns: The result of processing the inbox
+    /// While an import is open, nothing starts: the entry keeps waiting, and only entries
+    /// that repeat the running one are dropped (no second import, no late "already there").
     func processInbox() async -> InboxResult {
-        guard !self.isProcessing else {
-            Logger.infrastructure.info("processInbox() — already in progress, skipping")
+        guard !self.hasOpenImport else {
+            Logger.infrastructure.info("processInbox() — an import is still open, shared entries wait")
+            self.discardRepeatsOfRunningEntry()
             return .empty
         }
+        self.runningEntry = nil
         self.isProcessing = true
         defer { self.isProcessing = false }
-
-        guard self.fileManager.fileExists(atPath: self.inboxDirectoryURL.path) else {
-            // Directory doesn't exist yet — no one has shared anything. That's normal.
-            return .empty
-        }
-
-        guard let allFiles = try? self.fileManager.contentsOfDirectory(
-            at: self.inboxDirectoryURL,
-            includingPropertiesForKeys: [.contentModificationDateKey],
-            options: [.skipsHiddenFiles]
-        ) else {
-            Logger.infrastructure.error("Failed to list inbox directory contents")
-            self.downloadError = .containerNotAvailable
-            return .error(.containerNotAvailable)
-        }
-
-        // Remove stale entries (older than 24 hours)
-        let freshFiles = self.removeStaleEntries(from: allFiles)
-
-        // Filter to supported types and clean up unrecognized files
-        let supportedFiles = self.filterSupportedFiles(from: freshFiles)
-
-        guard let newestFile = self.newestFile(from: supportedFiles) else {
-            return .empty
-        }
-
-        // Delete all entries except the newest
-        let otherFiles = supportedFiles.filter { $0 != newestFile }
-        self.deleteFiles(otherFiles)
-
-        return await self.processEntry(at: newestFile)
+        return await self.processWaitingEntries()
     }
 
-    /// Processes the last shared link again after a retryable error ("Retry" in the alert).
+    /// Processes the running shared link again after a retryable error ("Retry" in the alert).
     ///
-    /// The inbox entry is already cleaned up after the first attempt, so the link is
-    /// remembered here. Returns `.empty` if there is nothing to retry.
+    /// The import continues; a waiting entry keeps waiting. Returns `.empty` if there is
+    /// nothing to retry.
     func retry() async -> InboxResult {
         guard !self.isProcessing, let link = self.retryableSharedLink else {
             return .empty
         }
+        self.downloadError = nil
         self.isProcessing = true
         defer { self.isProcessing = false }
-        return await self.processSharedLink(link)
+        self.cancelRequested = false
+        let result = await self.processSharedLink(link)
+        return await self.continueAfterSilentEnd(result)
+    }
+
+    /// The message of the running import was closed (not "Retry"): the import is finished,
+    /// the waiting entry starts.
+    func closeMessage() async -> InboxResult {
+        self.downloadError = nil
+        self.importError = nil
+        return await self.processInbox()
     }
 
     /// Cancels the running episode lookup and download (loading window "Cancel").
-    /// No message and no entry result from a cancelled share.
+    /// No message and no entry result from a cancelled share; the waiting entry starts.
     func cancelDownload() {
         self.cancelRequested = true
         self.episodeResolver.cancel()
         self.downloadService.cancelDownload()
+    }
+
+    /// Accepts an audio file opened with the app ("Open in"). It is put into the inbox like a
+    /// shared one, so the same rules apply; `processInbox()` starts it. An unsupported format
+    /// is reported right away and never waits.
+    func acceptOpenedFile(_ url: URL) {
+        guard self.fileOpenHandler.canHandle(url: url) else {
+            Logger.infrastructure.info("Opened file has an unsupported format: \(url.lastPathComponent)")
+            self.importError = .unsupportedFormat
+            return
+        }
+        let didStartAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        do {
+            try self.inbox.storeOpenedFile(url)
+        } catch {
+            Logger.infrastructure.error("Failed to accept opened file: \(error.localizedDescription)")
+            self.importError = .importFailed
+        }
     }
 
     // MARK: Private
@@ -143,6 +152,13 @@ final class InboxHandler: ObservableObject {
     private struct SharedLink {
         let url: URL
         let filename: String
+    }
+
+    /// What makes two shared entries the same: a link by its address, an audio file by
+    /// name and size (like the "already there" check).
+    private enum EntryIdentity: Equatable {
+        case link(URL)
+        case audioFile(name: String, size: UInt64?)
     }
 
     /// What differs between link import and podcast import once the audio address is known
@@ -155,96 +171,95 @@ final class InboxHandler: ObservableObject {
         var preferredArtist: String?
     }
 
+    private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
+    /// Folders this handler may remove with their file: downloads and taken-over entries
+    private static let ownedFolderPrefixes = ["dl_", InboxDirectory.takenEntryFolderPrefix]
+
+    /// An entry is being taken over, looked up, downloaded or read
     private var isProcessing = false
     private var cancelRequested = false
     private var retryableSharedLink: SharedLink?
-
-    private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
-    private static let supportedExtensions: Set<String> = ["mp3", "m4a", "json"]
-    private static let staleThreshold: TimeInterval = 24 * 3600
-    /// Folders this handler may remove with their file: downloads (`dl_`) and taken-over entries
-    private static let ownedFolderPrefixes = ["dl_", takenEntryFolderPrefix]
-    private static let takenEntryFolderPrefix = "share_"
+    /// The entry of the import that is open — repeats of it are dropped while it is
+    private var runningEntry: EntryIdentity?
 
     private let fileOpenHandler: FileOpenHandler
     private let downloadService: AudioDownloadServiceProtocol
     private let episodeResolver: PodcastEpisodeResolverProtocol
     private let fileManager: FileManager
-    private let inboxDirectoryURL: URL
+    private let inbox: InboxDirectory
+    private let isEditorOpen: @MainActor () -> Bool
 
-    /// Removes entries older than 24 hours and returns the remaining files
-    private func removeStaleEntries(from files: [URL]) -> [URL] {
-        let cutoff = Date().addingTimeInterval(-Self.staleThreshold)
-        var freshFiles: [URL] = []
-
-        for file in files {
-            if let modDate = self.modificationDate(of: file), modDate < cutoff {
-                Logger.infrastructure.info("Removing stale inbox entry: \(file.lastPathComponent)")
-                try? self.fileManager.removeItem(at: file)
-            } else {
-                freshFiles.append(file)
-            }
-        }
-
-        return freshFiles
+    /// Whether an import the app has begun is still open: it loads, its editor is about to
+    /// open or shown, or its message stands. Derived from the actual state, nothing to reset.
+    private var hasOpenImport: Bool {
+        self.isProcessing
+            || self.downloadError != nil
+            || self.importError != nil
+            || self.fileOpenHandler.pendingImportSignal != nil
+            || self.isEditorOpen()
     }
 
-    /// Filters files to supported types and deletes unrecognized files
-    private func filterSupportedFiles(from files: [URL]) -> [URL] {
-        var supported: [URL] = []
-
-        for file in files {
-            let ext = file.pathExtension.lowercased()
-            if Self.supportedExtensions.contains(ext) {
-                supported.append(file)
-            } else {
-                Logger.infrastructure.info("Removing unrecognized inbox file: \(file.lastPathComponent)")
-                try? self.fileManager.removeItem(at: file)
+    /// Takes over and processes the newest waiting entry; an import that ends silently
+    /// hands over to the next one.
+    private func processWaitingEntries() async -> InboxResult {
+        while true {
+            let next: URL?
+            do {
+                next = try self.inbox.newestEntryRemovingOthers()
+            } catch {
+                Logger.infrastructure.error("Failed to list inbox directory contents")
+                self.downloadError = .containerNotAvailable
+                return .error(.containerNotAvailable)
+            }
+            guard let next else {
+                self.runningEntry = nil
+                return .empty
+            }
+            let result = await self.processEntry(at: next)
+            guard result == .empty else {
+                return result
             }
         }
-
-        return supported
     }
 
-    /// Returns the newest file by modification date
-    private func newestFile(from files: [URL]) -> URL? {
-        files.max { lhs, rhs in
-            let lhsDate = self.modificationDate(of: lhs) ?? .distantPast
-            let rhsDate = self.modificationDate(of: rhs) ?? .distantPast
-            return lhsDate < rhsDate
+    /// "Cancel" in the loading window ends an import silently (`.empty`). The waiting entry
+    /// starts right away — the app cannot tell a cancelled import from an empty inbox.
+    private func continueAfterSilentEnd(_ result: InboxResult) async -> InboxResult {
+        guard result == .empty else {
+            return result
         }
+        return await self.processWaitingEntries()
+    }
+
+    /// Drops waiting entries that repeat the running one; other waiting entries stay.
+    private func discardRepeatsOfRunningEntry() {
+        guard let runningEntry, let entries = try? self.inbox.waitingEntries() else {
+            return
+        }
+        let repeats = entries.filter { self.identity(of: $0) == runningEntry }
+        for entry in repeats {
+            Logger.infrastructure.info("Dropping repeat of the running import: \(entry.lastPathComponent)")
+        }
+        self.inbox.remove(repeats)
+    }
+
+    private func identity(of entry: URL) -> EntryIdentity? {
+        if Self.supportedAudioExtensions.contains(entry.pathExtension.lowercased()) {
+            let size = (try? self.fileManager.attributesOfItem(atPath: entry.path))?[.size] as? UInt64
+            return .audioFile(name: entry.lastPathComponent, size: size)
+        }
+        return self.readSharedLink(at: entry).map { .link($0.url) }
     }
 
     /// Takes the inbox entry over and processes it
     private func processEntry(at inboxEntry: URL) async -> InboxResult {
+        self.cancelRequested = false
         let isAudioFile = Self.supportedAudioExtensions.contains(inboxEntry.pathExtension.lowercased())
-        guard let entry = self.takeOver(inboxEntry) else {
-            return isAudioFile ? .audioImportFailed(.importFailed) : self.fail(.downloadFailed)
+        guard let entry = self.inbox.takeOver(inboxEntry) else {
+            return isAudioFile ? self.failImport(.importFailed) : self.fail(.downloadFailed)
         }
+        self.runningEntry = self.identity(of: entry)
         return isAudioFile ? await self.processAudioFile(at: entry) : await self.processURLReference(at: entry)
-    }
-
-    /// Moves the entry out of the inbox into a folder of its own, `tmp/share_<UUID>/<name>`.
-    ///
-    /// On the same volume (app group container and app `tmp` both live on the data volume)
-    /// the move is a rename and atomic: either the entry is taken over, or it is still waiting.
-    /// An entry that cannot be moved is removed, so it is not retried forever.
-    private func takeOver(_ inboxEntry: URL) -> URL? {
-        let folder = self.fileManager.temporaryDirectory
-            .appendingPathComponent("\(Self.takenEntryFolderPrefix)\(UUID().uuidString)")
-        let entry = folder.appendingPathComponent(inboxEntry.lastPathComponent)
-        do {
-            try self.fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
-            try self.fileManager.moveItem(at: inboxEntry, to: entry)
-            return entry
-        } catch {
-            Logger.infrastructure.error(
-                "Failed to take over inbox entry \(inboxEntry.lastPathComponent): \(error.localizedDescription)"
-            )
-            try? self.fileManager.removeItem(at: folder)
-            try? self.fileManager.removeItem(at: inboxEntry)
-            return nil
-        }
     }
 
     /// Validates a freshly downloaded file and imports it as a meditation.
@@ -268,7 +283,7 @@ final class InboxHandler: ObservableObject {
             return .downloadCompleted(url)
         case let .failure(error):
             self.discardFile(at: url)
-            return .audioImportFailed(error)
+            return self.failImport(error)
         }
     }
 
@@ -284,9 +299,8 @@ final class InboxHandler: ObservableObject {
     /// Processes a taken-over audio file entry: opens the editor with it (pending import).
     ///
     /// The file stays where it is until "Save" in the editor copies it into the library.
-    /// Surfaces import errors (duplicate, metadata failure) via `.audioImportFailed` so the
-    /// caller can present an alert. Without this, "bereits importiert"-Hinweise verschwinden
-    /// im Share-Extension-Pfad.
+    /// Import errors (duplicate, metadata failure) become a message — without it,
+    /// "bereits importiert"-Hinweise verschwinden im Share-Extension-Pfad.
     private func processAudioFile(at url: URL) async -> InboxResult {
         Logger.infrastructure.info("Processing audio inbox entry: \(url.lastPathComponent)")
         switch await self.fileOpenHandler.importFile(from: url) {
@@ -294,7 +308,7 @@ final class InboxHandler: ObservableObject {
             return .audioFile(url)
         case let .failure(error):
             self.discardFile(at: url)
-            return .audioImportFailed(error)
+            return self.failImport(error)
         }
     }
 
@@ -323,7 +337,6 @@ final class InboxHandler: ObservableObject {
     /// (shared-128), every other link is downloaded directly (link import).
     /// Remembers the link when the error can be retried.
     private func processSharedLink(_ link: SharedLink) async -> InboxResult {
-        self.cancelRequested = false
         self.retryableSharedLink = nil
 
         let result: InboxResult
@@ -411,7 +424,7 @@ final class InboxHandler: ObservableObject {
         return await self.importDownloadedFile(at: downloadedURL, plan: plan)
     }
 
-    /// Publishes the error for the alert and returns it as result.
+    /// Publishes the error for the download alert and returns it as result.
     /// After the user cancelled, no message appears anymore — every error becomes `.empty`.
     private func fail(_ error: InboxError) -> InboxResult {
         guard !self.cancelRequested else {
@@ -430,18 +443,9 @@ final class InboxHandler: ObservableObject {
         return self.fail(error)
     }
 
-    /// Returns the modification date of a file
-    private func modificationDate(of url: URL) -> Date? {
-        guard let values = try? url.resourceValues(forKeys: [.contentModificationDateKey]) else {
-            return nil
-        }
-        return values.contentModificationDate
-    }
-
-    /// Deletes a list of files
-    private func deleteFiles(_ files: [URL]) {
-        for file in files {
-            try? self.fileManager.removeItem(at: file)
-        }
+    /// Publishes the error for the import alert and returns it as result.
+    private func failImport(_ error: FileOpenError) -> InboxResult {
+        self.importError = error
+        return .audioImportFailed(error)
     }
 }
