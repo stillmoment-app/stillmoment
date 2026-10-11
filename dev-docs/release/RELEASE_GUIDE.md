@@ -120,8 +120,10 @@ Mit `DRY_RUN=1` laufen nur die Prüfungen 1–5 wirklich; Schritte 6–13 werden
   seit dem Tag nichts geändert. (Der Tag muss nicht `HEAD` sein — der Prepare-Commit der anderen
   Plattform liegt darüber.)
 - Version im Projekt (`MARKETING_VERSION` bzw. `versionName`) = `VERSION`.
-- Store-Screenshots vollständig: iOS 10 je Sprache in `ios/fastlane/screenshots/`, Android 8 je
-  Sprache in `phoneScreenshots/`. Das Alter des ältesten Screenshots wird angezeigt — bei
+- Store-Screenshots vollständig: je Sprache so viele, wie die `ORDER`-Liste in
+  `<plattform>/scripts/curate-store-screenshots.sh` vorgibt (iOS in `ios/fastlane/screenshots/`,
+  Android in `phoneScreenshots/`). Der Guard liest die Anzahl per `--count` aus dem Skript; lässt
+  sie sich nicht ermitteln, bricht er ab. Das Alter des ältesten Screenshots wird angezeigt — bei
   `SKIP_SCREENSHOTS=1` auf Aktualität achten.
 
 Was danach passiert:

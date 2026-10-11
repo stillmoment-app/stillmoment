@@ -34,6 +34,13 @@ ORDER=(
   Completion
 )
 
+# --count: nur die Anzahl der kuratierten Screenshots ausgeben und beenden,
+# ohne Dateien anzufassen. Nutzt scripts/release/release-guard.sh als Soll-Wert.
+if [ "${1:-}" = "--count" ]; then
+  echo "${#ORDER[@]}"
+  exit 0
+fi
+
 position_of() {
   local key="$1" i
   for i in "${!ORDER[@]}"; do
