@@ -1,7 +1,7 @@
 ---
 id: ios-066
 title: "VoiceOver liest am Spul-Regler des Players „nan“ vor"
-status: todo
+status: wontfix
 phase: 4-Polish
 priority: niedrig
 depends_on: []
@@ -42,6 +42,12 @@ VoiceOver-Ansage lässt sich nur mit aktivem VoiceOver sicher prüfen.
 ## Hinweise
 
 - Android-Verhalten mit TalkBack zum Vergleich prüfen.
+
+---
+
+## WONTFIX
+
+Nicht wichtig genug. Der Spul-Bereich hat seit shared-109 einen lokalisierten Wert („3:12 von 20:00“) und Wischgesten. Aus diesem Wert kann kein „nan“ entstehen. Vermutlich stammt das „nan“ aus dem Bedienungshilfen-Abbild im Simulator, nicht aus der VoiceOver-Ansage. Mit echtem VoiceOver nicht geprüft. Wieder aufnehmen, wenn ein Nutzer das Problem meldet.
 
 ---
 
