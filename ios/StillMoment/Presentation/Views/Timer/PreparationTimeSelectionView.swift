@@ -159,10 +159,7 @@ struct PreparationTimeSelectionView: View {
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("praxis.preparation.slider")
         .accessibilityLabel(NSLocalizedString("accessibility.preparationTimeDuration", comment: ""))
-        .accessibilityValue(String(
-            format: NSLocalizedString("accessibility.preparation", comment: ""),
-            self.viewModel.preparationTimeSeconds
-        ))
+        .accessibilityValue(SecondWording.preparation(for: self.viewModel.preparationTimeSeconds))
         .accessibilityHint(NSLocalizedString("accessibility.preparationTimeDuration.hint", comment: ""))
     }
 

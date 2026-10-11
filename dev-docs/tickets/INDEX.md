@@ -21,7 +21,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-138](shared/shared-138-teilen-waehrend-laufendem-import.md) | Teilen während eines laufenden Imports: erst den laufenden Import abschließen, dann den neu geteilten Eintrag übernehmen | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [ ] | [ ] |
-| [shared-145](shared/shared-145-einzahl-bei-einer-sekunde-vorbereitung.md) | Einzahl bei einer Sekunde in der Ansage der Vorbereitungszeit | 4-Polish | [ ] | [ ] |
 
 ### iOS
 
@@ -173,6 +172,7 @@ _Keine Tickets._
 | [shared-140](archive/shared/shared-140-einzahl-bei-einer-minute.md) | Einzahl bei einer Minute im Atemkreis und in Ansagen | 4-Polish | [x] | [x] |
 | [shared-141](archive/shared/shared-141-timer-dial-singular-minute.md) | Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“ | 4-Polish | [-] | [-] |
 | [shared-143](archive/shared/shared-143-ruhige-ansicht-bis-meditationsbeginn.md) | Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt | 1-Quick Fix | [x] | [x] |
+| [shared-145](archive/shared/shared-145-einzahl-bei-einer-sekunde-vorbereitung.md) | Einzahl bei einer Sekunde in der Ansage der Vorbereitungszeit | 4-Polish | [x] | [x] |
 
 ### iOS
 

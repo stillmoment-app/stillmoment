@@ -289,10 +289,7 @@ struct TimerView: View {
                 )
                 .foregroundColor(self.theme.textPrimary)
                 .accessibilityIdentifier("timer.display.time")
-                .accessibilityLabel(String(
-                    format: NSLocalizedString("accessibility.preparation", comment: ""),
-                    self.viewModel.remainingPreparationSeconds
-                ))
+                .accessibilityLabel(SecondWording.preparation(for: self.viewModel.remainingPreparationSeconds))
 
                 Text("guided_meditations.player.preroll.label")
                     .textStyle(.micro, color: \.textSecondary)
