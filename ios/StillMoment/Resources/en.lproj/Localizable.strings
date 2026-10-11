@@ -290,8 +290,6 @@
 // Preparation Time (legacy - used in countdown)
 "guided_meditations.player.countdown" = "%d seconds until meditation starts";
 "guided_meditations.player.preroll.label" = "Preparation";
-// Start gong and breath pause: calm view until the meditation begins (shared-143)
-"guided_meditations.player.startGong.label" = "Starting in a moment";
 
 // Timer PreRoll-Header (Layout-Pendant zu Guided: Modus + Dauer)
 "timer.preroll.mode" = "Free Meditation";

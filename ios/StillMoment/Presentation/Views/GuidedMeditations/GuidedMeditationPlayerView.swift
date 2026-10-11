@@ -203,10 +203,10 @@ struct GuidedMeditationPlayerView: View {
         }
     }
 
-    // MARK: Pre-Roll (unchanged breath circle, shared-109 keeps the flow intact)
+    // MARK: Pre-Roll — calm ring until the meditation audio begins (shared-143)
 
     /// Calm view until the meditation audio begins: preparation countdown, then start gong
-    /// and breath pause (shared-143) — no play button, no waveform, nothing to scrub.
+    /// and breath pause (empty ring) — no play button, no waveform, nothing to scrub.
     private var preRollContent: some View {
         VStack(spacing: 0) {
             self.titleBlock
@@ -255,10 +255,14 @@ struct GuidedMeditationPlayerView: View {
         }
     }
 
-    /// Start gong and breath pause: no number, just a quiet hint (shared-143).
+    /// Start gong and breath pause: the ring stays empty — no number, no text (shared-143).
+    /// The invisible area tells VoiceOver that the start gong rings and lets UI tests find
+    /// the phase.
     private var startGongRingContent: some View {
-        Text("guided_meditations.player.startGong.label")
-            .textStyle(.micro, color: \.textSecondary)
+        Color.clear
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityElement()
+            .accessibilityLabel("guided_meditations.edit.startGong")
             .accessibilityIdentifier("player.startGong")
     }
 

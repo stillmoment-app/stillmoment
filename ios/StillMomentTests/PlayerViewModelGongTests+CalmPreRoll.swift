@@ -196,6 +196,40 @@ extension PlayerViewModelGongTests {
         XCTAssertEqual(self.mockGongPlayer.playCallCount, 1)
     }
 
+    // MARK: - Closing the player before the meditation audio begins
+
+    func testClose_duringStartGong_nothingPlaysAfterwards() async {
+        // Given: the start gong rings
+        self.sut = self.createViewModel(startGongEnabled: true)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+
+        // When: the player is closed (or stopped from outside), then time passes
+        self.sut.stop()
+        self.sut.cleanup()
+        self.mockGongPlayer.finishPlaying()
+        self.mockClock.tick()
+
+        // Then: the meditation never starts
+        XCTAssertFalse(self.mockPlayerService.transitionFromSilentToPlaybackCalled)
+    }
+
+    func testClose_duringBreathPause_nothingPlaysAfterwards() async {
+        // Given: the gong has faded, the breath pause runs
+        self.sut = self.createViewModel(startGongEnabled: true)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        self.mockGongPlayer.finishPlaying()
+
+        // When: the player is closed, then the breath pause would have elapsed
+        self.sut.stop()
+        self.sut.cleanup()
+        self.mockClock.tick()
+
+        // Then
+        XCTAssertFalse(self.mockPlayerService.transitionFromSilentToPlaybackCalled)
+    }
+
     // MARK: - Helpers
 
     /// The ViewModel receives playback states on the main queue — wait until it has seen `state`.

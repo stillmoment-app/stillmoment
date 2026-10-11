@@ -290,8 +290,6 @@
 // Vorbereitungszeit (legacy - wird im Countdown verwendet)
 "guided_meditations.player.countdown" = "%d Sekunden bis die Meditation beginnt";
 "guided_meditations.player.preroll.label" = "Vorbereitung";
-// Start-Gong und Atempause: ruhige Ansicht bis die Meditation beginnt (shared-143)
-"guided_meditations.player.startGong.label" = "Gleich geht's los";
 
 // Timer PreRoll-Header (Layout-Pendant zu Guided: Modus + Dauer)
 "timer.preroll.mode" = "Freie Meditation";

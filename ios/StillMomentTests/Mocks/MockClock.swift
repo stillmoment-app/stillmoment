@@ -25,11 +25,23 @@ final class MockClock: ClockProtocol {
     /// Simulated current time (can be advanced for background simulation)
     private(set) var currentTime: Date = .init()
 
+    /// Identifies the currently scheduled action, so cancelling an older schedule
+    /// never removes a newer one.
+    private var scheduleID = UUID()
+
     func schedule(interval: TimeInterval, action: @escaping () -> Void) -> AnyCancellable {
         self.scheduleCalled = true
         self.requestedInterval = interval
         self.action = action
-        return AnyCancellable {}
+        let id = UUID()
+        self.scheduleID = id
+        // Like the real clock: a cancelled schedule never fires again
+        return AnyCancellable { [weak self] in
+            guard let self, self.scheduleID == id else {
+                return
+            }
+            self.action = nil
+        }
     }
 
     func now() -> Date {
