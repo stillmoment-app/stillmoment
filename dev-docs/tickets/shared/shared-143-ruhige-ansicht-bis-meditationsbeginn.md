@@ -2,7 +2,7 @@
 id: shared-143
 title: "Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt"
 status:
-  ios: todo
+  ios: in-progress
   android: done
 phase: 1-Quick Fix
 priority: hoch

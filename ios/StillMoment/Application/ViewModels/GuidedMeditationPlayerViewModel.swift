@@ -107,6 +107,10 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     @Published private(set) var countdownState: PreparationCountdownState = .idle
 
+    /// True while the start gong rings and during the following breath pause (shared-106).
+    /// The view keeps the calm pre-roll ring then, without a countdown number (shared-143).
+    @Published private(set) var isStartGongSequenceActive = false
+
     /// Preparation time in seconds before MP3 starts (nil = disabled)
     private let preparationTimeSeconds: Int?
 
@@ -163,11 +167,18 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Visuelle Phase des Players.
     ///
-    /// - `.preRoll` solange die Vorbereitung laeuft.
+    /// - `.preRoll` bis der Ton der Meditation beginnt: Vorbereitung, Start-Gong und
+    ///   Atempause (shared-143) — ruhige Ansicht ohne Play-Knopf und Wellenform.
     /// - `.playing` ansonsten (auch bei Pause, Loading, Idle, Finished —
     ///   der Atemkreis sieht in all diesen Zustaenden gleich aus).
     var phase: MeditationPhase {
-        self.isPreparing ? .preRoll : .playing
+        self.isBeforeAudio ? .preRoll : .playing
+    }
+
+    /// True while the meditation audio has not begun yet: preparation countdown, start gong
+    /// or breath pause. Play, pause, seek and scrub do nothing then (shared-143).
+    var isBeforeAudio: Bool {
+        self.isPreparing || self.isStartGongSequenceActive
     }
 
     // MARK: - Preparation Countdown Properties
@@ -182,11 +193,12 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Whether Zen Mode is active: tab bar should be hidden during active session
     ///
-    /// Active when preparation countdown is running, meditation is playing or
-    /// paused, or the completion/thank-you screen is shown. Pause keeps the
-    /// player as the active surface — switching tabs is not the intended action.
+    /// Active before the meditation audio begins (preparation, start gong, breath pause),
+    /// while the meditation is playing or paused, or the completion/thank-you screen is
+    /// shown. Pause keeps the player as the active surface — switching tabs is not the
+    /// intended action.
     var isZenMode: Bool {
-        self.isPreparing || self.isPlaying || self.playbackState == .paused || self.isCompleted
+        self.isBeforeAudio || self.isPlaying || self.playbackState == .paused || self.isCompleted
     }
 
     /// Remaining countdown seconds (for UI)
@@ -242,7 +254,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     }
 
     /// Toggles play/pause
+    ///
+    /// Ignored before the meditation audio begins — a tap during preparation, start gong or
+    /// breath pause must not start the meditation early (shared-143). The sequence starts
+    /// it exactly once itself.
     func togglePlayPause() {
+        guard !self.isBeforeAudio else {
+            return
+        }
         do {
             switch self.playbackState {
             case .playing:
@@ -274,8 +293,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Seeks to a specific time
     ///
+    /// Ignored before the meditation audio begins (shared-143): the meditation always
+    /// starts at the beginning of its playable range.
+    ///
     /// - Parameter time: Time in seconds to seek to
     func seek(to time: TimeInterval) {
+        guard !self.isBeforeAudio else {
+            return
+        }
         do {
             try self.playerService.seek(to: time)
             Logger.audioPlayer.debug("Seeked to \(time)s")
@@ -322,7 +347,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// - Subsequent calls: toggles play/pause (no countdown)
     func startPlayback() {
         // Don't start if already counting down or while the start gong sequence runs
-        guard !self.isPreparing, !self.isStartGongSequenceActive else {
+        guard !self.isBeforeAudio else {
             return
         }
 
@@ -369,10 +394,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Whether playback was running when the current drag began — decides whether to resume
     /// on release.
     private var dragWasPlaying = false
-
-    /// True while the start gong rings and during the following breath pause —
-    /// blocks further startPlayback taps until the meditation audio runs
-    private var isStartGongSequenceActive = false
 
     // MARK: - Private Methods
 
@@ -445,13 +466,16 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         if ticked.isFinished {
             self.countdownTimer?.cancel()
             self.countdownTimer = nil
-            self.countdownState = .finished
             if self.meditation.startGongEnabled {
+                // Hand over to the start gong before the countdown ends, in the same
+                // main-actor turn, so the playing view never flashes up in between (shared-143)
+                self.isStartGongSequenceActive = true
+                self.countdownState = .finished
                 // shared-106: gong rings in the still-active silent-audio session,
                 // then the breath pause and the atomic transition follow
-                self.isStartGongSequenceActive = true
                 self.playStartGongThenTransition()
             } else {
+                self.countdownState = .finished
                 self.transitionToPlayback()
             }
         } else {
@@ -575,8 +599,12 @@ extension GuidedMeditationPlayerViewModel {
     // MARK: Scrub intents (AK-2, AK-3)
 
     /// Begins a scrub: grabbing the wave pauses playback and anchors the drag at the
-    /// current position (clamped into the trim range).
+    /// current position (clamped into the trim range). Ignored before the meditation audio
+    /// begins — there is nothing to scrub yet (shared-143).
     func beginScrub() {
+        guard !self.isBeforeAudio else {
+            return
+        }
         let anchored = self.clampToScrubBounds(self.currentTime)
         self.dragStartTime = anchored
         self.dragPosition = anchored

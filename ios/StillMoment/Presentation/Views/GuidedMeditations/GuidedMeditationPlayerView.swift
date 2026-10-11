@@ -205,6 +205,8 @@ struct GuidedMeditationPlayerView: View {
 
     // MARK: Pre-Roll (unchanged breath circle, shared-109 keeps the flow intact)
 
+    /// Calm view until the meditation audio begins: preparation countdown, then start gong
+    /// and breath pause (shared-143) — no play button, no waveform, nothing to scrub.
     private var preRollContent: some View {
         VStack(spacing: 0) {
             self.titleBlock
@@ -217,28 +219,47 @@ struct GuidedMeditationPlayerView: View {
                 progress: self.viewModel.progress,
                 outerSize: Self.ringDiameter
             ) {
-                VStack(spacing: 6) {
-                    DisplayNumeral(
-                        text: "\(self.viewModel.remainingCountdownSeconds)",
-                        containerDiameter: Self.ringDiameter
-                    )
-                    .foregroundColor(self.theme.textPrimary)
-                    .accessibilityIdentifier("player.countdown")
-                    .accessibilityLabel(
-                        String(
-                            format: NSLocalizedString("guided_meditations.player.countdown", comment: ""),
-                            self.viewModel.remainingCountdownSeconds
-                        )
-                    )
-
-                    Text("guided_meditations.player.preroll.label")
-                        .textStyle(.micro, color: \.textSecondary)
+                if self.viewModel.isPreparing {
+                    self.countdownRingContent
+                        .transition(.opacity)
+                } else {
+                    self.startGongRingContent
+                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.4), value: self.viewModel.isPreparing)
 
             Spacer(minLength: 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Preparation: the remaining seconds inside the ring.
+    private var countdownRingContent: some View {
+        VStack(spacing: 6) {
+            DisplayNumeral(
+                text: "\(self.viewModel.remainingCountdownSeconds)",
+                containerDiameter: Self.ringDiameter
+            )
+            .foregroundColor(self.theme.textPrimary)
+            .accessibilityIdentifier("player.countdown")
+            .accessibilityLabel(
+                String(
+                    format: NSLocalizedString("guided_meditations.player.countdown", comment: ""),
+                    self.viewModel.remainingCountdownSeconds
+                )
+            )
+
+            Text("guided_meditations.player.preroll.label")
+                .textStyle(.micro, color: \.textSecondary)
+        }
+    }
+
+    /// Start gong and breath pause: no number, just a quiet hint (shared-143).
+    private var startGongRingContent: some View {
+        Text("guided_meditations.player.startGong.label")
+            .textStyle(.micro, color: \.textSecondary)
+            .accessibilityIdentifier("player.startGong")
     }
 
     // MARK: Playing — Waveform "Tonkopf" (shared-109)

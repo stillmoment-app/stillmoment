@@ -256,7 +256,7 @@ final class PlayerViewModelGongTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func createViewModel(
+    func createViewModel(
         startGongEnabled: Bool = false,
         endGongEnabled: Bool = false,
         gongSoundId: String = GongSound.defaultSoundId,
