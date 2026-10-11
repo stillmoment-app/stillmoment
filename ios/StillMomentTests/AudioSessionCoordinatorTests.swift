@@ -19,16 +19,13 @@ final class AudioSessionCoordinatorTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioSessionCoordinator.shared
-        // Reset state for test isolation
-        self.sut.releaseAudioSession(for: .timer)
-        self.sut.releaseAudioSession(for: .guidedMeditation)
-        self.sut.releaseAudioSession(for: .preview)
+        // A coordinator of its own per test (ios-058): no state left over from other tests
+        self.sut = AudioSessionCoordinator()
         self.cancellables = Set<AnyCancellable>()
     }
 
     override func tearDown() {
-        // Clean up state
+        // Hand the real AVAudioSession back so the next test starts with it inactive
         self.sut.releaseAudioSession(for: .timer)
         self.sut.releaseAudioSession(for: .guidedMeditation)
         self.sut.releaseAudioSession(for: .preview)
@@ -193,20 +190,6 @@ final class AudioSessionCoordinatorTests: XCTestCase {
             self.sut.activeSource.value,
             .guidedMeditation,
             "ActiveSource value should reflect current owner"
-        )
-    }
-
-    // MARK: - Singleton Test
-
-    func testSharedInstanceIsSingleton() {
-        // When - Access shared instance twice
-        let instance1 = AudioSessionCoordinator.shared
-        let instance2 = AudioSessionCoordinator.shared
-
-        // Then - Same instance
-        XCTAssertTrue(
-            instance1 === instance2,
-            "Shared instance should be a singleton"
         )
     }
 

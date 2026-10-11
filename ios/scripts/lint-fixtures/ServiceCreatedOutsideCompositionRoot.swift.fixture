@@ -23,11 +23,12 @@ final class FixtureViewModel {
         let typed: WaveformCacheService = .init() // EXPECT: implicit member .init
         let dependencies = AppDependencies.live() // EXPECT: second dependency graph
         let theme = ThemeManager() // EXPECT: manager
+        let coordinator = AudioSessionCoordinator() // EXPECT: second audio coordinator (ios-058)
         self.player = AVPlayer() // ALLOWED: framework object
         let stop = Gradient.Stop.init(color: .clear, location: 0) // ALLOWED: not a service
         let label = "AudioService()" // ALLOWED: string
         // ALLOWED: `AudioService()` and `AppDependencies.live()` in a comment are not code
-        _ = (typed, dependencies, theme, stop, label)
+        _ = (typed, dependencies, theme, coordinator, stop, label)
     }
 
     let waveformProvider: WaveformProviderProtocol

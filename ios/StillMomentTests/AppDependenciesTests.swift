@@ -59,6 +59,20 @@ final class AppDependenciesTests: XCTestCase {
         XCTAssertTrue(dependencies.meditationService is GuidedMeditationService)
     }
 
+    func testTimerAndPlayerShareOneAudioSessionCoordinator() throws {
+        // Given — the app's dependency graph
+        let dependencies = AppDependencies.live(storage: self.storage.location)
+
+        // When — the timer's audio and an opened player are taken from it
+        let timerAudio = try XCTUnwrap(dependencies.audioService as? AudioService)
+        let player = try XCTUnwrap(dependencies.makeAudioPlayerService() as? AudioPlayerService)
+
+        // Then — both hand the one audio session back and forth through the app's single
+        // coordinator, so gongs and keep-alive keep working on the lock screen (ios-058)
+        XCTAssertTrue(timerAudio.coordinator === player.coordinator)
+        XCTAssertTrue(timerAudio.coordinator === AudioSessionCoordinator.shared)
+    }
+
     // MARK: - Shared instances where the app wires its screens (Plan AK-1/2)
 
     func testTimerAndLibraryPlayThroughTheSameAudioService() {

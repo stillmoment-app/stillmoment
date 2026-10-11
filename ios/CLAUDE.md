@@ -40,7 +40,8 @@ protocol AudioServiceProtocol {
 final class AudioService: AudioServiceProtocol { ... }
 ```
 
-Constructor injection everywhere — no service locators, no singletons (except `AudioSessionCoordinator.shared`).
+Constructor injection everywhere — no service locators, no singletons (except `AudioSessionCoordinator.shared`:
+one `AVAudioSession` per process, so one coordinator; read only in `AppDependencies.live()`, tests create their own).
 
 ### Composition Root (ios-055)
 
@@ -197,13 +198,16 @@ Available loggers: `.timer`, `.audio`, `.audioPlayer`, `.viewModel`, `.infrastru
 
 ## AudioSessionCoordinator
 
-Thread-safe singleton managing exclusive audio access between Timer and Guided Meditations:
+Thread-safe singleton managing exclusive audio access between Timer and Guided Meditations. Services get it
+injected (`AppDependencies.live()` passes `.shared` to the timer's `AudioService` and to every player) and use it:
 
 ```swift
-AudioSessionCoordinator.shared.requestAudioSession(for: .timer)
+_ = try self.coordinator.requestAudioSession(for: .timer)
 ```
 
 Uses a private serial `DispatchQueue` — always go through the coordinator, never configure `AVAudioSession` directly.
+Never read `.shared` outside `AppDependencies.live()`. Unit tests create their own `AudioSessionCoordinator()` and pass
+the same instance to every audio source they let interact (ios-058).
 
 ---
 

@@ -11,8 +11,11 @@ import Foundation
 extension AudioService {
     /// A real `AudioService` with bundled sounds, wired the same way `AppDependencies.live()`
     /// wires it — but without imported soundscapes, so it never reads the app's own storage (ios-056).
+    ///
+    /// Without a `coordinator` it gets a fresh one of its own, never the app's (ios-058). Tests where
+    /// several audio sources meet must pass the same coordinator to each of them.
     static func makeForTesting(
-        coordinator: AudioSessionCoordinatorProtocol = AudioSessionCoordinator.shared,
+        coordinator: AudioSessionCoordinatorProtocol = AudioSessionCoordinator(),
         fadeOutDuration: TimeInterval = 0.5
     ) -> AudioService {
         let soundRepository = BackgroundSoundRepository()

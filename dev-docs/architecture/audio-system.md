@@ -54,6 +54,8 @@ Timer und Guided Meditations koennen gleichzeitig in der TabView laufen und Audi
 
 `AudioSessionCoordinator` Singleton verwaltet exklusiven Audio Session Zugriff.
 
+**Warum ein Singleton (iOS, ios-058):** Die `AVAudioSession` gibt es pro Prozess genau einmal, also hat die App genau einen Koordinator. Nur `AppDependencies.live()` liest `AudioSessionCoordinator.shared` und gibt ihn Timer-Audio und jedem Player mit (belegt in `AppDependenciesTests`). Unit-Tests erzeugen einen eigenen `AudioSessionCoordinator()`; wo mehrere Audio-Quellen aufeinandertreffen, bekommen alle denselben.
+
 ### AudioSource
 
 Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `../reference/glossary.md`.
@@ -185,7 +187,8 @@ protocol AudioSessionCoordinatorProtocol {
 }
 
 // Implementation in Infrastructure/Services/
-AudioSessionCoordinator.shared (singleton)
+AudioSessionCoordinator.shared (singleton, nur in AppDependencies.live() gelesen
+                               und per Initializer an die Dienste gereicht)
 ```
 
 ### Ablauf

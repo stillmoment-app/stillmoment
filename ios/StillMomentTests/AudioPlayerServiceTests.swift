@@ -57,10 +57,10 @@ final class AudioPlayerServiceTests: XCTestCase {
         XCTAssertEqual(self.sut.duration.value, 0)
     }
 
-    func testInitializationWithDefaultCoordinator() {
+    func testInitializationWithRealCoordinator() {
         // When
         let service = AudioPlayerService(
-            coordinator: AudioSessionCoordinator.shared,
+            coordinator: AudioSessionCoordinator(),
             nowPlayingProvider: SystemNowPlayingInfoProvider(),
             soundRepository: BackgroundSoundRepository(),
             gongPlayer: MeditationGongPlayer()

@@ -40,13 +40,17 @@ enum AudioSessionCoordinatorError: Error, LocalizedError {
 final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     // MARK: Lifecycle
 
-    private init() {
+    /// Not private only so unit tests can create their own instance (ios-058). App code never calls it:
+    /// the lint rule `service_created_outside_composition_root` rejects it there.
+    init() {
         Logger.audio.info("AudioSessionCoordinator initialized")
     }
 
     // MARK: Internal
 
-    // The app's one sanctioned singleton (ios-055): read only in AppDependencies.live().
+    // The app's one sanctioned singleton (ios-055/ios-058): there is exactly one AVAudioSession per
+    // process, so the app has exactly one coordinator. Read only in AppDependencies.live();
+    // unit tests create their own instance instead of sharing this one.
     // swiftlint:disable:next service_created_outside_composition_root
     static let shared = AudioSessionCoordinator()
 
