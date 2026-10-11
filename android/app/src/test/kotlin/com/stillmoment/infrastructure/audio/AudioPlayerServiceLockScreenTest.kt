@@ -20,6 +20,7 @@ import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -37,6 +38,7 @@ class AudioPlayerServiceLockScreenTest {
     private lateinit var mockMediaPlayer: MediaPlayerProtocol
     private lateinit var mockProgressScheduler: ProgressSchedulerProtocol
     private lateinit var mockServiceLauncher: MeditationPlayerServiceLauncher
+    private lateinit var mockCoordinator: AudioSessionCoordinatorProtocol
     private lateinit var uriStatic: MockedStatic<Uri>
 
     /** 10-minute file, trimmed to play 1:00 – 9:00 (8 minutes audible). */
@@ -59,7 +61,7 @@ class AudioPlayerServiceLockScreenTest {
         mockServiceLauncher = mock()
         val mockFactory: MediaPlayerFactoryProtocol = mock()
         whenever(mockFactory.create()).thenReturn(mockMediaPlayer)
-        val mockCoordinator: AudioSessionCoordinatorProtocol = mock()
+        mockCoordinator = mock()
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
 
         // Uri.parse is an Android stub; return a file URI so play(meditation) can run on the JVM.
@@ -185,6 +187,48 @@ class AudioPlayerServiceLockScreenTest {
 
             verify(mockMediaPlayer).release()
             verify(mockMediaSessionManager).release()
+        }
+    }
+
+    /** Phone call, voice assistant or alarm while the meditation plays (shared-146). */
+    @Nested
+    inner class Interruption {
+        private fun interruptionBegins() {
+            val pauseCaptor = argumentCaptor<() -> Unit>()
+            verify(mockCoordinator).registerPauseHandler(any(), pauseCaptor.capture())
+            pauseCaptor.firstValue.invoke()
+            whenever(mockMediaPlayer.isPlaying).thenReturn(false)
+        }
+
+        private fun systemGivesSoundBack() {
+            val resumeCaptor = argumentCaptor<() -> Unit>()
+            verify(mockCoordinator).registerResumeHandler(any(), resumeCaptor.capture())
+            resumeCaptor.firstValue.invoke()
+        }
+
+        @Test
+        fun `the lock screen shows the meditation paused during the interruption and playing after it`() {
+            startPlaying()
+
+            interruptionBegins()
+            systemGivesSoundBack()
+
+            // isPlaying, position, trimmed length
+            inOrder(mockMediaSessionManager) {
+                verify(mockMediaSessionManager).updatePlaybackState(true, 0L, 480_000L)
+                verify(mockMediaSessionManager).updatePlaybackState(false, 0L, 480_000L)
+                verify(mockMediaSessionManager).updatePlaybackState(true, 0L, 480_000L)
+            }
+        }
+
+        @Test
+        fun `the meditation stays on the lock screen during the interruption`() {
+            startPlaying()
+
+            interruptionBegins()
+
+            verify(mockMediaSessionManager, never()).release()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
         }
     }
 

@@ -9,13 +9,18 @@ import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.PlaybackState
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -563,5 +568,181 @@ class AudioPlayerServiceTest {
 
         // Then: Player is paused
         verify(mockMediaPlayer).pause()
+    }
+
+    /**
+     * Phone call, voice assistant, alarm or another app takes the sound (shared-146). The
+     * interruption pauses running playback; when the system gives the sound back, it continues
+     * by itself at the same position. Playback the user paused, stopped or that has ended stays so.
+     */
+    @Nested
+    inner class Interruptions {
+        private var playerRunning = false
+
+        @BeforeEach
+        fun followPlayerState() {
+            whenever(mockMediaPlayer.isPlaying).thenAnswer { playerRunning }
+            doAnswer { playerRunning = true }.whenever(mockMediaPlayer).start()
+            doAnswer { playerRunning = false }.whenever(mockMediaPlayer).pause()
+        }
+
+        /** Starts a meditation and lets it play up to 5:00. */
+        private fun playingAtFiveMinutes() {
+            val preparedCaptor = argumentCaptor<() -> Unit>()
+            sut.play(mockUri("file", "/test/audio.mp3"), 600_000L)
+            verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+            preparedCaptor.firstValue.invoke()
+            val progressCaptor = argumentCaptor<() -> Unit>()
+            verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
+            whenever(mockMediaPlayer.currentPosition).thenReturn(300_000)
+            progressCaptor.firstValue.invoke()
+        }
+
+        private fun interruptionBegins() = capturedPauseHandler.invoke()
+
+        private fun systemGivesSoundBack() {
+            val resumeCaptor = argumentCaptor<() -> Unit>()
+            verify(mockCoordinator).registerResumeHandler(eq(AudioSource.GUIDED_MEDITATION), resumeCaptor.capture())
+            resumeCaptor.firstValue.invoke()
+        }
+
+        private fun assertPausedAtFiveMinutes() {
+            assertFalse(playerRunning)
+            assertFalse(sut.playbackState.value.isPlaying)
+            assertEquals(300_000L, sut.playbackState.value.currentPosition)
+        }
+
+        private fun assertPlayingOnAtFiveMinutes() {
+            assertTrue(playerRunning)
+            assertTrue(sut.playbackState.value.isPlaying)
+            assertEquals(300_000L, sut.playbackState.value.currentPosition)
+            // Same player, no seek: the meditation continues where it was
+            verify(mockMediaPlayerFactory).create()
+            verify(mockMediaPlayer, never()).seekTo(any())
+        }
+
+        @Test
+        fun `an interruption pauses the meditation where it is`() {
+            playingAtFiveMinutes()
+
+            interruptionBegins()
+
+            assertPausedAtFiveMinutes()
+        }
+
+        @Test
+        fun `when the system gives the sound back the meditation continues by itself`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+
+            systemGivesSoundBack()
+
+            assertPlayingOnAtFiveMinutes()
+        }
+
+        @Test
+        fun `after two interruptions the meditation continues each time`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+            systemGivesSoundBack()
+
+            interruptionBegins()
+            assertFalse(playerRunning)
+            systemGivesSoundBack()
+
+            assertPlayingOnAtFiveMinutes()
+        }
+
+        @Test
+        fun `a tap on play after the sound was taken for good asks for the sound and continues`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+
+            sut.resume()
+
+            verify(mockCoordinator).requestAudioSession(AudioSource.GUIDED_MEDITATION)
+            assertPlayingOnAtFiveMinutes()
+        }
+
+        @Test
+        fun `a tap on play during a phone call keeps it paused, after the call it continues by itself`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+            whenever(mockCoordinator.requestAudioSession(any())).thenReturn(false)
+
+            sut.resume()
+            assertPausedAtFiveMinutes()
+
+            systemGivesSoundBack()
+            assertPlayingOnAtFiveMinutes()
+        }
+
+        @Test
+        fun `paused by the user before the interruption it stays paused`() {
+            playingAtFiveMinutes()
+            sut.pause()
+
+            interruptionBegins()
+            systemGivesSoundBack()
+
+            assertPausedAtFiveMinutes()
+        }
+
+        @Test
+        fun `paused by the user during the interruption it stays paused`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+
+            sut.pause()
+            systemGivesSoundBack()
+
+            assertPausedAtFiveMinutes()
+        }
+
+        @Test
+        fun `a finished meditation does not play again`() {
+            playingAtFiveMinutes()
+            val completionCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnCompletionListener(completionCaptor.capture())
+            playerRunning = false
+            completionCaptor.firstValue.invoke()
+
+            interruptionBegins()
+            systemGivesSoundBack()
+
+            assertFalse(playerRunning)
+            assertFalse(sut.playbackState.value.isPlaying)
+        }
+
+        @Test
+        fun `a stopped meditation does not play again`() {
+            playingAtFiveMinutes()
+            interruptionBegins()
+            sut.stop()
+
+            systemGivesSoundBack()
+
+            assertFalse(playerRunning)
+            assertEquals(PlaybackState(), sut.playbackState.value)
+        }
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        @Test
+        fun `begin and end of an interruption are reported`() = runTest {
+            val reported = mutableListOf<String>()
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                sut.interruptionBegan.collect { reported.add("began") }
+            }
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                sut.interruptionEnded.collect { reported.add("ended") }
+            }
+
+            // Also before the meditation audio begins (no player yet): the ViewModel needs it
+            // to stop preparation time or start gong
+            interruptionBegins()
+            systemGivesSoundBack()
+
+            assertEquals(listOf("began", "ended"), reported)
+        }
     }
 }

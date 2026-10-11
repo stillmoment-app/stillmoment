@@ -16,7 +16,9 @@ import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -306,6 +308,8 @@ private class ScrubFakePlayerService : AudioPlayerServiceProtocol {
     }
 
     override val nowPlaying: StateFlow<GuidedMeditation?> = MutableStateFlow(null)
+    override val interruptionBegan: SharedFlow<Unit> = MutableSharedFlow()
+    override val interruptionEnded: SharedFlow<Unit> = MutableSharedFlow()
     override fun announce(meditation: GuidedMeditation) = Unit
     override fun endLockScreenPresence() = Unit
     override fun play(meditation: GuidedMeditation) = Unit
@@ -334,6 +338,7 @@ private class ScrubFakeCoordinator : AudioSessionCoordinatorProtocol {
     override val activeSource: StateFlow<AudioSource?> = active.asStateFlow()
     override fun registerConflictHandler(source: AudioSource, handler: () -> Unit) = Unit
     override fun registerPauseHandler(source: AudioSource, handler: () -> Unit) = Unit
+    override fun registerResumeHandler(source: AudioSource, handler: () -> Unit) = Unit
     override fun requestAudioSession(source: AudioSource): Boolean {
         active.value = source
         return true
