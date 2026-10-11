@@ -199,7 +199,7 @@ platform :ios do
     UI.message("Run 'make release VERSION=X.Y.Z' to upload")
   end
 
-  desc "Build, upload and submit for review with phased release (build:false = metadata + screenshots only, no submission)"
+  desc "Build, upload and submit for review (build:false = metadata + screenshots only, no submission)"
   lane :release do |options|
     api_key
 
@@ -240,8 +240,8 @@ platform :ios do
         force: true,
         run_precheck_before_submit: false,
         submit_for_review: include_build,
-        automatic_release: true,  # Start release right after Apple's approval
-        phased_release: true,     # ... spread over 7 days (can be paused in App Store Connect)
+        automatic_release: true,  # Release right after Apple's approval
+        phased_release: false,    # ... to all users at once
         app_version: app_version
       )
     rescue StandardError => e
@@ -261,7 +261,7 @@ platform :ios do
 
     if include_build
       UI.success("Version #{app_version} (build #{build_number}) submitted for review!")
-      UI.message("After approval it is released automatically as a phased release over 7 days.")
+      UI.message("After approval it is released automatically to all users.")
     else
       UI.success("Metadata + screenshots for version #{app_version} uploaded (not submitted).")
     end

@@ -17,9 +17,7 @@ screenshots_path("./fastlane/screenshots")
 # submit_for_review — metadata, update_live and download_screenshots never submit.
 submit_for_review(false)          # Only `fastlane release` with build submits
 automatic_release(true)           # Go live automatically once Apple approves
-# deliver always writes this value (option default is false, false = remove an
-# existing phased release). Keep it true so metadata-only uploads don't undo it.
-phased_release(true)              # 7-day phased rollout of automatic updates
+phased_release(false)             # Release to all users at once (no 7-day phased rollout)
 
 # Skip binary upload by default (use upload_to_app_store for builds)
 skip_binary_upload(true)

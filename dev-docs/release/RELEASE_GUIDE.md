@@ -128,9 +128,8 @@ Was danach passiert:
 
 - **iOS** (`make -C ios release`): baut die App, lädt den Build nach TestFlight (wartet auf die
   Verarbeitung), lädt Metadaten, Release Notes und Screenshots für die Version hoch und reicht
-  sie mit diesem Build zur Prüfung ein. Nach Apples Freigabe startet automatisch die gestaffelte
-  Veröffentlichung (7 Tage; betrifft nur automatische Updates, wer im App Store selbst aktualisiert,
-  bekommt die Version sofort). Scheitert das Einreichen, endet der Befehl mit Fehler; die Meldung
+  sie mit diesem Build zur Prüfung ein. Nach Apples Freigabe geht die Version automatisch an alle
+  Nutzer (keine gestaffelte Veröffentlichung). Scheitert das Einreichen, endet der Befehl mit Fehler; die Meldung
   nennt Ursache und nächsten Schritt (Build ist dann schon hochgeladen; eingereicht wird in
   App Store Connect, `make release` würde nur erneut bauen und hochladen). `SKIP_BUILD=1` lädt nur Metadaten + Screenshots und reicht nichts ein.
 - **Android** (`make -C android release`): baut das App-Bundle und lädt es mit Metadaten,
@@ -143,10 +142,8 @@ Was danach passiert:
 
 ### iOS
 
-Nichts zu tun: Die Version ist eingereicht und wird nach Apples Freigabe gestaffelt veröffentlicht.
-
-Im Notfall (Fehler fällt während der Verteilung auf): App Store Connect → App → Version →
-„Gestaffelte Veröffentlichung“ → anhalten. Danach Hotfix (siehe unten).
+Nichts zu tun: Die Version ist eingereicht und geht nach Apples Freigabe an alle. Fällt danach
+ein Fehler auf: Hotfix (siehe unten).
 
 ### Android
 

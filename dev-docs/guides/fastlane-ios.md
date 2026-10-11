@@ -86,9 +86,7 @@ make testflight                          # Nur Build nach TestFlight (ohne Guard
   `ITSAppUsesNonExemptEncryption = false` in `StillMoment/Info.plist`, deshalb keine `submission_information`.
 - mit `SKIP_BUILD=1` (`build:false`) kein Einreichen
 - `automatic_release: true` — nach Apples Freigabe startet die Veroeffentlichung automatisch
-- `phased_release: true` — gestaffelt ueber 7 Tage (nur automatische Updates); anhalten in
-  App Store Connect. Auch im `Deliverfile` `true`: `deliver` schreibt den Wert bei jedem Metadaten-Upload,
-  `false` wuerde eine bestehende gestaffelte Veroeffentlichung entfernen.
+- `phased_release: false` — keine 7-taegige gestaffelte Veroeffentlichung, alle Nutzer auf einmal
 - Scheitert das Einreichen, bricht die Lane mit Fehler ab und nennt den naechsten Schritt
   (offene Vereinbarung, offene Einreichung, Build nicht verarbeitet).
 
