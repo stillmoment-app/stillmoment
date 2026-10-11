@@ -27,7 +27,10 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 ### iOS
 
-_Keine Tickets._
+| Nr | Ticket | Phase | Status | Abhaengigkeit |
+|----|--------|-------|--------|---------------|
+| [ios-065](ios/ios-065-anruf-waehrend-wiedergabe.md) | Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“, kein Fortsetzen danach | 1-Quick Fix | [ ] | - |
+| [ios-066](ios/ios-066-voiceover-spulregler-nan.md) | VoiceOver liest am Spul-Regler des Players „nan“ vor | 4-Polish | [ ] | - |
 
 ### Android
 
