@@ -2,14 +2,22 @@
 id: shared-129
 title: Podcast-Import auch fuer aeltere Folgen
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 3-Feature
 priority: mittel
 depends_on: [shared-128]
 ---
 
 # Ticket shared-129: Podcast-Import auch fuer aeltere Folgen
+
+## WONTFIX
+
+Die Begruendung unten ("aeltere Folgen sind oft die wertvollsten") ist eine Annahme, keine
+Beobachtung. Der Import ueber den Lookup-Dienst (shared-128) deckt die neuesten Folgen ab und ist
+im jetzigen Zustand bereits sehr wertvoll. Der Rueckfallweg (Titel aus der Apple-Webseite,
+Titelsuche im Feed) bringt eigene Komplexitaet und Risiken mit. Wir lassen es beim Status quo,
+bis sich ein echter Bedarf zeigt — dann neues Ticket auf Basis dieses Entwurfs.
 
 **Komplexitaet**: Die Folge muss ueber ihren Titel im Feed des Anbieters gefunden werden, weil Apples Folgen-ID dort nicht vorkommt. Risiken: falsche Zuordnung bei gleichen Titeln (muss zur Fehlermeldung statt zum falschen Import fuehren), grosse Feeds (mehrere MB), und die Titelquelle haengt an Apples Webseite.
 

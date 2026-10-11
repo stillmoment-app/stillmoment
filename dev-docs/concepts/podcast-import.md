@@ -24,7 +24,7 @@ Eine importierte Folge ist danach eine ganz normale Meditation — offline abspi
 | Plattformen | MVP: Apple-Podcasts-Folgenlinks auf iOS **und** Android | Fachlich ein Feature; auf Android kommen Links per Messenger/Browser |
 | Weitere Podcast-Apps | Spaeter, eigene Tickets. Keine vorgezogene Abstraktion | Gemeinsamkeiten erst an zwei echten Faellen erkennen |
 | Datenschutz | Netzwerk nur auf ausdrueckliche Nutzeraktion, keine Kennungen; Apple-Abruf erlaubt; Datenschutzerklaerung ehrlich anpassen | Grundwert ist "kein Tracking, keine eigenen Server, nichts ohne Zutun" — nicht "null Netzwerk". Datenschutzerklaerung war seit dem Link-Import ohnehin ungenau |
-| Link → Audiodatei | 1. Apples Lookup-Dienst. 2. Sonst: Titel aus `og:title` der Apple-Folgenseite, exakte Titelsuche im Feed des Anbieters | Offizieller Weg fuer neue Folgen; Standard-Vorschauangabe + oeffentlicher Feed fuer aeltere |
+| Link → Audiodatei | Nur Apples Lookup-Dienst (neueste Folgen). Rueckfallweg fuer aeltere Folgen (Titel aus `og:title`, Titelsuche im Feed) zurueckgestellt (shared-129, wontfix) | Offizieller Weg; dass aeltere Folgen den Mehraufwand lohnen, ist unbelegt |
 | Ausgeschlossen | Internen Datenblock der Apple-Seite auslesen (wie yt-dlp); interne Apple-API mit Token | Undokumentiert, bricht jederzeit, klares Page-Scraping |
 | Titel / Lehrer:in | Titel = Folgentitel; Lehrer:in = Autor des Podcasts, sonst Podcast-Name; Bearbeiten-Dialog wie gewohnt | Bessere Vorschlaege als ID3-Tags von Podcast-MP3s |
 | Herkunft speichern | Nein (kein Podcast-Name, kein Deep-Link, kein Artwork) | Fairness ist durch Download direkt beim Anbieter erfuellt; kein neues Datenfeld ohne Nutzen fuer die meditierende Person |
@@ -38,7 +38,7 @@ Eine importierte Folge ist danach eine ganz normale Meditation — offline abspi
 |--------|--------|
 | shared-127 | Datenschutzerklaerung, Store-Texte, Website, README: ehrlich zu Netzwerkzugriffen (inkl. Apple-Abruf) |
 | shared-128 | Podcast-Import ueber den Lookup-Dienst (neueste Folgen), iOS + Android — umgesetzt 2026-10 |
-| shared-129 | Rueckfallweg fuer aeltere Folgen (og:title + Feed) |
+| shared-129 | Rueckfallweg fuer aeltere Folgen (og:title + Feed) — wontfix: kein belegter Bedarf, erst bei echtem Need wieder aufgreifen |
 | shared-133 | Anleitung "So importierst du aus Apple Podcasts", iOS + Android, Ausgangspunkt podcasts.apple.com |
 
 ## Spaeter (noch keine Tickets)
