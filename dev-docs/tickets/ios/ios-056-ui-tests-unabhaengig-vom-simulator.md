@@ -33,11 +33,11 @@ Ein eigener Test-Speicher behebt beides an einer Stelle. Er schont außerdem die
 
 ## Akzeptanzkriterien
 
-- [ ] `make test-ui` ist grün, auch wenn auf dem Simulator Meditationen gespeichert sind. Diese Meditationen sind danach unverändert.
-- [ ] Nach `make test-unit-agent` liegen im echten App-Speicher keine neuen Dateien und keine neuen Einträge in den Einstellungen.
-- [ ] Im Release-Build lässt sich der Test-Speicher nicht einschalten.
-- [ ] Screenshot-Tests mit Beispiel-Meditationen verhalten sich wie bisher.
-- [ ] `ios/CLAUDE.md`: eine Zeile dazu, wie Tests ihren Speicher bekommen.
+- [x] `make test-ui` ist grün, auch wenn auf dem Simulator Meditationen gespeichert sind. Diese Meditationen sind danach unverändert.
+- [x] Nach `make test-unit-agent` liegen im echten App-Speicher keine neuen Dateien und keine neuen Einträge in den Einstellungen.
+- [x] Im Release-Build lässt sich der Test-Speicher nicht einschalten.
+- [x] Screenshot-Tests mit Beispiel-Meditationen verhalten sich wie bisher.
+- [x] `ios/CLAUDE.md`: eine Zeile dazu, wie Tests ihren Speicher bekommen.
 
 ---
 
@@ -51,7 +51,12 @@ Ein eigener Test-Speicher behebt beides an einer Stelle. Er schont außerdem die
 
 ## Nachweise
 
-- **Release-Schalter (2026-10-11):** `make build-release`, danach `strings -a` auf `Release-iphoneos/StillMoment.app/StillMoment`: `-UseTestStorage`, `StillMomentTestStorage` und `XCTestCase` kommen nicht vor. Gegenprobe: Debug-Build enthält `-UseTestStorage`, das Release-Binary enthält `-DisablePreparation`.
+Alle Läufe am 2026-10-11 auf „iPhone 17“, die Dev-App hatte dabei einen Eintrag in der Bibliothek.
+
+- **UI-Tests (AK-1):** Gegenprobe ohne `-UseTestStorage` in `LibraryFlowUITests`: die vier Bibliotheks-Tests rot („Executed 4 tests, with 4 failures“). Mit dem Argument grün („Executed 4 tests, with 0 failures“). Danach `make test-ui`: „Executed 31 tests, with 16 tests skipped and 0 failures“, Bibliothek der Dev-App unverändert.
+- **Unit-Tests (AK-2):** Vor und nach `make test-unit-agent` (1500 Tests grün) waren die Dateiliste in Application Support (763 Dateien, Größe und Änderungszeit) und die Einstellungen der Dev-App identisch. Neu sind nur die Einstellungsdateien des Test-Speichers (`StillMomentTestStorage`, `StillMomentTests.*`), einmalig mit festem Namen.
+- **Screenshots (AK-4):** `make screenshots` Exit 0, je „Executed 16 tests, with 0 failures“ für de-DE und en-GB, Bilder inhaltlich identisch mit main. Leere Bibliothek separat per `make screenshot-single` geprüft.
+- **Release-Schalter (AK-3):** `make build-release`, danach `strings -a` auf `Release-iphoneos/StillMoment.app/StillMoment`: `-UseTestStorage`, `StillMomentTestStorage` und `XCTestCase` kommen nicht vor. Gegenprobe: Debug-Build enthält `-UseTestStorage`, das Release-Binary enthält `-DisablePreparation`.
 
 ---
 
