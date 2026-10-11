@@ -15,9 +15,6 @@ struct PendingImport: Equatable {
     /// Quelldatei mit Security-Scope (DocumentPicker oder Share Extension).
     let url: URL
 
-    /// Extrahierte Audio-Metadaten (Dauer wird beim Save persistiert).
-    let metadata: AudioMetadata
-
     /// Wurde `startAccessingSecurityScopedResource()` mit `true` quittiert?
     /// Wenn ja, muss bei Cancel/Save `stopAccessingSecurityScopedResource()` gerufen werden.
     let didStartAccessing: Bool

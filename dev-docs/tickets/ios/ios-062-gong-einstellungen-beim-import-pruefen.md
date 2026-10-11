@@ -1,7 +1,7 @@
 ---
 id: ios-062
 title: "Gong-Einstellungen gehen beim Import verloren"
-status: todo
+status: in-progress
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []

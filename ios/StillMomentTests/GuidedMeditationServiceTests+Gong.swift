@@ -65,6 +65,34 @@ extension GuidedMeditationServiceTests {
         XCTAssertEqual(loaded.first?.gongSoundId, "deep-resonance")
     }
 
+    func testAddMeditationPersistsGongSettingsChosenAtImport() throws {
+        // Given: the user enabled both gongs and picked a sound in the import sheet (ios-062)
+        guard let sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+        let tempURL = self.createTemporaryAudioFile()
+        defer {
+            try? FileManager.default.removeItem(at: tempURL)
+            try? FileManager.default.removeItem(at: sut.getMeditationsDirectory())
+        }
+
+        var draft = self.makeImportDraft(for: tempURL, teacher: "Teacher", name: "Imported With Gong")
+        draft.startGongEnabled = true
+        draft.endGongEnabled = true
+        draft.gongSoundId = "deep-resonance"
+
+        // When
+        _ = try sut.addMeditation(from: tempURL, draft: draft)
+
+        // Then: the settings survive a reload, on the very entry the user edited
+        let loaded = try sut.loadMeditations()
+        XCTAssertEqual(loaded.first?.id, draft.id)
+        XCTAssertEqual(loaded.first?.startGongEnabled, true)
+        XCTAssertEqual(loaded.first?.endGongEnabled, true)
+        XCTAssertEqual(loaded.first?.gongSoundId, "deep-resonance")
+    }
+
     func testMeditationWithoutGongsStaysDisabledAfterReload() throws {
         // Given
         guard let sut else {

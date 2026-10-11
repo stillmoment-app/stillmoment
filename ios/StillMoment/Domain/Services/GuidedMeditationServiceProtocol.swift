@@ -57,24 +57,22 @@ protocol GuidedMeditationServiceProtocol {
 
     /// Adds a new guided meditation from a file URL.
     ///
-    /// Copies the file to Application Support/Meditations/ and creates a meditation entry.
-    /// `teacher` and `name` are taken verbatim — the caller (ViewModel) is responsible for
-    /// computing sensible defaults via `ImportPrefill.compute(...)` and letting the user
-    /// edit them in the Edit-Sheet before save.
+    /// Copies the file to Application Support/Meditations/ and persists `draft` as-is.
+    ///
+    /// The draft is stored unchanged (id, fileName, duration, teacher, name, gong settings,
+    /// trim, dateAdded); the service only fills in the local path of the copied file. The
+    /// caller is responsible for the draft's values: the ViewModel builds it from the import
+    /// (`url.lastPathComponent`, `AudioMetadata.duration`, `ImportPrefill.compute(...)`) and
+    /// lets the user edit it in the Edit-Sheet before save. Everything is persisted in one
+    /// operation (ios-062, like Android shared-106), so a failure never leaves a
+    /// half-configured entry behind.
     ///
     /// - Parameters:
     ///   - url: URL to the audio file (must have read access)
-    ///   - metadata: Audio metadata (duration; artist/title are not persisted here)
-    ///   - teacher: Teacher/Artist name to persist
-    ///   - name: Meditation name to persist
-    /// - Returns: The newly created GuidedMeditation
+    ///   - draft: The meditation to persist, as edited in the import sheet
+    /// - Returns: The persisted GuidedMeditation (the draft with its local file path)
     /// - Throws: GuidedMeditationError if file copy fails
-    func addMeditation(
-        from url: URL,
-        metadata: AudioMetadata,
-        teacher: String,
-        name: String
-    ) throws -> GuidedMeditation
+    func addMeditation(from url: URL, draft: GuidedMeditation) throws -> GuidedMeditation
 
     /// Updates an existing guided meditation
     ///

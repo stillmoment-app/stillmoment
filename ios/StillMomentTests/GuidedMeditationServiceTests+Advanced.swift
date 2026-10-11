@@ -30,7 +30,7 @@ extension GuidedMeditationServiceTests {
 // MARK: - Add Meditation Tests
 
 extension GuidedMeditationServiceTests {
-    func testAddMeditation_WithValidMetadata_CreatesMeditation() throws {
+    func testAddMeditation_WithValidDraft_CreatesMeditation() throws {
         // Given
         guard let sut else {
             XCTFail("SUT not initialized")
@@ -46,21 +46,18 @@ extension GuidedMeditationServiceTests {
             try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        let metadata = AudioMetadata(
-            artist: "Test Teacher",
-            title: "Test Meditation",
+        let draft = self.makeImportDraft(
+            for: tempURL,
+            teacher: "Test Teacher",
+            name: "Test Meditation",
             duration: 600
         )
 
         // When
-        let meditation = try sut.addMeditation(
-            from: tempURL,
-            metadata: metadata,
-            teacher: "Test Teacher",
-            name: "Test Meditation"
-        )
+        let meditation = try sut.addMeditation(from: tempURL, draft: draft)
 
-        // Then
+        // Then — the draft is persisted as-is, including its id
+        XCTAssertEqual(meditation.id, draft.id)
         XCTAssertEqual(meditation.name, "Test Meditation")
         XCTAssertEqual(meditation.teacher, "Test Teacher")
         XCTAssertEqual(meditation.duration, 600)
@@ -88,15 +85,10 @@ extension GuidedMeditationServiceTests {
             try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        // Metadata is irrelevant for teacher/name — caller passes them in directly.
-        let metadata = AudioMetadata(artist: nil, title: nil, duration: 300)
-
-        // When
+        // When — caller passes teacher/name in the draft directly.
         let meditation = try sut.addMeditation(
             from: tempURL,
-            metadata: metadata,
-            teacher: "Custom Teacher",
-            name: "Custom Title"
+            draft: self.makeImportDraft(for: tempURL, teacher: "Custom Teacher", name: "Custom Title")
         )
 
         // Then — service stores the caller-provided values; no implicit defaults.
@@ -121,9 +113,7 @@ extension GuidedMeditationServiceTests {
 
         let meditation = try sut.addMeditation(
             from: tempURL,
-            metadata: AudioMetadata(artist: nil, title: nil, duration: 300),
-            teacher: "",
-            name: ""
+            draft: self.makeImportDraft(for: tempURL, teacher: "", name: "")
         )
 
         XCTAssertEqual(meditation.teacher, "")
@@ -146,12 +136,15 @@ extension GuidedMeditationServiceTests {
             try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        let metadata1 = AudioMetadata(artist: "Teacher", title: "First", duration: 300)
-        let metadata2 = AudioMetadata(artist: "Teacher", title: "Second", duration: 600)
-
         // When
-        let med1 = try sut.addMeditation(from: url1, metadata: metadata1, teacher: "Teacher", name: "First")
-        let med2 = try sut.addMeditation(from: url2, metadata: metadata2, teacher: "Teacher", name: "Second")
+        let med1 = try sut.addMeditation(
+            from: url1,
+            draft: self.makeImportDraft(for: url1, teacher: "Teacher", name: "First", duration: 300)
+        )
+        let med2 = try sut.addMeditation(
+            from: url2,
+            draft: self.makeImportDraft(for: url2, teacher: "Teacher", name: "Second", duration: 600)
+        )
 
         // Then
         let loaded = try sut.loadMeditations()
@@ -174,14 +167,10 @@ extension GuidedMeditationServiceTests {
             try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        let metadata = AudioMetadata(artist: "Teacher", title: "Test", duration: 300)
-
         // When
         let meditation = try sut.addMeditation(
             from: tempURL,
-            metadata: metadata,
-            teacher: "Teacher",
-            name: "Test"
+            draft: self.makeImportDraft(for: tempURL, teacher: "Teacher", name: "Test")
         )
 
         // Then - File should exist at resolved fileURL
@@ -283,5 +272,21 @@ extension GuidedMeditationServiceTests {
         FileManager.default.createFile(atPath: fileURL.path, contents: Data(), attributes: nil)
 
         return fileURL
+    }
+
+    /// Draft as the ViewModel builds it on import: file name from the URL, duration from the metadata.
+    func makeImportDraft(
+        for url: URL,
+        teacher: String,
+        name: String,
+        duration: TimeInterval = 300
+    ) -> GuidedMeditation {
+        GuidedMeditation(
+            localFilePath: "",
+            fileName: url.lastPathComponent,
+            duration: duration,
+            teacher: teacher,
+            name: name
+        )
     }
 }

@@ -268,7 +268,6 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         )
         self.pendingImport = PendingImport(
             url: url,
-            metadata: metadata,
             didStartAccessing: didStartAccessing,
             draftId: draft.id
         )
@@ -309,12 +308,9 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             self.showingEditSheet = false
         }
         do {
-            let imported = try self.meditationService.addMeditation(
-                from: pending.url,
-                metadata: pending.metadata,
-                teacher: edited.teacher,
-                name: edited.name
-            )
+            // Persist the edited draft as-is (teacher, name, gong settings) in a single
+            // operation (ios-062, like Android shared-106).
+            let imported = try self.meditationService.addMeditation(from: pending.url, draft: edited)
             self.meditations = try self.meditationService.loadMeditations()
             // Precompute the waveform in the background so the trim editor opens instantly
             // later (shared-107). Fire-and-forget — the import does not wait for it.

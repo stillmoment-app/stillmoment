@@ -33,7 +33,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | Tests nutzen eigenen Speicher statt der App-Daten | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-061](ios/ios-061-link-ohne-pfad-geht-verloren.md) | Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts | 1-Quick Fix | [ ] | - |
-| [ios-062](ios/ios-062-gong-einstellungen-beim-import-pruefen.md) | Gong-Einstellungen gehen beim Import verloren | 1-Quick Fix | [ ] | - |
+| [ios-062](ios/ios-062-gong-einstellungen-beim-import-pruefen.md) | Gong-Einstellungen gehen beim Import verloren | 1-Quick Fix | [~] | - |
 | [ios-063](ios/ios-063-release-automatisch-einreichen-phased.md) | iOS-Release ohne App Store Connect: automatisch einreichen, gestaffelt veröffentlichen | 2-Architektur | [ ] | - |
 
 ### Android
