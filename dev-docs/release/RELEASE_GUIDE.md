@@ -82,6 +82,8 @@ Der Root-Aufruf führt erst iOS komplett aus (inkl. Commit + Tag), dann Android.
 2. **Sauberer Arbeitsbaum**: keine geänderten oder ungetrackten Dateien außer unter
    `<plattform>/fastlane/metadata/`.
 3. **Tag frei**: `ios-v2.6.0` bzw. `android-v2.6.0` existiert noch nicht.
+   Android zusätzlich: Es gibt noch keinen [Datenstand](#datenstand-je-release-upgrade-test) für die Version,
+   und mit `SKIP_SCREENSHOTS=1` läuft schon ein Emulator (sonst startet ihn Schritt 10).
 4. **Preflight** (`scripts/release/preflight.py`, braucht `uv`):
    `CHANGELOG.md` hat `## [2.6.0]`, unter `## [Unreleased]` steht nichts mehr;
    Release Notes je Sprache vorhanden, nicht leer, höchstens 4000 (iOS) bzw. 500 (Android) Zeichen.
@@ -97,10 +99,12 @@ Der Root-Aufruf führt erst iOS komplett aus (inkl. Commit + Tag), dann Android.
 8. **`make test`** (iOS: Unit + UI mit Coverage; Android: `./gradlew test`).
 9. **`make build-release`** — Release-Konfiguration bauen (iOS ohne Signing, Android `bundleRelease`).
 10. **Screenshots** (`make screenshots`), überspringbar mit `SKIP_SCREENSHOTS=1`.
+    Android danach: **Datenstand** der neuen Version auf dem Emulator erzeugen und alle Datenstände
+    zurücklesen (siehe [Datenstand je Release](#datenstand-je-release-upgrade-test)).
 11. **Version erhöhen** (`bump-version.sh`): iOS `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION +1`,
     Android `versionName` + `versionCode +1`.
 12. **Commit** nur der eigenen Pfade — iOS: `project.pbxproj`, `ios/fastlane/metadata`,
-    `docs/images/screenshots`; Android: `app/build.gradle.kts`, `android/fastlane/metadata`.
+    `docs/images/screenshots`; Android: `app/build.gradle.kts`, `android/fastlane/metadata`, `app/src/test/resources/data-snapshots/2.6.0`.
     Message `chore(<plattform>): Prepare release v2.6.0`.
 13. **Tag** `<plattform>-v2.6.0` (annotiert). Bleiben danach Änderungen übrig, warnt das Skript.
 
@@ -108,6 +112,32 @@ Mit `DRY_RUN=1` laufen nur die Prüfungen 1–5 wirklich; Schritte 6–13 werden
 
 **Logs:** Ausgabe von Schritt 7–10 in `ios/release-prepare.log` bzw. `android/release-prepare.log`
 (gitignored, live mitlesen mit `tail -f`).
+
+## Datenstand je Release (Upgrade-Test)
+
+Jede Release-Version friert ihren gespeicherten Datenstand als Testdaten ein (shared-144). Jede neue
+Version muss **alle** aufbewahrten Datenstände vollständig lesen, nicht nur den letzten — Nutzer
+überspringen Updates. Inhalt (Meditation mit Lehrer, Titel, Wiedergabe-Bereich und beiden Gong-Schaltern,
+Praxis, eigener Klang, Darstellung „Hell“, Vorbereitungszeit für geführte Meditationen) ist auf beiden
+Plattformen fachlich gleich.
+
+**Android:** `CanonicalDataSnapshot` (`android/app/src/sharedTest/…/datasnapshot/`) legt die Werte fest.
+`DataSnapshotGenerator` (androidTest) schreibt sie über die echten DataStores der App;
+`android/scripts/capture-data-snapshot.sh` führt ihn auf dem laufenden Emulator aus und kopiert die rohen
+DataStore-Dateien nach `android/app/src/test/resources/data-snapshots/<version>/`.
+`DataSnapshotUpgradeTest` (Unit-Test, läuft in `make test-unit`) liest jeden Ordner mit dem aktuellen Code
+wie nach einem Update: Startup-Migration, Bibliothek über das Repository, Rest über die DataStore-Klassen.
+Ein Fehler nennt Version und Wert.
+
+- `release-prepare` erzeugt den Datenstand selbst, nach den Screenshots. Er braucht genau einen laufenden
+  Emulator (bei mehreren `ANDROID_SERIAL` setzen) und überschreibt dort die Daten der Debug-App.
+- Von Hand: `make -C android data-snapshot VERSION=x.y.z`. Ein vorhandener Ordner wird nie überschrieben.
+- Aufbewahrte Datenstände nie neu erzeugen oder anpassen. Liest eine neue Version einen alten nicht mehr,
+  ist der Lesecode falsch, nicht der Datenstand.
+- Neue Werte kommen in `CanonicalDataSnapshot` dazu, bestehende bleiben unverändert. Gibt es einen Wert in
+  älteren Datenständen noch nicht, muss der Leser das je Version berücksichtigen.
+- Den Datenstand von 2.6.0 hat der Code von `android-v2.6.0` erzeugt (Generator in einen Worktree auf den
+  Tag kopiert). Ältere Versionen haben keinen; ihre Formate prüfen weiter die bisherigen Migrationstests.
 
 ## Was `make release` vor dem Upload prüft
 
@@ -174,7 +204,8 @@ müssen also mit in die Sektion `## [2.6.1]` oder vorher geklärt werden.
 Vorher prüfen: `git status`. Übrig gebliebene Änderungen außerhalb von `<plattform>/fastlane/metadata/`
 — etwa iOS-Screenshots unter `docs/images/screenshots/` oder, falls erst der Commit scheiterte,
 die erhöhte Versionsdatei — blockieren den Neustart. Verwerfen mit
-`git restore --staged --worktree -- <pfad>`, neue ungetrackte Dateien löschen.
+`git restore --staged --worktree -- <pfad>`, neue ungetrackte Dateien löschen — bei Android auch
+einen schon erzeugten Ordner `android/app/src/test/resources/data-snapshots/2.6.0/`.
 
 **Root-Aufruf: iOS fertig, Android scheitert:** iOS-Commit und -Tag bleiben stehen. Android-Ursache
 beheben, dann nur `make -C android release-prepare VERSION=2.6.0` — der Root-Aufruf würde am

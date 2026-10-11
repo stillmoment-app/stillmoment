@@ -32,6 +32,9 @@ android {
         versionName = "2.6.0"
 
         testInstrumentationRunner = "com.stillmoment.HiltTestRunner"
+        // shared-144: the data snapshot generator wipes the app's data and only runs via
+        // scripts/capture-data-snapshot.sh; keep it out of connected test runs (make test-ui, CI).
+        testInstrumentationRunnerArguments["notClass"] = "com.stillmoment.datasnapshot.DataSnapshotGenerator"
     }
 
     signingConfigs {
@@ -82,6 +85,13 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    // shared-144: the canonical upgrade-test data is written by an androidTest (generator)
+    // and read back by a unit test (reader); both compile the same definition.
+    sourceSets {
+        getByName("test").kotlin.directories.add("src/sharedTest/kotlin")
+        getByName("androidTest").kotlin.directories.add("src/sharedTest/kotlin")
     }
 
     testOptions {

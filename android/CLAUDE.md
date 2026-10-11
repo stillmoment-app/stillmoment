@@ -403,6 +403,15 @@ emulator attached, set `ANDROID_SERIAL=<serial>`, otherwise the suite runs on ev
   `LocalizedTestContent(strings) { … }` (see `LocalizedTestContent.kt`, `LibraryScreenTest`).
   Literals drift silently when copy changes.
 
+### Upgrade Test (stored data of every release)
+
+`DataSnapshotUpgradeTest` (unit test) reads the raw DataStore files every release left on the device
+(`app/src/test/resources/data-snapshots/<version>/`) through the current DataStore classes. Changing what or
+how a DataStore stores must keep it green — fix the reading code, never edit or regenerate a stored snapshot.
+`release-prepare` adds the new version's snapshot. DataStore classes take their `DataStore<Preferences>` in the
+primary constructor for this; the app uses the `@Inject` constructor with `Context`.
+Details: `dev-docs/release/RELEASE_GUIDE.md` → "Datenstand je Release".
+
 ---
 
 ## Build Stack
