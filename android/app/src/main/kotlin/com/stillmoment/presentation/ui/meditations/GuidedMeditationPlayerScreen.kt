@@ -328,7 +328,7 @@ private fun PreRollBody(
             outerSize = circleSize
         ) {
             CircleContent(
-                phase = uiState.phase,
+                mode = circleModeFor(uiState),
                 isPlaying = uiState.isPlaying,
                 countdownSeconds = uiState.countdownRemainingSeconds,
                 circleSize = circleSize,
@@ -500,9 +500,27 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
     }
 }
 
+/** What the circle shows inside the ring. */
+private enum class CircleMode {
+    /** Preparation countdown number. */
+    Countdown,
+
+    /** Start gong and breath pause: only the calm disc, nothing to tap (shared-143). */
+    StartGong,
+
+    /** Meditation audio: disc with the play/pause button. */
+    Controls
+}
+
+private fun circleModeFor(uiState: PlayerUiState): CircleMode = when {
+    uiState.isPreparing -> CircleMode.Countdown
+    uiState.isStartGongSequenceActive -> CircleMode.StartGong
+    else -> CircleMode.Controls
+}
+
 @Composable
 private fun CircleContent(
-    phase: MeditationPhase,
+    mode: CircleMode,
     isPlaying: Boolean,
     countdownSeconds: Int,
     circleSize: androidx.compose.ui.unit.Dp,
@@ -514,7 +532,7 @@ private fun CircleContent(
     )
 
     AnimatedContent(
-        targetState = phase,
+        targetState = mode,
         transitionSpec = {
             fadeIn(animationSpec = tween(PHASE_TRANSITION_MS)) togetherWith
                 fadeOut(animationSpec = tween(PHASE_TRANSITION_MS))
@@ -522,7 +540,7 @@ private fun CircleContent(
         label = "circleContent"
     ) { current ->
         when (current) {
-            MeditationPhase.PreRoll -> PreRollCircleContent(
+            CircleMode.Countdown -> PreRollCircleContent(
                 countdownSeconds = countdownSeconds,
                 containerDiameter = circleSize,
                 modifier = Modifier
@@ -531,7 +549,8 @@ private fun CircleContent(
                         contentDescription = countdownDescription
                     }
             )
-            MeditationPhase.Playing -> Box(contentAlignment = Alignment.Center) {
+            CircleMode.StartGong -> PlayerCenterDisc(modifier = Modifier.testTag("player.startGong"))
+            CircleMode.Controls -> Box(contentAlignment = Alignment.Center) {
                 PlayerCenterDisc()
                 GlassPauseButton(
                     isPlaying = isPlaying,
@@ -627,6 +646,34 @@ private fun GuidedMeditationPlayerScreenPreRollPreview() {
                     totalSeconds = 15,
                     remainingSeconds = 10
                 )
+            ),
+            onBack = {},
+            onTogglePlayPause = {},
+            onClearError = {}
+        )
+    }
+}
+
+@Preview(name = "Phone - Start Gong", device = Devices.PIXEL_4, showBackground = true)
+@Composable
+private fun GuidedMeditationPlayerScreenStartGongPreview() {
+    StillMomentTheme {
+        val meditation = GuidedMeditation(
+            id = "5",
+            fileUri = "content://test",
+            fileName = "meditation.mp3",
+            duration = 600_000L,
+            teacher = "Tara Brach",
+            name = "RAIN Meditation",
+            startGongEnabled = true
+        )
+
+        GuidedMeditationPlayerScreenContent(
+            meditation = meditation,
+            uiState = PlayerUiState(
+                meditation = meditation,
+                duration = 600_000L,
+                isStartGongSequenceActive = true
             ),
             onBack = {},
             onTogglePlayPause = {},

@@ -4,6 +4,7 @@ import android.net.Uri
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationSettings
+import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -16,7 +17,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -397,6 +400,210 @@ class GuidedMeditationPlayerViewModelGongTest {
         }
     }
 
+    /**
+     * Until the meditation audio begins, the player stays in the calm pre-roll view — like
+     * during the preparation time: no play button, no waveform, nothing to scrub (shared-143).
+     * A stray play or seek must not start the meditation a second time.
+     */
+    @Nested
+    inner class CalmViewUntilMeditationBegins {
+        @Test
+        fun `player stays in the calm view while the start gong rings`() = runTest(testDispatcher) {
+            load(gongMeditation)
+            advanceUntilIdle()
+
+            viewModel.startPlayback()
+            advanceUntilIdle()
+
+            assertEquals(MeditationPhase.PreRoll, viewModel.uiState.value.phase)
+        }
+
+        @Test
+        fun `player stays in the calm view during the breath pause`() = runTest(testDispatcher) {
+            load(gongMeditation)
+            advanceUntilIdle()
+            viewModel.startPlayback()
+            advanceUntilIdle()
+
+            fakeGong.completeGong()
+            testScheduler.runCurrent()
+
+            assertFalse(fakePlayer.playCalled)
+            assertEquals(MeditationPhase.PreRoll, viewModel.uiState.value.phase)
+        }
+
+        @Test
+        fun `after gong and breath pause the meditation begins once and the player shows it`() =
+            runTest(testDispatcher) {
+                Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                    uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                    load(gongMeditation)
+                    advanceUntilIdle()
+                    viewModel.startPlayback()
+                    advanceUntilIdle()
+
+                    fakeGong.completeGong()
+                    advanceUntilIdle()
+
+                    assertEquals(1, fakePlayer.playCount)
+                    assertEquals(MeditationPhase.Playing, viewModel.uiState.value.phase)
+                }
+            }
+
+        @Test
+        fun `play tapped during the start gong does not start the meditation early or twice`() =
+            runTest(testDispatcher) {
+                Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                    uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                    load(gongMeditation)
+                    advanceUntilIdle()
+                    viewModel.startPlayback()
+                    advanceUntilIdle()
+
+                    viewModel.togglePlayPause()
+                    advanceUntilIdle()
+                    assertFalse(fakePlayer.playCalled)
+
+                    fakeGong.completeGong()
+                    advanceUntilIdle()
+
+                    assertEquals(1, fakePlayer.playCount)
+                }
+            }
+
+        @Test
+        fun `play tapped during the breath pause does not start the meditation early or twice`() =
+            runTest(testDispatcher) {
+                Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                    uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                    load(gongMeditation)
+                    advanceUntilIdle()
+                    viewModel.startPlayback()
+                    advanceUntilIdle()
+                    fakeGong.completeGong()
+                    testScheduler.runCurrent()
+
+                    viewModel.togglePlayPause()
+                    testScheduler.runCurrent()
+                    assertFalse(fakePlayer.playCalled)
+
+                    advanceUntilIdle()
+
+                    assertEquals(1, fakePlayer.playCount)
+                    assertEquals(0, fakePlayer.resumeCount)
+                }
+            }
+
+        @Test
+        fun `play tapped during preparation does not start the meditation`() = runTest(testDispatcher) {
+            load(gongMeditation, prepSeconds = 5)
+            advanceUntilIdle()
+            viewModel.startPlayback()
+            testScheduler.runCurrent()
+
+            viewModel.togglePlayPause()
+            testScheduler.runCurrent()
+
+            assertFalse(fakePlayer.playCalled)
+            assertTrue(viewModel.uiState.value.isPreparing)
+        }
+
+        @Test
+        fun `scrubbing before the meditation begins changes nothing`() = runTest(testDispatcher) {
+            load(gongMeditation)
+            advanceUntilIdle()
+            viewModel.startPlayback()
+            advanceUntilIdle()
+
+            viewModel.beginScrub()
+            viewModel.scrubToMs(120_000L)
+            viewModel.endScrub()
+            viewModel.seekToFraction(0.5f)
+            advanceUntilIdle()
+
+            assertEquals(0, fakePlayer.seekCount)
+            assertEquals(0L, viewModel.uiState.value.currentPosition)
+            assertFalse(viewModel.uiState.value.isDragging)
+        }
+
+        @Test
+        fun `preparation, gong and breath pause stay in the calm view without a playing view in between`() =
+            runTest(testDispatcher) {
+                Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                    uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                    load(gongMeditation, prepSeconds = 3)
+                    advanceUntilIdle()
+
+                    // Every emitted phase, unconflated
+                    val phases = mutableListOf<MeditationPhase>()
+                    backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                        viewModel.uiState.collect { phases += it.phase }
+                    }
+
+                    viewModel.startPlayback()
+                    advanceUntilIdle()
+                    // Countdown done, gong rings, audio not yet started
+                    assertTrue(fakeGong.played)
+                    assertFalse(fakePlayer.playCalled)
+
+                    // From the tap through countdown into the gong: only the calm view
+                    val sinceStart = phases.dropWhile { it == MeditationPhase.Playing }
+                    assertTrue(sinceStart.isNotEmpty())
+                    assertTrue(sinceStart.all { it == MeditationPhase.PreRoll })
+
+                    fakeGong.completeGong()
+                    advanceUntilIdle()
+
+                    assertEquals(MeditationPhase.Playing, phases.last())
+                    assertEquals(1, fakePlayer.playCount)
+                }
+            }
+
+        @Test
+        fun `without gong and preparation the player shows the meditation right away`() = runTest(testDispatcher) {
+            Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                load(noGongMeditation)
+                advanceUntilIdle()
+
+                viewModel.startPlayback()
+                advanceUntilIdle()
+
+                assertEquals(MeditationPhase.Playing, viewModel.uiState.value.phase)
+                assertEquals(1, fakePlayer.playCount)
+            }
+        }
+
+        @Test
+        fun `after a stop from outside during the gong, play starts the meditation directly`() =
+            runTest(testDispatcher) {
+                Mockito.mockStatic(Uri::class.java).use { uriStatic ->
+                    uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(mock())
+
+                    load(gongMeditation)
+                    advanceUntilIdle()
+                    viewModel.startPlayback()
+                    advanceUntilIdle()
+                    fakePlayer.stopFromOutside()
+                    advanceUntilIdle()
+                    val gongsBefore = fakeGong.playCount
+
+                    // The player shows the play button again; tapping it plays right away
+                    assertEquals(MeditationPhase.Playing, viewModel.uiState.value.phase)
+                    viewModel.togglePlayPause()
+                    advanceUntilIdle()
+
+                    assertEquals(1, fakePlayer.playCount)
+                    assertEquals(gongsBefore, fakeGong.playCount)
+                }
+            }
+    }
+
     @Nested
     inner class EndGong {
         @Test
@@ -499,6 +706,12 @@ private class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
 
     var playCalled = false
         private set
+    var playCount = 0
+        private set
+    var seekCount = 0
+        private set
+    var resumeCount = 0
+        private set
     var stopCalled = false
         private set
     var presenceEnded = false
@@ -529,14 +742,19 @@ private class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
 
     override fun play(meditation: GuidedMeditation) {
         playCalled = true
+        playCount++
         _nowPlaying.value = meditation
     }
 
     override fun pause() {}
 
-    override fun resume() {}
+    override fun resume() {
+        resumeCount++
+    }
 
-    override fun seekTo(position: Long) {}
+    override fun seekTo(position: Long) {
+        seekCount++
+    }
 
     override fun stop() {
         stopCalled = true

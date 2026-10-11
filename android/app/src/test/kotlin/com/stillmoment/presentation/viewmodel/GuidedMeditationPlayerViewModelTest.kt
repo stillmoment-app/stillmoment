@@ -516,6 +516,21 @@ class GuidedMeditationPlayerViewModelTest {
         }
 
         @Test
+        fun `phase is PreRoll during the start gong and breath pause`() {
+            val state = PlayerUiState(isStartGongSequenceActive = true)
+
+            assertEquals(MeditationPhase.PreRoll, state.phase)
+        }
+
+        @Test
+        fun `phase stays PreRoll when the countdown finishes into the start gong`() {
+            val countdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 0)
+            val state = PlayerUiState(preparationCountdown = countdown, isStartGongSequenceActive = true)
+
+            assertEquals(MeditationPhase.PreRoll, state.phase)
+        }
+
+        @Test
         fun `phase remains Playing after pause`() {
             // Player paused mid-playback — Atemkreis sieht visuell identisch aus
             val state = PlayerUiState(
