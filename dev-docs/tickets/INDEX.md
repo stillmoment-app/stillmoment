@@ -28,7 +28,9 @@ _Keine Tickets._
 
 ### Android
 
-_Keine Tickets._
+| Nr | Ticket | Phase | Status | Abhaengigkeit |
+|----|--------|-------|--------|---------------|
+| [android-100](android/android-100-anruf-im-vorlauf.md) | Anruf während Vorbereitung oder Start-Gong startet die geführte Meditation von selbst | 1-Quick Fix | [ ] | [ios-065](archive/ios/ios-065-anruf-waehrend-wiedergabe.md) |
 
 ## Archiv
 
