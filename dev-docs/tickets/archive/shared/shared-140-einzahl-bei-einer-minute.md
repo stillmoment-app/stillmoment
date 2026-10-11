@@ -2,8 +2,8 @@
 id: shared-140
 title: "Einzahl bei einer Minute im Atemkreis und in Ansagen"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []

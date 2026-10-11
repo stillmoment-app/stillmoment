@@ -2,8 +2,8 @@
 id: shared-139
 title: "Bearbeiten-Blatt: Dauer bleibt neben langem Dateinamen sichtbar"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
