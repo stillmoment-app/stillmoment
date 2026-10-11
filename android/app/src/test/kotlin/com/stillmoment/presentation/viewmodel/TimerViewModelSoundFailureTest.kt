@@ -96,6 +96,37 @@ class TimerViewModelSoundFailureTest {
     }
 
     @Nested
+    inner class NextMeditation {
+        @Test
+        fun `starting the next meditation removes the previous message`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            fakeAudioService.timerSoundFailedBacking.emit(Unit)
+            advanceUntilIdle()
+
+            viewModel.startTimer()
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.error)
+        }
+
+        @Test
+        fun `a sound failing in the next meditation shows the message again`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            fakeAudioService.timerSoundFailedBacking.emit(Unit)
+            advanceUntilIdle()
+            viewModel.startTimer()
+            advanceUntilIdle()
+
+            fakeAudioService.timerSoundFailedBacking.emit(Unit)
+            advanceUntilIdle()
+
+            assertEquals(TimerError.SoundFailed, viewModel.uiState.value.error)
+        }
+    }
+
+    @Nested
     inner class AllSoundsPlay {
         @Test
         fun `user sees no message`() = runTest {

@@ -194,6 +194,9 @@ constructor(
     }
 
     fun startTimer() {
+        // A new meditation starts without the previous sound message. Cleared before
+        // dispatching, so a failure while preparing this session is shown again.
+        clearError()
         dispatch(TimerAction.StartPressed)
     }
 
@@ -271,7 +274,7 @@ constructor(
         saveSettings()
     }
 
-    fun clearError() {
+    private fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
 

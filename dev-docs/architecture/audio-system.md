@@ -190,6 +190,9 @@ Hoerproben melden nichts.
   `TimerUiState.error = TimerError.SoundFailed`. Der Intervall-Gong des Timers laeuft ueber
   `playTimerIntervalGong` (meldet), die Hoerprobe ueber `playIntervalGong` (meldet nicht).
   Die Meldung aendert nie Wiedergabe, Fokus oder Foreground-Service.
+- **Zuruecksetzen (beide):** `TimerViewModel.startTimer()` loescht die Meldung *vor* dem Dispatch von
+  `StartPressed`. So verschwindet die alte Meldung mit der naechsten Meditation, ein Fehler beim
+  Vorbereiten dieser Sitzung erscheint aber wieder.
 
 ### Lock Screen Controls (AudioPlayerService)
 
