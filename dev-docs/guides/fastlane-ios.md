@@ -73,17 +73,22 @@ Ablauf (release-prepare, Guard, Testplan, Einreichen): `dev-docs/release/RELEASE
 
 ```bash
 make release-dry                         # API-Key, Metadaten-Dateien, Screenshots vorhanden? Kein Upload
-make release VERSION=1.9.0               # Guard, Build, Upload nach TestFlight + Metadaten/Screenshots
-make release VERSION=1.9.0 SKIP_BUILD=1  # Guard, nur Metadaten + Screenshots
+make release VERSION=1.9.0               # Guard, Build, Upload nach TestFlight + Metadaten/Screenshots, Einreichen
+make release VERSION=1.9.0 SKIP_BUILD=1  # Guard, nur Metadaten + Screenshots, kein Einreichen
 make testflight                          # Nur Build nach TestFlight (ohne Guard, ohne Versions-Bump)
 ```
 
 `make release` (Lane `release`):
 
-- reicht **nicht** zur Pruefung ein (`submit_for_review: false`) — das passiert manuell in
-  App Store Connect, nach dem Testplan mit dem TestFlight-Build
-- `automatic_release: true` — nach Apples Freigabe geht die Version sofort live
+- reicht die Version mit dem gerade hochgeladenen Build zur Pruefung ein (`submit_for_review: true`,
+  `build_number` = Build aus TestFlight). Erst beim Einreichen ordnet `deliver` den Build der Version
+  zu (`deliver/submit_for_review.rb#select_build`). Export Compliance kommt aus
+  `ITSAppUsesNonExemptEncryption = false` in `StillMoment/Info.plist`, deshalb keine `submission_information`.
+- mit `SKIP_BUILD=1` (`build:false`) kein Einreichen
+- `automatic_release: true` — nach Apples Freigabe startet die Veroeffentlichung automatisch
 - `phased_release: false` — keine 7-taegige gestaffelte Veroeffentlichung, alle Nutzer auf einmal
+- Scheitert das Einreichen, bricht die Lane mit Fehler ab und nennt den naechsten Schritt
+  (offene Vereinbarung, offene Einreichung, Build nicht verarbeitet).
 
 `make testflight` ist fuer den Release nicht noetig, weil `make release` den Build ebenfalls nach
 TestFlight laedt. Beide Lanes bauen ueber dieselbe Methode `build_release_ipa` im Fastfile
