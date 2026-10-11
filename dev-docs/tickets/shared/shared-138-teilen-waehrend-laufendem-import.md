@@ -11,6 +11,8 @@ depends_on: [shared-132]
 
 # Ticket shared-138: Teilen während eines laufenden Imports: erst den laufenden Import abschließen, dann den neu geteilten Eintrag übernehmen
 
+**Plan**: `dev-docs/tickets/plans/shared-138-ios.md`, `dev-docs/tickets/plans/shared-138-android.md`
+
 ## Was
 
 **Beobachtet:**
@@ -47,6 +49,7 @@ Den laufenden Import zu Ende zu führen, statt ihn abzulösen oder den neuen Ein
 - [ ] „Abbrechen“ im Ladefenster beendet den laufenden Import still. Danach startet der wartende Eintrag.
 - [ ] Werden während eines laufenden Imports mehrere Einträge geteilt, wird danach nur der zuletzt geteilte übernommen.
 - [ ] Ein geteilter Eintrag, für den „Fast geschafft“ erschien, geht nie still verloren, auch bei gleichem Namen wie der laufende: Er wird importiert, oder es erscheint eine Meldung. Ausnahme: Er wurde von einem später geteilten Eintrag abgelöst.
+- [ ] Wird derselbe Eintrag erneut geteilt, solange er lädt, sein Blatt offen ist oder seine Meldung steht, passiert nichts: kein zweiter Import, kein nachgeschobenes „Schon da“. Wird er erst danach erneut geteilt, erscheint wie bisher „Schon da“.
 - [ ] Der wartende Eintrag startet, ohne dass die App verlassen und neu geöffnet werden muss.
 - [ ] Erhalt: Ein einzelner geteilter Link, eine Podcast-Folge oder eine Audiodatei wird wie bisher importiert, einschließlich „Schon da“, der Fehlermeldungen und „Erneut versuchen“.
 - [ ] Erhalt (Android): Ein Wechsel von Dunkelmodus oder Schriftgröße während des Ladens oder Wartens unterbricht den Import nicht und verliert den wartenden Eintrag nicht.
@@ -77,6 +80,7 @@ Den laufenden Import zu Ende zu führen, statt ihn abzulösen oder den neuen Ein
 ## Hinweise
 
 - **Offenes Bearbeiten-Blatt hat Vorrang (Entscheidung des Users):** Wer schon Angaben eintippt, soll nichts verlieren. Dieselbe Regel gilt jetzt auch für einen laufenden Import: Begonnenes wird zu Ende geführt.
+- **Jedes Bearbeiten-Blatt zählt**, auch das einer vorhandenen Meditation. „Öffnen mit“ / „Öffnen in“ zählt wie Teilen.
 - **Verworfene Alternativen:** Den laufenden Import abzulösen, verwirft womöglich Gewolltes. Den neuen Eintrag abzulehnen, ginge auf iOS nur mit einer Meldung, die erst nach „Fast geschafft“ erscheint, denn die Teilen-Ansicht weiß nicht, ob die App gerade lädt.
 - **iOS:** Der wartende Eintrag liegt bereits heute in der Ablage der Teilen-Ansicht; die App schaut aber erst beim nächsten Aktivwerden wieder nach. Der stille Verlust entsteht, weil der abgearbeitete Eintrag erst am Ende des Imports über seinen Namen entfernt wird. Ein gleichnamiger neuer Eintrag hat ihn bis dahin ersetzt und wird mitgelöscht.
 - Testpaar 25401 (`audio/mp3`) und 25402 (`binary/octet-stream`): gleiches Adress-Ende „download“, verschiedene Meditationen. Gerade der gleiche Name löst auf iOS den stillen Verlust aus.
