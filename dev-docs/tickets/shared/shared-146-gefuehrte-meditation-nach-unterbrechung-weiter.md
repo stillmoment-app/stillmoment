@@ -2,8 +2,8 @@
 id: shared-146
 title: "Geführte Meditation läuft nach einer Unterbrechung von selbst weiter"
 status:
-  ios: todo
-  android: todo
+  ios: in-progress
+  android: in-progress
 phase: 1-Quick Fix
 priority: hoch
 depends_on: [ios-065]
