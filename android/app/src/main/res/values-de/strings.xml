@@ -61,7 +61,10 @@
 
     <!-- Accessibility -->
     <string name="accessibility_start_button">Meditation starten</string>
-    <string name="accessibility_countdown_seconds">Noch %d Sekunden bis die Meditation beginnt</string>
+    <plurals name="accessibility_countdown_seconds">
+        <item quantity="one">Noch %d Sekunde bis die Meditation beginnt</item>
+        <item quantity="other">Noch %d Sekunden bis die Meditation beginnt</item>
+    </plurals>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Meditations-Timer</string>

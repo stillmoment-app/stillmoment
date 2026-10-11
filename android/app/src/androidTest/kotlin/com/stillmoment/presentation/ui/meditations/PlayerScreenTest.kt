@@ -1,5 +1,8 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -32,11 +35,17 @@ import org.junit.runners.Parameterized
  * Runs once per app language; expected labels come from the string resources.
  */
 @RunWith(Parameterized::class)
-class PlayerScreenTest(languageTag: String) {
+class PlayerScreenTest(private val languageTag: String) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun languages(): List<String> = SUPPORTED_TEST_LANGUAGES
+
+        /** Spelled out once, so a wrong plural form in the resources cannot slip through. */
+        private val EXPECTED_COUNTDOWN_AT_ONE_AND_TWO = mapOf(
+            "en" to ("1 second until meditation starts" to "2 seconds until meditation starts"),
+            "de" to ("Noch 1 Sekunde bis die Meditation beginnt" to "Noch 2 Sekunden bis die Meditation beginnt")
+        )
     }
 
     @get:Rule
@@ -170,6 +179,43 @@ class PlayerScreenTest(languageTag: String) {
         get() = beforeAudioState.copy(
             preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
         )
+
+    // MARK: - Countdown announcement (shared-145)
+
+    private var remainingPreparationSeconds by mutableIntStateOf(2)
+
+    private fun renderPreparation(initialSeconds: Int) {
+        remainingPreparationSeconds = initialSeconds
+        composeRule.setContent {
+            LocalizedTestContent(strings) {
+                StillMomentTheme {
+                    GuidedMeditationPlayerScreenContent(
+                        meditation = testMeditation,
+                        uiState = beforeAudioState.copy(
+                            preparationCountdown = PreparationCountdown(
+                                totalSeconds = 15,
+                                remainingSeconds = remainingPreparationSeconds
+                            )
+                        ),
+                        onBack = {},
+                        onTogglePlayPause = {},
+                        onClearError = {}
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun playerScreen_duringPreparation_announcesPluralAtTwoSeconds_andSingularAtOneSecond() {
+        val (atOne, atTwo) = EXPECTED_COUNTDOWN_AT_ONE_AND_TWO.getValue(languageTag)
+        renderPreparation(initialSeconds = 2)
+        composeRule.onNodeWithContentDescription(atTwo).assertIsDisplayed()
+
+        composeRule.runOnIdle { remainingPreparationSeconds = 1 }
+
+        composeRule.onNodeWithContentDescription(atOne).assertIsDisplayed()
+    }
 
     // MARK: - Navigation Tests
 
