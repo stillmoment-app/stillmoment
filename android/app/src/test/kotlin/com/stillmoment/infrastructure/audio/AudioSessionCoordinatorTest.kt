@@ -386,8 +386,8 @@ class AudioSessionCoordinatorTest {
     }
 
     @Test
-    fun `timer stays paused when the system gives focus back`() {
-        // The timer registers no resume handler (shared-147 decides that separately)
+    fun `source without resume handler stays paused when the system gives focus back`() {
+        // Registers only a pause handler: the focus gain has nothing to resume
         var timerPauseCalls = 0
         sut.registerPauseHandler(AudioSource.TIMER) { timerPauseCalls++ }
         sut.requestAudioSession(AudioSource.TIMER)
