@@ -19,7 +19,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-138](shared/shared-138-teilen-waehrend-laufendem-import.md) | Teilen während eines laufenden Imports: erst den laufenden Import abschließen, dann den neu geteilten Eintrag übernehmen | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
-| [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [ ] | [ ] |
+| [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [~] | [~] |
 
 ### iOS
 
