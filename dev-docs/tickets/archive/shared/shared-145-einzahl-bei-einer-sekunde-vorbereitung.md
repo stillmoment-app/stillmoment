@@ -2,8 +2,8 @@
 id: shared-145
 title: "Einzahl bei einer Sekunde in der Ansage der Vorbereitungszeit"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 depends_on: []
