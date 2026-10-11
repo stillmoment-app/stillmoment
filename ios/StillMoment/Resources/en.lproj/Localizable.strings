@@ -108,7 +108,6 @@
 
 "accessibility.startMeditation" = "Start meditation";
 "accessibility.startMeditation.hint" = "Starts the meditation timer with the selected duration";
-"accessibility.preparation" = "Preparation: %d seconds";
 "accessibility.intervalDuration" = "Interval duration";
 "accessibility.intervalDuration.hint" = "Adjust interval duration in minutes";
 "accessibility.intervalMode" = "Interval mode";
@@ -288,7 +287,6 @@
 "guided_meditations.settings.preparationTime.duration" = "Duration";
 
 // Preparation Time (legacy - used in countdown)
-"guided_meditations.player.countdown" = "%d seconds until meditation starts";
 "guided_meditations.player.preroll.label" = "Preparation";
 
 // Timer PreRoll-Header (Layout-Pendant zu Guided: Modus + Dauer)
