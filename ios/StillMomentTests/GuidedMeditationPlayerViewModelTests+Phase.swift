@@ -19,7 +19,7 @@ extension GuidedMeditationPlayerViewModelTests {
     func testPhase_isPreRollWhilePreparing() async {
         // Given a player with preparation time
         let viewModel = GuidedMeditationPlayerViewModel(
-            meditation: GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL),
+            meditation: GuidedMeditationTestHelpers.createTestMeditation(),
             preparationTimeSeconds: 10,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,

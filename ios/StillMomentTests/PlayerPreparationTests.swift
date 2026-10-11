@@ -25,8 +25,6 @@ final class PlayerPreparationTests: XCTestCase {
     var mockClock: MockClock!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var tempFileURL: URL!
 
     override func setUp() {
         super.setUp()
@@ -34,9 +32,6 @@ final class PlayerPreparationTests: XCTestCase {
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockClock = MockClock()
         self.cancellables = Set<AnyCancellable>()
-
-        // Create temporary file for tests
-        self.tempFileURL = GuidedMeditationTestHelpers.createTemporaryAudioFile()
 
         // Default: no preparation time
         self.sut = self.createViewModel(preparationTimeSeconds: nil)
@@ -50,9 +45,6 @@ final class PlayerPreparationTests: XCTestCase {
         self.mockPlayerService = nil
         self.mockMeditationService = nil
         self.mockClock = nil
-        // Clean up temp file
-        GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
-        self.tempFileURL = nil
         super.tearDown()
     }
 
@@ -60,7 +52,7 @@ final class PlayerPreparationTests: XCTestCase {
 
     /// Creates a ViewModel with the specified preparation time
     func createViewModel(preparationTimeSeconds: Int?) -> GuidedMeditationPlayerViewModel {
-        let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
+        let meditation = GuidedMeditationTestHelpers.createTestMeditation()
         return GuidedMeditationPlayerViewModel(
             meditation: meditation,
             preparationTimeSeconds: preparationTimeSeconds,
