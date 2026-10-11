@@ -55,6 +55,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -652,30 +653,54 @@ private fun EditSheetNameField(
     )
 }
 
+/**
+ * Datei-Info: eine Zeile "Dateiname  ·  Dauer" mit der vollen Dateilänge (shared-139).
+ *
+ * Die Dauer wird nie gekürzt und steht direkt hinter dem Namen. Der Name bekommt den
+ * restlichen Platz (`weight(fill = false)`, damit kurze Namen die Dauer nicht nach rechts
+ * schieben) und wird bei Überlänge in der Mitte gekürzt, sodass Anfang und Endung lesbar
+ * bleiben. TalkBack liest Name und Dauer zusammen als ein Element.
+ */
 @Composable
 private fun EditSheetFileInfoFooter(meditation: GuidedMeditation) {
-    val text = "${meditation.fileName}  ·  ${meditation.formattedDuration}"
+    val textStyle = TextStyle.caption.toComposeTextStyle()
+    val color = MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 4.dp),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(top = 4.dp)
+            .semantics(mergeDescendants = true) {}
+            .testTag("editSheet.fileInfo"),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.InsertDriveFile,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = color,
             modifier = Modifier
+                .padding(end = 6.dp)
                 .size(14.dp)
-                .padding(top = 2.dp)
         )
         Text(
-            text = text,
-            style = TextStyle.caption.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            text = meditation.fileName,
+            style = textStyle,
+            color = color,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+            // Die gekürzte Zeile ist schmaler als der zugeteilte Platz (das "…" ersetzt ganze
+            // Zeichen). Rechtsbündig bleibt der Name direkt an der Dauer.
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .testTag("editSheet.fileInfo.fileName")
+        )
+        Text(
+            text = "  ·  ${meditation.formattedFileDuration}",
+            style = textStyle,
+            color = color,
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.testTag("editSheet.fileInfo.duration")
         )
     }
 }
