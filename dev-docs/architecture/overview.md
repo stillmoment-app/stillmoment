@@ -224,13 +224,9 @@ Siehe: `timer-incremental-refactoring.md` (Schritt 1), `../reference/glossary.md
 
 ### AudioSessionCoordinator (iOS)
 
-Singleton der Audio-Konflikte zwischen Timer-Sounds und Guided Meditations koordiniert.
+Regelt, welche Audio-Quelle (Timer, Guided Meditation, Vorschau) gerade die Audio-Session besitzt. Fordert eine Quelle die Session an, wird die bisherige über ihren Konflikt-Handler gestoppt. Es gibt genau eine Instanz pro App, weil es auch nur eine `AVAudioSession` gibt; die Composition Root reicht sie an die Audio-Dienste durch.
 
-```swift
-AudioSessionCoordinator.shared.requestExclusiveAccess(for: .guidedMeditation)
-```
-
-Siehe: `audio-system.md`
+Siehe: `audio-system.md`, ADR-001
 
 ### Design System
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Akzeptiert
+Akzeptiert (aktualisiert 2026-10-11: seit ios-055 bekommen die Audio-Dienste den Koordinator per Initializer aus der Composition Root; seit ios-058 arbeiten Tests mit eigener Instanz. Die Singleton-Entscheidung wurde in ios-058 bestätigt.)
 
 ## Kontext
 
@@ -23,18 +23,7 @@ iOS erlaubt nur eine aktive Audio-Session-Konfiguration pro App. Mehrere Service
 
 ## Entscheidung
 
-`AudioSessionCoordinator` wird als **Singleton** implementiert, der alle Audio-Session-Konfigurationen zentral verwaltet.
-
-```swift
-final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
-    static let shared = AudioSessionCoordinator()
-    private init() { }
-
-    func requestAudioSession(for source: AudioSource) throws -> Bool
-    func releaseAudioSession(for source: AudioSource)
-    func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void)
-}
-```
+`AudioSessionCoordinator` wird als **Singleton** implementiert, der alle Audio-Session-Konfigurationen zentral verwaltet. Die Schnittstelle (Session anfordern, freigeben, Konflikt-Handler registrieren) definiert `AudioSessionCoordinatorProtocol`.
 
 **Ownership-Modell**: Nur eine `AudioSource` kann die Session gleichzeitig besitzen. Bei Konflikt wird der registrierte Handler der aktuellen Source aufgerufen.
 
@@ -51,22 +40,13 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 ### Negativ
 
 - **Singleton erschwert Unit-Tests** - globaler State muss beruecksichtigt werden
-- **Implizite Kopplung** - Services kennen den Coordinator nicht ueber DI
 
 ### Mitigationen
 
 1. **Protocol-Abstraktion**: `AudioSessionCoordinatorProtocol` ermoeglicht Mock-Implementierungen in Tests
-2. **Constructor Injection**: ViewModels erhalten den Coordinator ueber Dependency Injection
-3. **Conflict Handler Pattern**: Statt direkter Kopplung registrieren Services Handler
-
-```swift
-// In Tests
-let mockCoordinator = MockAudioSessionCoordinator()
-let viewModel = TimerViewModel(audioCoordinator: mockCoordinator)
-
-// In Production
-let viewModel = TimerViewModel(audioCoordinator: AudioSessionCoordinator.shared)
-```
+2. **Constructor Injection**: Nur die Composition Root (`AppDependencies.live()`) liest `shared` und reicht die Instanz an die Audio-Dienste durch; kein Dienst greift selbst global zu
+3. **Eigene Instanz in Tests**: Tests mit echtem Koordinator erzeugen ihren eigenen statt `shared` zu teilen (ios-058)
+4. **Conflict Handler Pattern**: Statt direkter Kopplung registrieren Services Handler
 
 ## Alternativen (verworfen)
 
@@ -80,6 +60,7 @@ Coordinator als normale Instanz, die durchgereicht wird. Verworfen, weil:
 - Audio Session ist inherent global (eine pro App)
 - Wuerde kuenstliche Komplexitaet einfuehren
 - Protocol-Abstraktion bietet bereits Testbarkeit
+- Mehrere Instanzen koennten dieselbe Session unabhaengig voneinander steuern; Keep-Alive und Gongs bei gesperrtem Bildschirm haengen aber daran, dass genau ein Koordinator die Session besitzt (in ios-058 erneut abgewogen und bestaetigt)
 
 ---
 
