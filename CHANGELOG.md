@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Automatische Abhängigkeits-Updates** - Dependabot schlägt einmal im Monat Updates für die Android-Abhängigkeiten und die GitHub-Actions-Workflows als gebündelte Pull Requests vor. AGP, Kotlin, KSP, Hilt und der Gradle-Wrapper kommen gemeinsam in einem Pull Request, weil sie zueinander passen müssen. iOS, die Fastlane-Gemfiles und die Website werden nicht überwacht. Für Nutzer ändert sich nichts. (Ticket: android-089)
 - **Abhängigkeiten aktualisiert** - Die ersten Dependabot-Updates sind übernommen: Kotlin, KSP und Gradle, JUnit 6 und mockito-kotlin 6, AndroidX- und Compose-Bibliotheken sowie die GitHub Actions. Die neuen AndroidX- und Compose-Versionen verlangen compileSdk 37. Die App wird deshalb jetzt gegen Android-API 37 kompiliert. targetSdk bleibt 36, damit das Hochformat auf Tablets und Foldables erhalten bleibt. Für Nutzer ändert sich nichts.
 
+### Fixed (iOS)
+- **Beim Import gewählte Gongs bleiben erhalten** - Im Bearbeiten-Blatt nach einem Import lassen sich „Gong am Anfang“ und „Gong am Ende“ einschalten und ein Klang wählen. Nach „Importieren“ war davon nichts mehr übrig: Die Meditation landete ohne Gong in der Bibliothek, beim Abspielen blieb es still, und beim erneuten Bearbeiten waren beide Schalter aus. Gespeichert wurden bisher nur Lehrer:in und Name. Jetzt werden die eingeschalteten Gongs und der gewählte Klang zusammen mit der Meditation gespeichert, bei jedem Import-Weg (Plus-Knopf, „Öffnen mit“ und Teilen, Link- und Podcast-Import). Wer beim Import nichts an den Gongs ändert, bekommt die Meditation wie bisher ohne Gong. Android war nicht betroffen. (Ticket: ios-062)
+
 ## [2.6.0] - 2026-10-09
 
 ### Added (iOS + Android)

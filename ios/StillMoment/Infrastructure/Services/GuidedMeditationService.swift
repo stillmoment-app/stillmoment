@@ -68,26 +68,12 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
         }
     }
 
-    func addMeditation(
-        from url: URL,
-        metadata: AudioMetadata,
-        teacher: String,
-        name: String
-    ) throws -> GuidedMeditation {
-        let meditationId = UUID()
+    func addMeditation(from url: URL, draft: GuidedMeditation) throws -> GuidedMeditation {
+        // Copy file to local storage, named after the draft's id
+        let localPath = try copyFileToMeditationsDirectory(from: url, meditationId: draft.id)
 
-        // Copy file to local storage
-        let localPath = try copyFileToMeditationsDirectory(from: url, meditationId: meditationId)
-
-        // Create meditation with caller-provided teacher/name (no fallbacks)
-        let meditation = GuidedMeditation(
-            id: meditationId,
-            localFilePath: localPath,
-            fileName: url.lastPathComponent,
-            duration: metadata.duration,
-            teacher: teacher,
-            name: name
-        )
+        // Persist the draft as-is, only with the path of the copied file
+        let meditation = draft.withLocalFilePath(localPath)
 
         self.meditations.append(meditation)
         try self.saveMeditations(self.meditations)

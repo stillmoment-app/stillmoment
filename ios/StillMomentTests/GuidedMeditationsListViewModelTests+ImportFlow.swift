@@ -153,6 +153,70 @@ extension GuidedMeditationsListViewModelTests {
         XCTAssertTrue(self.mockWaveformProvider.precomputedMeditationIds.isEmpty)
     }
 
+    // MARK: - Gong-Einstellungen beim Import (ios-062)
+
+    func testSaveImportedMeditationKeepsStartGongAndChosenSound() async {
+        // Given — im Import-Sheet Start-Gong eingeschaltet und Klang gewaehlt
+        let url = URL(fileURLWithPath: "/tmp/test.mp3")
+        await self.sut.importMeditation(from: url)
+        guard let draft = sut.meditationToEdit else {
+            XCTFail("Edit-Sheet sollte mit Draft geoeffnet sein")
+            return
+        }
+        var edited = draft
+        edited.startGongEnabled = true
+        edited.gongSoundId = "deep-resonance"
+
+        // When
+        self.sut.handleEditSheetSave(edited)
+
+        // Then — gespeichert wird genau der bearbeitete Entwurf, mit diesen Gong-Einstellungen
+        XCTAssertEqual(self.sut.meditations.count, 1)
+        XCTAssertEqual(self.sut.meditations.first?.id, draft.id)
+        XCTAssertEqual(self.sut.meditations.first?.startGongEnabled, true)
+        XCTAssertEqual(self.sut.meditations.first?.endGongEnabled, false)
+        XCTAssertEqual(self.sut.meditations.first?.gongSoundId, "deep-resonance")
+    }
+
+    func testSaveImportedMeditationKeepsEndGongAndChosenSound() async {
+        // Given — im Import-Sheet End-Gong eingeschaltet und Klang gewaehlt
+        let url = URL(fileURLWithPath: "/tmp/test.mp3")
+        await self.sut.importMeditation(from: url)
+        guard let draft = sut.meditationToEdit else {
+            XCTFail("Edit-Sheet sollte mit Draft geoeffnet sein")
+            return
+        }
+        var edited = draft
+        edited.endGongEnabled = true
+        edited.gongSoundId = "clear-strike"
+
+        // When
+        self.sut.handleEditSheetSave(edited)
+
+        // Then
+        XCTAssertEqual(self.sut.meditations.first?.startGongEnabled, false)
+        XCTAssertEqual(self.sut.meditations.first?.endGongEnabled, true)
+        XCTAssertEqual(self.sut.meditations.first?.gongSoundId, "clear-strike")
+    }
+
+    func testSaveImportedMeditationWithoutGongsKeepsDefaults() async {
+        // Given — Gong-Einstellungen im Import-Sheet unveraendert
+        let url = URL(fileURLWithPath: "/tmp/test.mp3")
+        await self.sut.importMeditation(from: url)
+        guard let draft = sut.meditationToEdit else {
+            XCTFail("Edit-Sheet sollte mit Draft geoeffnet sein")
+            return
+        }
+
+        // When
+        self.sut.handleEditSheetSave(draft)
+
+        // Then — wie bisher: keine Gongs, Standard-Klang
+        XCTAssertEqual(self.sut.meditations.first?.startGongEnabled, false)
+        XCTAssertEqual(self.sut.meditations.first?.endGongEnabled, false)
+        XCTAssertEqual(self.sut.meditations.first?.gongSoundId, GongSound.defaultSoundId)
+    }
+
     // MARK: - Helpers (file-local)
 
     private func makeTestMeditation(teacher: String, name: String) -> GuidedMeditation {
