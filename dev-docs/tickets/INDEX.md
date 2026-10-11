@@ -27,9 +27,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 ### iOS
 
-| Nr | Ticket | Phase | Status | Abhaengigkeit |
-|----|--------|-------|--------|---------------|
-| [ios-061](ios/ios-061-link-ohne-pfad-geht-verloren.md) | Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts | 1-Quick Fix | [ ] | - |
+_Keine Tickets._
 
 ### Android
 
@@ -231,6 +229,7 @@ _Keine Tickets._
 | [ios-058](archive/ios/ios-058-audio-tests-eigener-koordinator.md) | Audio-Tests arbeiten mit eigenem Audio-Koordinator | 5-QA | [x] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-059](archive/ios/ios-059-share-extension-im-app-stil.md) | Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert | 4-Polish | [x] | - |
 | [ios-060](archive/ios/ios-060-import-blatt-oeffnet-nicht-ausserhalb-bibliothek.md) | Import: Bearbeiten-Blatt öffnet nicht, wenn die App in einem anderen Tab steht | 1-Quick Fix | [x] | - |
+| [ios-061](archive/ios/ios-061-link-ohne-pfad-geht-verloren.md) | Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts | 1-Quick Fix | [x] | - |
 | [ios-062](archive/ios/ios-062-gong-einstellungen-beim-import-pruefen.md) | Gong-Einstellungen gehen beim Import verloren | 1-Quick Fix | [x] | - |
 | [ios-063](archive/ios/ios-063-release-automatisch-einreichen-phased.md) | iOS-Release ohne App Store Connect: automatisch einreichen | 2-Architektur | [x] | - |
 | [ios-064](archive/ios/ios-064-leerzeichen-lehrer-name-entfernen.md) | Leerzeichen am Rand von Lehrer:in und Name führen zu doppelten Gruppen | 1-Quick Fix | [x] | - |

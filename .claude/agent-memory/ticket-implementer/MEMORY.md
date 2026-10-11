@@ -41,7 +41,7 @@
 ## Layout-Bugs ohne Unit-Test
 
 - [iOS-Layout visuell verifizieren](feedback_ios_visual_verification.md) — Screenshots-Scheme seedet Fixtures, Simulator-Koordinaten sind Punkte (nicht Screenshot-Pixel), Vorher-Bild via gezieltem `git stash push -- <pfade>`.
-- [Eigener Simulator bei Parallel-Agenten](feedback_dedicated_simulator_parallel_agents.md) — `simctl create` Wegwerf-Sim statt gebooteten fremden; danach löschen.
+- [Eigener Simulator bei Parallel-Agenten](feedback_dedicated_simulator_parallel_agents.md) — `simctl create` Wegwerf-Sim; auch Unit-Tests per `TEST_DEVICE=` (fremde Testergebnisse sonst).
 - [Simulator-Verifikation einrichten](feedback_simulator_verification_setup.md) — App mit `-AppleLanguages "(de)"` starten (DE-only-Features); Hell/Dunkel kommt aus den App-Einstellungen; Lade-/Fehlerbild per gepatchtem Bundle; Share-Import per ShareInbox + `openurl`.
 - [tap_by_id trifft Offscreen-Elemente nicht](feedback_tap_by_id_offscreen.md) — meldet Erfolg auch bei y > Bildschirm; erst scrollen, dann tippen.
 - [Fester Kopf über ScrollView](feedback_fixed_header_scrollview.md) — `VStack { kopf; ScrollView }` statt `.safeAreaInset`; nur `List` clippt am Kopf.
