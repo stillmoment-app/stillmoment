@@ -49,6 +49,12 @@ Ein eigener Test-Speicher behebt beides an einer Stelle. Er schont außerdem die
 
 ---
 
+## Nachweise
+
+- **Release-Schalter (2026-10-11):** `make build-release`, danach `strings -a` auf `Release-iphoneos/StillMoment.app/StillMoment`: `-UseTestStorage`, `StillMomentTestStorage` und `XCTestCase` kommen nicht vor. Gegenprobe: Debug-Build enthält `-UseTestStorage`, das Release-Binary enthält `-DisablePreparation`.
+
+---
+
 ## Hinweise
 
 - Recherche und Quellen: [ios-ui-test-isolation.md](../../concepts/ios-ui-test-isolation.md). Empfehlung, kein Lösungszwang:
