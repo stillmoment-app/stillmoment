@@ -451,7 +451,7 @@ Physisches Geraet erforderlich. Kritische Szenarien:
 - Gesperrter Bildschirm waehrend Vorbereitungszeit: App bleibt wach?
 - Gesperrter Bildschirm waehrend stiller Meditation: Background Audio funktioniert?
 - Tab-Wechsel waehrend Playback: Koordination funktioniert?
-- Telefonanruf-Unterbrechung: Timer laeuft nach Anruf weiter?
+- Telefonanruf-Unterbrechung: Timer laeuft nach Anruf weiter, Hintergrundklang wieder da, Restzeit stimmt? Anruf waehrend Start-Gong (danach Klang und Intervall-Gongs) und waehrend End-Gong (Abschlussansicht, kein Ton mehr)?
 - Anruf waehrend gefuehrter Meditation (gesperrt; ignoriert, angenommen, waehrend des Start-Gongs): laeuft danach von selbst weiter bzw. Vorlauf beginnt neu?
 - Lock Screen Controls fuer Guided Meditations sichtbar?
 

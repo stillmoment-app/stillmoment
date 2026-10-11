@@ -2,8 +2,8 @@
 id: shared-147
 title: "Timer läuft nach einer Unterbrechung vollständig weiter"
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []
@@ -60,6 +60,13 @@ Anrufe lassen sich im Simulator bzw. Emulator nicht zuverlässig auslösen. Pro 
 - Gleiche Regel wie für die geführte Meditation (shared-146): Eine Unterbrechung hält den Ton an; gibt das System ihn wieder frei, läuft weiter, was lief. Keine Anruf-Erkennung, keine zusätzliche Berechtigung.
 - Die geführte Meditation löst das Problem des unterbrochenen Start-Gongs bereits (shared-143): Dort gilt ein unterbrochener Gong als beendet.
 - Erst die Verdachtsfälle mit Tests belegen, die fehlschlagen; was sich nicht bestätigt, im Ticket vermerken.
+
+### Befunde der Umsetzung
+
+Per fehlschlagendem Unit-Test belegt, nicht am Gerät:
+- **iOS:** Alle drei Verdachtsfälle bestätigt. Start- und End-Gong meldeten nach einer Unterbrechung kein Ende; der Hintergrundklang pausierte nicht und kam nicht wieder. Zusätzlich: Die Restzeit ging um die Dauer verloren, in der iOS die App angehalten hatte (der Timer zählte Takte statt Zeit).
+- **Android:** Hintergrundklang bleibt nach dem Anruf aus: bestätigt. Timer hängt im Start- oder End-Gong: nicht bestätigt; die Gongs liefen bisher weiter und meldeten ihr Ende. Zusätzlich gefunden: Endete der Start-Gong während eines Anrufs, verweigerte Android den Ton, die App zeigte „Klang konnte nicht abgespielt werden“, und der Hintergrundklang fehlte die ganze Sitzung. Gongs klangen in den Anruf hinein.
+- **Beide Plattformen:** Nach einem dauerhaften Verlust des Tons (eine andere App spielt Musik) bleibt der Timer bis zum Ende still, auch ohne End-Gong; er zählt weiter, und die Abschlussansicht erscheint.
 
 ---
 
