@@ -18,6 +18,11 @@ extension AudioService {
     var isKeepAliveActive: Bool {
         self.keepAlivePlayer?.isPlaying ?? false
     }
+
+    /// Whether the timer's background sound is currently playing. Used for diagnostics and testing.
+    var isBackgroundAudioPlaying: Bool {
+        self.backgroundAudioPlayer?.isPlaying ?? false
+    }
 }
 
 // MARK: - Keep-Alive Audio

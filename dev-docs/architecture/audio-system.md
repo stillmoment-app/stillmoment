@@ -127,7 +127,7 @@ Das gleiche Pattern existiert fuer Guided Meditations:
 Audio-Player-Delegates (`GongPlayerDelegate`) feuern auch bei `successfully: false`, wenn die Wiedergabe
 fehlerhaft endet. Bei einer Audio-Unterbrechung feuern sie dagegen **nicht**: `AVAudioPlayer` pausiert dann nur.
 Wer nicht haengen bleiben darf, beobachtet Unterbrechungen selbst, so `MeditationGongPlayer` fuer Start- und
-End-Gong der gefuehrten Meditation (shared-143).
+End-Gong der gefuehrten Meditation (shared-143) und `AudioService` fuer die Gongs des Timers (shared-147).
 
 ---
 
@@ -218,8 +218,16 @@ hat das System den Ton bereits angehalten. Timer und gefuehrte Meditation reagie
 
 | Event | Timer (`AudioService`) | Gefuehrte Meditation (`AudioPlayerService`) |
 |-------|------------------------|---------------------------------------------|
-| `.began` | Nur Log | Laufende Wiedergabe → `.paused` (auch Now-Playing-Rate 0); `.finished`/`.idle` bleiben. Meldet `interruptionBegan` an das ViewModel. Mit `AVAudioSessionInterruptionWasSuspendedKey` ignoriert |
-| `.ended` | Keep-Alive neu starten, wenn `timerSessionActive` (unabhaengig von `.shouldResume`) | Bei `.shouldResume` setzt eine Wiedergabe, die die Unterbrechung pausiert hat, an derselben Stelle fort (Now-Playing-Rate 1); `interruptionEnded` geht ans ViewModel. Ohne `.shouldResume` passiert nichts |
+| `.began` | Ein klingender Start-, Intervall- oder End-Gong gilt als beendet: `gongCompletionPublisher` meldet sein Ende genau einmal. Hintergrundklang pausiert. Mit `AVAudioSessionInterruptionWasSuspendedKey` ignoriert | Laufende Wiedergabe → `.paused` (auch Now-Playing-Rate 0); `.finished`/`.idle` bleiben. Meldet `interruptionBegan` an das ViewModel. Mit `AVAudioSessionInterruptionWasSuspendedKey` ignoriert |
+| `.ended` | Keep-Alive neu starten, wenn `timerSessionActive` (unabhaengig von `.shouldResume`). Bei `.shouldResume` blendet der Hintergrundklang wieder ein | Bei `.shouldResume` setzt eine Wiedergabe, die die Unterbrechung pausiert hat, an derselben Stelle fort (Now-Playing-Rate 1); `interruptionEnded` geht ans ViewModel. Ohne `.shouldResume` passiert nichts |
+
+**Timer (shared-147, iOS):** Gleiche Regel wie bei der gefuehrten Meditation. Ein Gong haelt den Ablauf nie an:
+Er meldet sein Ende, wenn er ausklingt, unterbrochen wird oder nicht starten kann (`play()` liefert `false`,
+z. B. weil die Session waehrend eines Anrufs nicht aktiv werden kann). Unterbrochene Gongs klingen nicht nach;
+ein Intervall-Gong, der in die Unterbrechung faellt, entfaellt. Der Hintergrundklang laeuft genau dann, wenn
+`backgroundAudioPlayer` existiert; bei Freigabe blendet er ein (auch wenn er waehrend der Unterbrechung haette
+starten sollen), ohne Freigabe bleibt er bis zum Ende der Sitzung aus. Die Restzeit holt `TimerService` nach
+der Uhr nach, falls iOS die App waehrend der Unterbrechung suspendiert hat (siehe `timer-state-machine.md`).
 
 **Gefuehrte Meditation (shared-146):** Eine Unterbrechung haelt den Ton an; gibt das System ihn wieder frei
 (`.shouldResume`), laeuft weiter, was lief. Keine Unterscheidung zwischen angenommenem und ignoriertem Anruf.

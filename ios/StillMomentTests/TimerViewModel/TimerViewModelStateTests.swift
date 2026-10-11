@@ -88,4 +88,27 @@ final class TimerViewModelStateTests: XCTestCase {
 
         wait(for: [expectation], timeout: 2.0)
     }
+
+    func testStartGongEnd_beginsMeditationWithBackgroundSound() {
+        // Given - the start gong rings
+        let expectation = expectation(description: "Meditation begins")
+        self.sut.startTimer()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            XCTAssertEqual(self.sut.timerState, .startGong)
+
+            // When - the gong ends (rang out, interrupted or could not start — shared-147)
+            self.mockAudioService.gongCompletionSubject.send()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                // Then - the meditation begins with its background sound
+                XCTAssertTrue(self.mockTimerService.beginRunningPhaseCalled)
+                XCTAssertEqual(self.sut.timerState, .running)
+                XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 2.0)
+    }
 }

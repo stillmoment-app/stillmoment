@@ -16,7 +16,8 @@ extension AudioService {
     /// several audio sources meet must pass the same coordinator to each of them.
     static func makeForTesting(
         coordinator: AudioSessionCoordinatorProtocol = AudioSessionCoordinator(),
-        fadeOutDuration: TimeInterval = 0.5
+        fadeOutDuration: TimeInterval = 0.5,
+        notificationCenter: NotificationCenter = .default
     ) -> AudioService {
         let soundRepository = BackgroundSoundRepository()
         return AudioService(
@@ -26,7 +27,8 @@ extension AudioService {
                 soundRepository: soundRepository,
                 customAudioRepository: MockCustomAudioRepository()
             ),
-            fadeOutDuration: fadeOutDuration
+            fadeOutDuration: fadeOutDuration,
+            notificationCenter: notificationCenter
         )
     }
 }

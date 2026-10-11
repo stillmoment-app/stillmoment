@@ -105,12 +105,15 @@ final class TimerService: TimerServiceProtocol {
     private var systemTimer: AnyCancellable?
     private var currentTimer: MeditationTimer?
     private var intervalSettings: IntervalSettings?
+    /// Clock time the timer has counted up to — seconds beyond it are still to be counted
+    private var lastTickAt = Date()
 
     // MARK: - Private Methods
 
     private func startSystemTimer() {
         self.stopSystemTimer() // Ensure no duplicate timers
 
+        self.lastTickAt = self.clock.now()
         self.systemTimer = self.clock.schedule(interval: 1.0) { [weak self] in
             self?.tick()
         }
@@ -133,7 +136,7 @@ final class TimerService: TimerServiceProtocol {
             return
         }
 
-        let (updatedTimer, events) = timer.tick(intervalSettings: self.intervalSettings)
+        let (updatedTimer, events) = self.tickElapsedSeconds(from: timer)
         self.currentTimer = updatedTimer
         self.timerSubject.send((updatedTimer, events))
 
@@ -156,5 +159,28 @@ final class TimerService: TimerServiceProtocol {
             Logger.timer.info("Timer completed")
             self.stopSystemTimer()
         }
+    }
+
+    /// Counts every second that passed since the last tick — normally exactly one. More when
+    /// ticks were missed, e.g. while iOS suspended the app during a phone call: the timer keeps
+    /// counting by the clock (shared-147). Rounding keeps tick jitter below half a second at one
+    /// second. Interval gongs due inside the gap are dropped; only the current second may bring one.
+    private func tickElapsedSeconds(from timer: MeditationTimer) -> (MeditationTimer, [TimerEvent]) {
+        let elapsed = self.clock.now().timeIntervalSince(self.lastTickAt)
+        let seconds = max(1, Int(elapsed.rounded()))
+        self.lastTickAt = self.lastTickAt.addingTimeInterval(TimeInterval(seconds))
+
+        var current = timer
+        var events: [TimerEvent] = []
+        for second in 1...seconds {
+            let (next, secondEvents) = current.tick(intervalSettings: self.intervalSettings)
+            current = next
+            events += second == seconds ? secondEvents : secondEvents.filter { $0 != .intervalGongDue }
+            // From here the timer waits for the end gong
+            if current.state == .endGong {
+                break
+            }
+        }
+        return (current, events)
     }
 }
