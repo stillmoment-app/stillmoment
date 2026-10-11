@@ -11,6 +11,9 @@ depends_on: [ios-065]
 
 # Ticket shared-146: Geführte Meditation läuft nach einer Unterbrechung von selbst weiter
 
+**Plan iOS**: `dev-docs/tickets/plans/shared-146-ios.md`
+**Plan Android**: `dev-docs/tickets/plans/shared-146-android.md`
+
 ## Was
 
 **Beobachtet:** Nach einem Anruf (oder Siri, einem Wecker) bleibt eine geführte Meditation pausiert, bis man auf Play tippt. Das gilt auf iOS seit ios-065 und auf Android schon länger. Kommt der Anruf während Vorbereitungszeit, Start-Gong oder Atempause, wartet der Player auf iOS pausiert am Anfang. Auf Android läuft der Vorlauf vermutlich weiter und startet die Meditation mitten im Anruf; das ist nur aus dem Code abgeleitet, nicht am Gerät beobachtet.
