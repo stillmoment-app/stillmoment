@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -157,7 +158,7 @@ private fun Modifier.dialAccessibilityModifier(value: Int, onValueChange: (Int) 
     val currentValue by rememberUpdatedState(value)
     val currentOnChange by rememberUpdatedState(onValueChange)
     val dialLabel = stringResource(R.string.accessibility_dial_label)
-    val dialState = stringResource(R.string.accessibility_dial_value, value)
+    val dialState = pluralStringResource(R.plurals.accessibility_dial_value, value, value)
     return this.semantics {
         contentDescription = dialLabel
         stateDescription = dialState
@@ -303,10 +304,11 @@ private fun DialCenterText(value: Int, diameter: Dp) {
             modifier = Modifier.testTag("timer.dial.value"),
         )
         Text(
-            text = TextStyle.eyebrow.applyCase(stringResource(R.string.timer_dial_unit)),
+            text = TextStyle.eyebrow.applyCase(minuteUnit(value)),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
+            modifier = Modifier.testTag("timer.dial.unit"),
         )
     }
 }
