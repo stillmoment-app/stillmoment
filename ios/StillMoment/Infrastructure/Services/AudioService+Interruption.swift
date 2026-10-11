@@ -52,26 +52,60 @@ extension AudioService {
     /// never waits for it; the gong is not played again afterwards (shared-147).
     private func handleInterruptionBegan() {
         Logger.audio.info("Audio interruption began")
+        self.timerInterrupted = true
         self.backgroundAudioPlayer?.pause()
         self.finishTimerGong()
     }
 
-    /// Keep-alive comes back whenever a timer session is active — timerSessionActive is false
-    /// after a reset, the end of the timer or a takeover by another source, so nothing restarts
-    /// then. The background sound only comes back when the system gives the sound back.
+    /// Every end of an interruption lets gongs sound again. Keep-alive comes back whenever a
+    /// timer session is active — timerSessionActive is false after a reset, the end of the timer
+    /// or a takeover by another source, so nothing restarts then. The background sound only
+    /// comes back when the system gives the sound back; otherwise it stays off.
     private func handleInterruptionEnded(soundGivenBack: Bool) {
         Logger.audio.info("Audio interruption ended", metadata: ["shouldResume": "\(soundGivenBack)"])
+        let pending = self.pendingBackgroundAudio
+        self.clearInterruption()
         guard self.timerSessionActive else {
             return
         }
         self.restartKeepAliveAfterInterruption()
-        if soundGivenBack {
+        guard soundGivenBack else {
+            return
+        }
+        if let pending {
+            self.startPendingBackgroundAudio(soundId: pending.soundId, volume: pending.volume)
+        } else {
             self.resumeBackgroundAudioAfterInterruption()
         }
     }
 
-    /// Fades the background sound back in. Also covers a sound that was meant to start
-    /// during the interruption but could not.
+    /// Forgets the interruption — at its end and whenever the timer stops or its session ends
+    func clearInterruption() {
+        self.timerInterrupted = false
+        self.pendingBackgroundAudio = nil
+    }
+
+    /// While an interruption lasts, a start or end gong is not played and counts as over at once,
+    /// so the timer goes on without it (shared-147).
+    func playStartOrEndGong(soundId: String, volume: Float) throws {
+        guard !self.timerInterrupted else {
+            Logger.audio.info("Gong skipped during interruption, counts as finished")
+            self.gongCompletionSubject.send()
+            return
+        }
+        try self.playGongSound(soundId: soundId, volume: volume)
+    }
+
+    /// Starts the background sound that became due during the interruption
+    private func startPendingBackgroundAudio(soundId: String, volume: Float) {
+        do {
+            try self.startBackgroundAudio(soundId: soundId, volume: volume)
+        } catch {
+            Logger.audio.error("Failed to start background audio after interruption", error: error)
+        }
+    }
+
+    /// Fades the background sound back in that the interruption paused
     private func resumeBackgroundAudioAfterInterruption() {
         guard let player = self.backgroundAudioPlayer, !player.isPlaying else {
             return

@@ -31,4 +31,14 @@ extension AudioService {
             notificationCenter: notificationCenter
         )
     }
+
+    /// Whether the timer's background sound is currently playing
+    var isBackgroundAudioPlaying: Bool {
+        self.backgroundAudioPlayer?.isPlaying ?? false
+    }
+
+    /// Whether a start, interval or end gong of the timer is currently playing
+    var isTimerGongPlaying: Bool {
+        self.audioPlayer?.isPlaying ?? false
+    }
 }

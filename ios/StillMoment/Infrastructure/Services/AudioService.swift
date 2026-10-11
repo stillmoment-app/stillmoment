@@ -100,6 +100,7 @@ final class AudioService: AudioServiceProtocol {
     /// This is the ONLY place where keep-alive is stopped during a timer lifecycle.
     func deactivateTimerSession() {
         self.timerSessionActive = false
+        self.clearInterruption()
         self.stopKeepAliveAudio()
         self.coordinator.releaseAudioSession(for: .timer)
         Logger.audio.info("Timer session deactivated")
@@ -113,13 +114,17 @@ final class AudioService: AudioServiceProtocol {
             return
         }
         // Audio session is already active via activateTimerSession()
-        try self.playGongSound(soundId: soundId, volume: volume)
+        try self.playStartOrEndGong(soundId: soundId, volume: volume)
     }
 
     func playIntervalGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing interval gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
         if soundId == GongSound.vibrationId {
             AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            return
+        }
+        guard !self.timerInterrupted else {
+            Logger.audio.info("Interval gong dropped during interruption")
             return
         }
         // Audio session is already active via activateTimerSession()
@@ -212,6 +217,12 @@ final class AudioService: AudioServiceProtocol {
     func startBackgroundAudio(soundId: String, volume: Float) throws {
         Logger.audio.info("Starting background audio", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
+        guard !self.timerInterrupted else {
+            Logger.audio.info("Background audio deferred until the interruption ends")
+            self.pendingBackgroundAudio = (soundId, volume)
+            return
+        }
+
         // Keep-alive runs in parallel — no need to stop it. The silent audio at very low volume
         // (see AudioService+KeepAlive.swift) does not interfere with background audio. See shared-059.
 
@@ -220,6 +231,7 @@ final class AudioService: AudioServiceProtocol {
     }
 
     func stopBackgroundAudio() {
+        self.pendingBackgroundAudio = nil
         guard self.backgroundAudioPlayer != nil else {
             return
         }
@@ -237,13 +249,14 @@ final class AudioService: AudioServiceProtocol {
             return
         }
         // Audio session is still active — deactivateTimerSession() is called after completion
-        try self.playGongSound(soundId: soundId, volume: volume)
+        try self.playStartOrEndGong(soundId: soundId, volume: volume)
     }
 
     func stop() {
         Logger.audio.debug("Stopping all audio playback")
         // A stopped gong reports no end — the timer is being reset or torn down
         self.timerGongRinging = false
+        self.clearInterruption()
         self.audioPlayer?.stop()
         self.audioPlayer = nil
         self.stopBackgroundAudio()
@@ -303,6 +316,12 @@ final class AudioService: AudioServiceProtocol {
     /// Whether a start, interval or end gong of the timer is ringing and has not reported its end yet
     var timerGongRinging = false
 
+    /// Whether an interruption (phone call, Siri, alarm) silences the timer right now
+    var timerInterrupted = false
+
+    /// Background sound that became due during an interruption; starts when the sound is given back
+    var pendingBackgroundAudio: (soundId: String, volume: Float)?
+
     // MARK: - Private Methods
 
     /// Parses a filename into name and extension components
@@ -356,7 +375,7 @@ private extension AudioService {
 
 // MARK: - Gong Playback
 
-private extension AudioService {
+extension AudioService {
     func playGongSound(soundId: String, volume: Float, isPreview: Bool = false) throws {
         let gongSound = GongSound.findOrDefault(byId: soundId)
         let (name, ext) = self.parseFilename(gongSound.filename)
@@ -429,6 +448,7 @@ private extension AudioService {
     func cleanupTimerPlayers() {
         self.timerSessionActive = false
         self.timerGongRinging = false
+        self.clearInterruption()
         self.audioPlayer?.stop()
         self.audioPlayer = nil
         self.backgroundAudioPlayer?.stop()

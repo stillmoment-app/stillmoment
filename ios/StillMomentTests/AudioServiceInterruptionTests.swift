@@ -209,12 +209,12 @@ final class AudioServiceInterruptionTests: XCTestCase {
         XCTAssertFalse(self.sut.isKeepAliveActive)
     }
 
-    // MARK: Private
+    // MARK: Helpers
 
     /// A bundled background sound that actually plays (not "silent")
-    private static let audibleSoundId = "forest"
+    static let audibleSoundId = "forest"
 
-    private func postInterruptionBegan(wasSuspended: Bool = false) async {
+    func postInterruptionBegan(wasSuspended: Bool = false) async {
         var userInfo: [AnyHashable: Any] = [
             AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue
         ]
@@ -224,7 +224,7 @@ final class AudioServiceInterruptionTests: XCTestCase {
         await self.postInterruption(userInfo: userInfo)
     }
 
-    private func postInterruptionEnded(shouldResume: Bool) async {
+    func postInterruptionEnded(shouldResume: Bool) async {
         let options: AVAudioSession.InterruptionOptions = shouldResume ? .shouldResume : []
         await self.postInterruption(userInfo: [
             AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
@@ -232,7 +232,7 @@ final class AudioServiceInterruptionTests: XCTestCase {
         ])
     }
 
-    private func postInterruption(userInfo: [AnyHashable: Any]) async {
+    func postInterruption(userInfo: [AnyHashable: Any]) async {
         self.notificationCenter.post(
             name: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance(),

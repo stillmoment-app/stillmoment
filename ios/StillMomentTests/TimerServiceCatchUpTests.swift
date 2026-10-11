@@ -121,6 +121,32 @@ final class TimerServiceCatchUpTests: XCTestCase {
         XCTAssertEqual(self.lastTimer?.remainingSeconds, 598)
     }
 
+    func testDeviceTimeChanged_remainingTimeUnchanged() {
+        // Given
+        self.startRunning(durationMinutes: 10)
+
+        // When: the device clock jumps an hour ahead, then one second passes
+        self.mockClock.changeWallClock(by: 3600)
+        self.mockClock.tick()
+
+        // Then: only that one second counts
+        XCTAssertEqual(self.lastTimer?.remainingSeconds, 599)
+        XCTAssertEqual(self.lastTimer?.state, .running)
+    }
+
+    func testGapCoversPreparationAndWholeMeditation_onlyTheEndIsReported() {
+        // Given: 1-minute meditation with 5 seconds preparation
+        self.sut.start(durationMinutes: 1, preparationTimeSeconds: 5, intervalSettings: nil)
+
+        // When: two minutes pass without a tick
+        self.mockClock.advanceTime(by: 120)
+        self.mockClock.tick()
+
+        // Then: no start gong that the end gong would cut off — only the end
+        XCTAssertEqual(self.allEvents, [.meditationCompleted])
+        XCTAssertEqual(self.lastTimer?.state, .endGong)
+    }
+
     // MARK: Private
 
     private var lastTimer: MeditationTimer? {
