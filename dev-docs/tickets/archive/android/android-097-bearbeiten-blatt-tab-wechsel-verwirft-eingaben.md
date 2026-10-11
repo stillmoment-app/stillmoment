@@ -1,7 +1,7 @@
 ---
 id: android-097
 title: "Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage"
-status: todo
+status: wontfix
 phase: 4-Polish
 priority: niedrig
 depends_on: []
@@ -29,6 +29,10 @@ Wer beim Nachtragen von Titel oder Lehrer:in kurz in einen anderen Tab schaut, v
 - [ ] Ohne Änderungen wechselt der Tab wie bisher ohne Rückfrage
 
 ---
+
+## WONTFIX
+
+2026-10-11 Produktentscheidung: kein Handlungsbedarf. Ein Tab-Wechsel mitten im Bearbeiten ist selten, verloren gehen nur schnell neu eingetragene Angaben, und eine Rückfrage beim Tab-Wechsel wäre zusätzliche Reibung. Das gilt auch für den Import-Weg.
 
 ## Manueller Test
 
