@@ -1,7 +1,7 @@
 ---
 id: ios-058
 title: Audio-Tests arbeiten mit eigenem Audio-Koordinator
-status: in-progress
+status: done
 phase: 5-QA
 priority: niedrig
 depends_on: [ios-055]
