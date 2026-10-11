@@ -9,7 +9,7 @@
 - [assumeTrue = Failure in connected-Tests](feedback_android_connected_assume_is_failure.md) — Opt-in-androidTests per `notClass`-Runner-Argument ausschließen; DataStore läuft im JVM-Test.
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
-- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*.
+- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*; "app died" = fremder Testlauf, freien Emulator nehmen; MP3 per run-as in den Cache + file://-VIEW.
 - [Screengrab-Einzeltest: Sprachmix](project_android_screengrab_single_test_locale.md) — Einzelner Screenshot-Test liefert DE-UI mit EN-Quellen; Store-Bilder nur über vollen Lauf.
 - [Doppelte Scaffold-Insets auf Android-Tabs](project_android_double_scaffold_insets.md) — innere Scaffold zieht Status-/Systemleiste nochmal ab (~65-70 dp); Timer gefixt, Library nicht.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
@@ -53,6 +53,7 @@
 ## iOS Build, Lint, Tests
 
 - [BUILD_FAILED ohne error: = Runner-Bootstrap-Crash](feedback_ios_test_runner_bootstrap_crash.md) — Simulator-Flake bei parallelen Sims; einmal neu laufen lassen. Auch: PASS mit winzigem TOTAL + Error 65.
+- [Rote Tests hängen 10 min (simctl diagnose)](feedback_xcodebuild_diagnose_hang.md) — Kindprozess des eigenen xcodebuild beenden; echte Share Extension per Dateien-App bedienen.
 - [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen. Android: `FAIL` mit alten Zahlen = Compile-Fehler.
 - [iOS-Agent-Testausgabe zählt Assertions](feedback_ios_agent_test_output_counts.md) — FAILED = fehlgeschlagene Assertions, nicht Tests; Liste gekürzt; bootstatus umleiten.
 - [SwiftLint --strict: max. 5 Parameter](feedback_ios_swiftlint_strict_param_count.md) — `make check` macht Warnungen zu Fehlern; mehr als 5 Parameter scheitert, Domain-Modell/Value Object übergeben statt Android-Signatur 1:1 portieren.

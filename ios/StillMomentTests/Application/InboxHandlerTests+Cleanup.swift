@@ -114,4 +114,58 @@ extension InboxHandlerTests {
         XCTAssertEqual(result, .empty)
         XCTAssertNil(self.sut.downloadError)
     }
+
+    // MARK: - Stale Entry Cleanup
+
+    func testEntriesOlderThan24HoursAreCleanedUp() async {
+        // Given - a single entry older than 24 hours
+        let staleFilename = "\(UUID().uuidString)_stale.mp3"
+        let staleURL = self.inboxDirectory.appendingPathComponent(staleFilename)
+        FileManager.default.createFile(atPath: staleURL.path, contents: Data(repeating: 0xCC, count: 50))
+        try? FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-25 * 3600)],
+            ofItemAtPath: staleURL.path
+        )
+
+        // When
+        let result = await self.sut.processInbox()
+
+        // Then - stale entry removed, inbox effectively empty
+        XCTAssertEqual(result, .empty, "Stale entries should be cleaned up and not processed")
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: staleURL.path),
+            "Stale entry should be deleted"
+        )
+    }
+
+    func testStaleEntriesCleanedUpWhileNewestIsProcessed() async {
+        // Given - one stale entry and one fresh entry
+        let staleURL = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_stale.mp3")
+        let freshURL = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_fresh.mp3")
+        FileManager.default.createFile(atPath: staleURL.path, contents: Data(repeating: 0xCC, count: 50))
+        try? FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-25 * 3600)],
+            ofItemAtPath: staleURL.path
+        )
+        FileManager.default.createFile(atPath: freshURL.path, contents: Data(repeating: 0xDD, count: 50))
+
+        // When
+        let result = await self.sut.processInbox()
+
+        // Then - fresh entry processed (imported + cleaned up), stale entry deleted
+        if case .audioFile = result {
+            XCTAssertFalse(
+                FileManager.default.fileExists(atPath: staleURL.path),
+                "Stale entry should be deleted"
+            )
+            XCTAssertFalse(
+                FileManager.default.fileExists(atPath: freshURL.path),
+                "Fresh entry should be taken out of the inbox for import"
+            )
+            // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
+            XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
+        } else {
+            XCTFail("Expected .audioFile result, got \(result)")
+        }
+    }
 }

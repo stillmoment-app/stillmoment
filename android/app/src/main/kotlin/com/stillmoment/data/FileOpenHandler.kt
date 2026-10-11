@@ -147,7 +147,11 @@ constructor(
         }
     }
 
-    private fun getFileName(uri: Uri): String {
+    /**
+     * Display name of the file. Together with [getFileSize] it tells whether a
+     * file handed over again is the same file (duplicate check, shared-138).
+     */
+    fun getFileName(uri: Uri): String {
         // Android 7+: ContentResolver.query() returns null for file:// URIs.
         // Read the filename directly from the path instead.
         if (uri.scheme == "file") {
@@ -165,7 +169,8 @@ constructor(
         return fileName
     }
 
-    private fun getFileSize(uri: Uri): Long? {
+    /** Size of the file in bytes, or `null` when the providing app does not tell. */
+    fun getFileSize(uri: Uri): Long? {
         return try {
             queryFileSize(uri)
         } catch (e: SecurityException) {

@@ -441,13 +441,26 @@ Ob unter einer Webadresse wirklich Audio liegt, prüft erst die App beim Link-Im
 liegt im Domain-Ordner der App, damit er testbar ist, wird aber nur von der Share-Extension
 benutzt. Android braucht ihn nicht: Dort öffnet sich beim Teilen direkt die App.
 
-Mehrfaches Teilen ist nie ein Fehler: Der zuletzt geteilte Eintrag gewinnt. Die Extension legt
-einen Eintrag unter dem Namen der Datei bzw. dem letzten Teil der Adresse in der Inbox ab und
-ersetzt dabei einen gleichnamigen, der noch wartet (derselbe Link oder dieselbe Datei doppelt,
-oder `…/25401/download` und danach `…/25402/download`). Verschieden benannte Einträge räumt die
-App auf: Sie importiert nur den neuesten. Android folgt derselben Regel ohne Inbox: Ein neu
-geteilter Link löst einen noch ladenden ab, derselbe Link wird nicht zweimal geladen
-(`SharedLinkImport`, shared-132).
+Mehrfaches Teilen ist nie ein Fehler: Unter mehreren wartenden Einträgen gewinnt der zuletzt
+geteilte (shared-132). Die Extension legt eine Datei unter ihrem Namen in der Inbox ab (dieselbe
+Datei doppelt ersetzt die wartende), einen Link als eigenen Eintrag (`<UUID>.json`, der Dateiname
+für den Download steht im JSON). Die App nimmt nur den neuesten Eintrag und räumt die übrigen auf.
+
+**Wartender Eintrag** (EN *waiting share*, shared-138): Was die App begonnen hat, führt sie zu
+Ende. Solange ein Import offen ist (er lädt, ein Bearbeiten-Blatt ist offen, auch das einer
+vorhandenen Meditation, oder seine Meldung steht), wird ein neu geteilter Eintrag nicht
+übernommen, sondern wartet. Er startet von selbst, sobald der Import endet: Blatt gespeichert
+oder verworfen, Meldung geschlossen, „Abbrechen“ im Ladefenster. „Erneut versuchen“ setzt den
+begonnenen Import fort. Es wartet höchstens ein Eintrag. Derselbe Eintrag (Link mit gleicher
+Adresse, Datei mit gleichem Namen und gleicher Größe), erneut geteilt solange er läuft, wird
+ignoriert; erst danach erneut geteilt, erscheint „Schon da“. „Öffnen in“ / „Öffnen mit“ zählt
+wie Teilen.
+- iOS: Die Inbox enthält nur wartende Einträge; der laufende wird beim Start nach
+  `tmp/share_<UUID>/` übernommen. Regel in `InboxHandler` (`hasOpenImport`), Dateisystem in
+  `InboxDirectory`.
+- Android: `SharedEntryGate` (ActivityRetained-Scope) entscheidet, wann ein Eintrag startet;
+  `SharedImportViewModel` startet ihn, `SharedLinkImport` und `GuidedMeditationsListViewModel`
+  melden Beginn und Ende des Imports.
 
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/ShareOutcome.swift` (Mitglied auch im Extension-Target),

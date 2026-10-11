@@ -52,7 +52,8 @@ final class InboxHandlerImportFailureTests: XCTestCase {
             downloadService: self.mockDownloadService,
             episodeResolver: MockPodcastEpisodeResolver(),
             fileManager: .default,
-            inboxDirectoryURL: self.inboxDirectory
+            inboxDirectoryURL: self.inboxDirectory,
+            isEditorOpen: InboxHandlerTests.noEditorOpen
         )
     }
 

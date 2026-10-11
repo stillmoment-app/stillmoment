@@ -66,12 +66,10 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.stillmoment.R
 import com.stillmoment.data.FileOpenHandler
-import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.GuidedMeditation
-import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.presentation.ui.common.DownloadProgressModal
 import com.stillmoment.presentation.ui.common.LinkImportErrorDialog
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
@@ -93,7 +91,8 @@ import com.stillmoment.presentation.viewmodel.CompletionOverlayViewModel
 import com.stillmoment.presentation.viewmodel.FontAttributionsViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
-import com.stillmoment.presentation.viewmodel.SharedLinkImportViewModel
+import com.stillmoment.presentation.viewmodel.SharedImport
+import com.stillmoment.presentation.viewmodel.SharedImportViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -214,7 +213,7 @@ fun StillMomentNavHost(
     onClearInvalidShareSignal: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
     overlayViewModel: CompletionOverlayViewModel = hiltViewModel(),
-    linkImportViewModel: SharedLinkImportViewModel = hiltViewModel()
+    sharedImportViewModel: SharedImportViewModel = hiltViewModel()
 ) {
     var showCompletionOverlay by remember { mutableStateOf(overlayViewModel.isMarkerSetInitially) }
     val playerWiring = remember(overlayViewModel, navController) {
@@ -235,22 +234,21 @@ fun StillMomentNavHost(
         selectedAppearanceMode = selectedAppearanceMode,
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
-    val pendingMeditationImportUri = remember { MutableStateFlow<SharedImport?>(null) }
     val stopMeditationSignal = remember { MutableStateFlow(false) }
     // shared-081: Der Dauer-Filter faellt nur beim Tab-Wechsel, nicht beim Player-Ausflug.
     // ON_PAUSE des Library-Eintrags feuert in beiden Faellen und taugt deshalb nicht —
     // dieses Signal unterscheidet die beiden. Gleiches Muster wie stopMeditationSignal.
     val libraryFilterResetSignal = remember { MutableStateFlow(false) }
-    val sharedLinkImport = linkImportViewModel.linkImport
+    val sharedLinkImport = sharedImportViewModel.linkImport
     val isDownloading by sharedLinkImport.isLoading.collectAsState()
 
-    ImportedLinkEffect(
-        importedLink = linkImportViewModel.importedLink,
-        onConsume = linkImportViewModel::consumeImportedLink,
-        onImport = { imported ->
+    SharedImportHandoverEffect(
+        handover = sharedImportViewModel.handover,
+        navController = navController,
+        onHandover = {
             stopMeditationSignal.value = true
             playerWiring.onSessionInterrupted()
-            pendingMeditationImportUri.value = imported
+            scope.launch { settingsDataStore.setSelectedTab(AppTab.LIBRARY) }
         }
     )
 
@@ -259,29 +257,19 @@ fun StillMomentNavHost(
         pendingFileUri = pendingFileUri,
         onClearFileUri = onClearFileUri,
         snackbarHostState = snackbarHostState,
-        onValidFile = { uri ->
-            stopMeditationSignal.value = true
-            playerWiring.onSessionInterrupted()
-            pendingMeditationImportUri.value = SharedImport(uri = uri, suggestion = null)
-        }
+        onValidFile = sharedImportViewModel::shareFile
     )
 
     DownloadUrlEffect(
         sharedLinkImport = sharedLinkImport,
         pendingDownloadUrl = pendingDownloadUrl,
-        onClearDownloadUrl = onClearDownloadUrl
+        onClearDownloadUrl = onClearDownloadUrl,
+        onShareLink = sharedImportViewModel::shareLink
     )
 
     InvalidShareEffect(
         invalidShareSignal = invalidShareSignal,
         onClearSignal = onClearInvalidShareSignal
-    )
-
-    MeditationImportNavigationEffect(
-        pendingImportUri = pendingMeditationImportUri,
-        navController = navController,
-        settingsDataStore = settingsDataStore,
-        scope = scope
     )
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -290,8 +278,8 @@ fun StillMomentNavHost(
             snackbarHostState = snackbarHostState,
             startDestination = startDestination,
             settingsState = settingsState,
-            pendingMeditationImportUri = pendingMeditationImportUri,
-            onClearPendingImport = { pendingMeditationImportUri.value = null },
+            sharedImport = sharedImportViewModel.handover,
+            onConsumeSharedImport = sharedImportViewModel::consumeHandover,
             stopMeditationSignal = stopMeditationSignal,
             onConsumeStopSignal = { stopMeditationSignal.value = false },
             libraryFilterResetSignal = libraryFilterResetSignal,
@@ -342,8 +330,8 @@ private fun NavHostScaffold(
     snackbarHostState: SnackbarHostState,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingMeditationImportUri: StateFlow<SharedImport?>,
-    onClearPendingImport: () -> Unit,
+    sharedImport: StateFlow<SharedImport?>,
+    onConsumeSharedImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
     libraryFilterResetSignal: StateFlow<Boolean>,
@@ -395,8 +383,8 @@ private fun NavHostScaffold(
                 navController,
                 startDestination,
                 settingsState,
-                pendingMeditationImportUri,
-                onClearPendingImport,
+                sharedImport,
+                onConsumeSharedImport,
                 stopMeditationSignal,
                 onConsumeStopSignal,
                 libraryFilterResetSignal,
@@ -413,8 +401,8 @@ private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingMeditationImportUri: StateFlow<SharedImport?>,
-    onClearPendingImport: () -> Unit,
+    sharedImport: StateFlow<SharedImport?>,
+    onConsumeSharedImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
     libraryFilterResetSignal: StateFlow<Boolean>,
@@ -429,13 +417,13 @@ private fun StillMomentNavContent(
         )
 
         composable(Screen.Library.route) {
-            val sharedImport by pendingMeditationImportUri.collectAsState()
+            val handedOver by sharedImport.collectAsState()
             val listViewModel: GuidedMeditationsListViewModel = hiltViewModel()
-            val currentOnClear by rememberUpdatedState(onClearPendingImport)
+            val currentOnConsume by rememberUpdatedState(onConsumeSharedImport)
 
-            LaunchedEffect(sharedImport) {
-                val pending = sharedImport ?: return@LaunchedEffect
-                currentOnClear()
+            LaunchedEffect(handedOver) {
+                val pending = handedOver ?: return@LaunchedEffect
+                currentOnConsume()
                 listViewModel.importMeditation(pending.uri, pending.suggestion)
             }
 
@@ -692,49 +680,51 @@ private fun NavGraphBuilder.playerComposable(playerWiring: PlayerCompletionWirin
 }
 
 /**
- * A local audio file ready for the import edit sheet. [suggestion] comes from the
- * podcast import (episode title / podcast author, shared-128) and beats the
- * file's own ID3 values; `null` for file shares and ordinary links.
- */
-private data class SharedImport(val uri: Uri, val suggestion: ImportPrefill?)
-
-/**
- * Opens the edit sheet for a link that finished loading. The link waits in the
- * ViewModel, so a screen re-created during the download still picks it up.
+ * Brings a shared entry that may start now to the library: ends a running
+ * meditation and switches to the Library tab, whose screen opens the edit sheet.
+ * The entry waits in [SharedImportViewModel] until the library took it over, so a
+ * screen re-created meanwhile (dark mode, font size) still opens it.
  */
 @Composable
-private fun ImportedLinkEffect(
-    importedLink: StateFlow<LinkImportOutcome.Imported?>,
-    onConsume: () -> Unit,
-    onImport: (SharedImport) -> Unit
+private fun SharedImportHandoverEffect(
+    handover: StateFlow<SharedImport?>,
+    navController: NavHostController,
+    onHandover: () -> Unit
 ) {
-    val imported by importedLink.collectAsState()
-    val currentOnConsume by rememberUpdatedState(onConsume)
-    val currentOnImport by rememberUpdatedState(onImport)
-    LaunchedEffect(imported) {
-        val link = imported ?: return@LaunchedEffect
-        currentOnImport(SharedImport(link.uri, link.suggestion))
-        currentOnConsume()
+    val pending by handover.collectAsState()
+    val currentOnHandover by rememberUpdatedState(onHandover)
+    LaunchedEffect(pending) {
+        if (pending == null) {
+            return@LaunchedEffect
+        }
+        currentOnHandover()
+        navController.navigate(Screen.Library.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 }
 
 /**
- * Hands every shared link (ordinary audio link or Apple Podcasts episode) to
- * [SharedLinkImport] and shows its message. Which link wins and what loads is
- * decided there.
+ * Passes every shared link (ordinary audio link or Apple Podcasts episode) on
+ * via [onShareLink] and shows the message of [sharedLinkImport]. When a link
+ * loads is decided by [SharedEntryGate].
  */
 @Composable
 private fun DownloadUrlEffect(
     sharedLinkImport: SharedLinkImport,
     pendingDownloadUrl: StateFlow<String?>,
-    onClearDownloadUrl: () -> Unit
+    onClearDownloadUrl: () -> Unit,
+    onShareLink: (String) -> Unit
 ) {
     val downloadUrl by pendingDownloadUrl.collectAsState()
     val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
+    val currentOnShareLink by rememberUpdatedState(onShareLink)
 
-    LaunchedEffect(downloadUrl, sharedLinkImport) {
+    LaunchedEffect(downloadUrl) {
         val url = downloadUrl ?: return@LaunchedEffect
-        sharedLinkImport.share(url)
+        currentOnShareLink(url)
         currentOnClearDownloadUrl()
     }
 
@@ -761,8 +751,9 @@ private fun InvalidShareEffect(invalidShareSignal: StateFlow<Boolean>, onClearSi
 /**
  * Validates file format when a file is shared with the app.
  *
- * On valid format, invokes [onValidFile] so the caller can route the URI to
- * the library import. On invalid format, shows an error snackbar.
+ * On valid format, invokes [onValidFile] so the caller can share the file with
+ * the app. On invalid format, shows an error snackbar right away — such a file
+ * never waits for a running import (shared-138).
  */
 @Composable
 private fun FileOpenEffect(
@@ -794,34 +785,6 @@ private fun FileOpenEffect(
                 )
             }
         )
-    }
-}
-
-/**
- * Routes a validated shared URI to the Library tab; the Library composable
- * itself calls `viewModel.importMeditation(uri)` and is responsible for
- * clearing the pending URI when it has handed the work off.
- */
-@Composable
-private fun MeditationImportNavigationEffect(
-    pendingImportUri: StateFlow<SharedImport?>,
-    navController: NavHostController,
-    settingsDataStore: SettingsDataStore,
-    scope: kotlinx.coroutines.CoroutineScope
-) {
-    val pending by pendingImportUri.collectAsState()
-    LaunchedEffect(pending) {
-        if (pending == null) {
-            return@LaunchedEffect
-        }
-        scope.launch {
-            settingsDataStore.setSelectedTab(AppTab.LIBRARY)
-        }
-        navController.navigate(Screen.Library.route) {
-            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
-        }
     }
 }
 

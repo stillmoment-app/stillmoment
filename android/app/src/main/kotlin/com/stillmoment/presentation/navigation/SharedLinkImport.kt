@@ -18,18 +18,21 @@ import kotlinx.coroutines.withContext
 data class FailedLinkImport(val sharedUrl: String, val failure: LinkImportFailure)
 
 /**
- * Imports shared links one at a time while the loading window is shown (shared-132).
+ * Loads a shared link while the loading window is shown, with message, "Retry"
+ * and "Cancel" (shared-128, shared-132).
  *
- * Rule: the last shared address wins. Sharing the address that is loading right
- * now changes nothing; any other address replaces the running import. "Retry"
- * runs through the same rule, so a newer share replaces it as well.
+ * Which link loads when is not decided here: [SharedEntryGate] starts a link
+ * only when no other import runs (shared-138). This class reports every way the
+ * import ends without an edit sheet via `onEnded` — "Cancel", closing the
+ * message, a download stopped from elsewhere. "Retry" continues the same import.
  *
- * Plain class instead of Compose state so the rule is unit-testable — same
- * pattern as [PlayerCompletionWiring].
+ * Plain class instead of Compose state so it is unit-testable — same pattern as
+ * [PlayerCompletionWiring].
  *
  * @param import Loads a shared address into a local file (`LinkImportHandler::import`).
  * @param cancelRunning Stops the running lookup/download (`LinkImportHandler::cancel`).
- * @param onImported Hands a loaded file over to the edit sheet.
+ * @param onImported Hands a loaded file over to the edit sheet, which ends the import later.
+ * @param onEnded The import ended without an edit sheet.
  * @param discardDownload Frees a loaded file nobody takes over any more (android-087).
  */
 class SharedLinkImport(
@@ -37,6 +40,7 @@ class SharedLinkImport(
     private val import: suspend (String) -> LinkImportOutcome,
     private val cancelRunning: () -> Unit,
     private val onImported: (LinkImportOutcome.Imported) -> Unit,
+    private val onEnded: () -> Unit,
     private val discardDownload: suspend (Uri) -> Unit
 ) {
     private val _isLoading = MutableStateFlow(false)
@@ -50,15 +54,6 @@ class SharedLinkImport(
     val failure: StateFlow<FailedLinkImport?> = _failure.asStateFlow()
 
     private var job: Job? = null
-    private var loadingUrl: String? = null
-
-    /** A link was shared with the app. */
-    fun share(url: String) {
-        if (url == loadingUrl) {
-            return
-        }
-        start(url)
-    }
 
     /** "Retry" in the message: load the failed address again. */
     fun retry() {
@@ -66,64 +61,54 @@ class SharedLinkImport(
         start(failed.sharedUrl)
     }
 
-    /** The message was closed without retrying. */
+    /** The message was closed without retrying — the import ends here. */
     fun dismissFailure() {
+        if (_failure.value == null) {
+            return
+        }
         _failure.value = null
+        onEnded()
     }
 
-    /**
-     * "Cancel" in the loading window — ends quietly, no message, nothing is
-     * imported. Also holds when the newest import is still waiting for a
-     * replaced download to end.
-     */
+    /** "Cancel" in the loading window — ends quietly, no message, nothing is imported. */
     fun cancel() {
         if (!_isLoading.value) {
             return
         }
         cancelRunning()
         job?.cancel()
-        loadingUrl = null
         _isLoading.value = false
+        onEnded()
     }
 
     /**
-     * Replaces whatever runs with an import of [url].
+     * Loads [url] with the loading window shown.
      *
-     * The previous download is stopped via [cancelRunning] — cancelling the
-     * coroutine alone does not end a blocking connection — and the new import
-     * only starts once the previous one has really ended. So there is never more
-     * than one download, and the replaced one can neither show a message nor
-     * reset the state the newer one relies on.
+     * After "Cancel" the cancelled download may still be ending — cancelling the
+     * coroutine alone does not end a blocking connection. The new import only
+     * starts once it has really ended, so there is never more than one download.
      */
-    private fun start(url: String) {
+    fun start(url: String) {
         _failure.value = null
         val previous = job
-        if (previous?.isActive == true) {
-            cancelRunning()
-            previous.cancel()
-        }
-        loadingUrl = url
         _isLoading.value = true
         job = scope.launch {
-            // Even when this import is replaced in turn, wait for the previous one:
-            // otherwise a third share could start while the first still downloads.
             withContext(NonCancellable) { previous?.join() }
             ensureActive()
             val outcome = import(url)
             if (!isActive) {
-                // Replaced or cancelled while the download was ending: nobody takes
-                // the file over, so it must not stay on the device (android-087).
+                // Cancelled while the download was ending: nobody takes the file
+                // over, so it must not stay on the device (android-087).
                 if (outcome is LinkImportOutcome.Imported) {
                     withContext(NonCancellable) { discardDownload(outcome.uri) }
                 }
                 return@launch
             }
-            loadingUrl = null
             _isLoading.value = false
             when (outcome) {
                 is LinkImportOutcome.Imported -> onImported(outcome)
                 is LinkImportOutcome.Failed -> _failure.value = FailedLinkImport(url, outcome.failure)
-                LinkImportOutcome.Cancelled -> Unit
+                LinkImportOutcome.Cancelled -> onEnded()
             }
         }
     }

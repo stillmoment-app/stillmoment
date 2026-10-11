@@ -20,8 +20,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 /**
- * shared-132: Sharing links with Still Moment several times in a row never leads
- * to a message; the last shared address wins, the same address loads only once.
+ * Loading one shared link with loading window, message, "Retry" and "Cancel"
+ * (shared-128, shared-132). Which link loads when is decided by
+ * [SharedEntryGate] (shared-138); here: that the import reports every way it
+ * ends without an edit sheet.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SharedLinkImportTest {
@@ -32,215 +34,19 @@ class SharedLinkImportTest {
     private val downloads = FakeDownloads()
     private val editSheets = mutableListOf<LinkImportOutcome.Imported>()
     private val discarded = mutableListOf<Uri>()
+    private var endCount = 0
 
     private fun TestScope.sharedLinkImport() = SharedLinkImport(
         scope = backgroundScope,
         import = downloads::import,
         cancelRunning = downloads::cancelRunning,
         onImported = { editSheets += it },
+        onEnded = { endCount++ },
         discardDownload = { discarded += it }
     )
 
     private fun imported(): LinkImportOutcome.Imported =
         LinkImportOutcome.Imported(uri = mock<Uri>(), suggestion = null)
-
-    @Nested
-    inner class SameAddressTwice {
-
-        @Test
-        fun `sharing the same address again while it loads starts no second download`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25401)
-            runCurrent()
-            downloads.finish(talk25401, imported())
-            runCurrent()
-
-            assertEquals(listOf(talk25401), downloads.started)
-            assertEquals(1, editSheets.size, "Exactly one edit sheet")
-            assertNull(sut.failure.value)
-        }
-
-        @Test
-        fun `sharing the same address again while it loads keeps the loading window`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25401)
-            runCurrent()
-
-            assertTrue(sut.isLoading.value)
-        }
-
-        @Test
-        fun `sharing a failed address again closes the message and loads it anew`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
-            runCurrent()
-
-            sut.share(talk25401)
-            runCurrent()
-
-            assertNull(sut.failure.value)
-            assertEquals(listOf(talk25401, talk25401), downloads.started)
-            assertTrue(sut.isLoading.value)
-        }
-    }
-
-    @Nested
-    inner class NewerAddressWhileLoading {
-
-        @Test
-        fun `a newer address replaces the loading one and is the one imported`() = runTest {
-            val sut = sharedLinkImport()
-            val result = imported()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-            downloads.finish(talk25402, result)
-            runCurrent()
-
-            assertEquals(listOf(talk25401, talk25402), downloads.started)
-            assertEquals(listOf(result), editSheets)
-            assertNull(sut.failure.value)
-        }
-
-        @Test
-        fun `the replaced download is stopped before the newer one starts`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-
-            assertEquals(1, downloads.cancelCount, "The download of 25401 is stopped")
-            assertEquals(1, downloads.maxParallel, "Never two downloads at the same time")
-        }
-
-        @Test
-        fun `the replaced import shows no message even when it ends with an error`() = runTest {
-            downloads.stopsOnCancel = false
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
-            runCurrent()
-
-            assertNull(sut.failure.value)
-            assertTrue(sut.isLoading.value, "25402 is loading now")
-            assertEquals(listOf(talk25401, talk25402), downloads.started)
-            assertEquals(1, downloads.maxParallel)
-        }
-
-        @Test
-        fun `the loading window stays until the newer address is done`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-            assertTrue(sut.isLoading.value, "Still loading after 25401 was replaced")
-
-            downloads.finish(talk25402, imported())
-            runCurrent()
-            assertFalse(sut.isLoading.value)
-        }
-
-        @Test
-        fun `cancelling after the replacement ends the newer import quietly`() = runTest {
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-            sut.share(talk25402)
-            runCurrent()
-
-            sut.cancel()
-            runCurrent()
-
-            assertFalse(sut.isLoading.value)
-            assertNull(sut.failure.value)
-            assertTrue(editSheets.isEmpty())
-        }
-
-        @Test
-        fun `cancelling while the replaced download is still ending loads nothing new`() = runTest {
-            downloads.stopsOnCancel = false
-            val sut = sharedLinkImport()
-            sut.share(talk25401)
-            runCurrent()
-            sut.share(talk25402)
-            runCurrent()
-
-            sut.cancel()
-            runCurrent()
-            downloads.finish(talk25401, imported())
-            runCurrent()
-
-            assertFalse(sut.isLoading.value, "Loading window closes right away")
-            assertEquals(listOf(talk25401), downloads.started, "25402 is not loaded any more")
-            assertTrue(editSheets.isEmpty())
-            assertNull(sut.failure.value)
-        }
-
-        @Test
-        fun `three addresses shared quickly import only the last and never load in parallel`() = runTest {
-            downloads.stopsOnCancel = false
-            val talk25403 = "https://www.audiodharma.org/talks/25403/download"
-            val sut = sharedLinkImport()
-            val result = imported()
-            sut.share(talk25401)
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-            sut.share(talk25403)
-            runCurrent()
-            downloads.finish(talk25401, imported())
-            runCurrent()
-            downloads.finish(talk25403, result)
-            runCurrent()
-
-            assertEquals(listOf(talk25401, talk25403), downloads.started, "25402 never loads")
-            assertEquals(1, downloads.maxParallel)
-            assertEquals(listOf(result), editSheets)
-        }
-
-        @Test
-        fun `a newer address replaces a running retry`() = runTest {
-            downloads.stopsOnCancel = false
-            val sut = sharedLinkImport()
-            val result = imported()
-            sut.share(talk25401)
-            runCurrent()
-            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
-            runCurrent()
-            sut.retry()
-            runCurrent()
-
-            sut.share(talk25402)
-            runCurrent()
-            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
-            runCurrent()
-            assertNull(sut.failure.value, "The replaced retry shows no message")
-            downloads.finish(talk25402, result)
-            runCurrent()
-
-            assertEquals(listOf(result), editSheets)
-            assertEquals(1, downloads.maxParallel)
-        }
-    }
 
     @Nested
     inner class SingleShare {
@@ -251,7 +57,7 @@ class SharedLinkImportTest {
             val suggestion = ImportPrefill(teacher = "Deutschlandfunk Nova", name = "MBCT")
             val result = LinkImportOutcome.Imported(uri = mock<Uri>(), suggestion = suggestion)
 
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
             assertTrue(sut.isLoading.value, "Loading window while the link loads")
             downloads.finish(talk25401, result)
@@ -266,7 +72,7 @@ class SharedLinkImportTest {
         fun `an unreachable address shows the message with the shared address`() = runTest {
             val sut = sharedLinkImport()
 
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
             downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
             runCurrent()
@@ -279,7 +85,7 @@ class SharedLinkImportTest {
         @Test
         fun `retry loads the same address again and opens the edit sheet`() = runTest {
             val sut = sharedLinkImport()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
             downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
             runCurrent()
@@ -298,7 +104,7 @@ class SharedLinkImportTest {
         @Test
         fun `dismissing the message closes it without loading again`() = runTest {
             val sut = sharedLinkImport()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
             downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotAudio))
             runCurrent()
@@ -313,7 +119,7 @@ class SharedLinkImportTest {
         @Test
         fun `cancelling in the loading window ends quietly`() = runTest {
             val sut = sharedLinkImport()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
 
             sut.cancel()
@@ -327,26 +133,112 @@ class SharedLinkImportTest {
     }
 
     @Nested
-    inner class DownloadsThatAreNotNeeded {
+    inner class ImportEnds {
 
         @Test
-        fun `a replaced download that still finishes loading is discarded`() = runTest {
+        fun `cancelling in the loading window ends the import`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+
+            sut.cancel()
+            runCurrent()
+
+            assertEquals(1, endCount)
+        }
+
+        @Test
+        fun `cancelling a second time does not end the import again`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+
+            sut.cancel()
+            sut.cancel()
+            runCurrent()
+
+            assertEquals(1, endCount, "A second end would end the next import")
+        }
+
+        @Test
+        fun `closing the message ends the import`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
+            runCurrent()
+            assertEquals(0, endCount, "The message is still open")
+
+            sut.dismissFailure()
+
+            assertEquals(1, endCount)
+        }
+
+        @Test
+        fun `retry continues the import without ending it`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+            downloads.finish(talk25401, LinkImportOutcome.Failed(LinkImportFailure.NotReachable))
+            runCurrent()
+
+            sut.retry()
+            runCurrent()
+
+            assertEquals(0, endCount)
+        }
+
+        @Test
+        fun `a loaded link is handed over and its edit sheet ends the import later`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+
+            downloads.finish(talk25401, imported())
+            runCurrent()
+
+            assertEquals(1, editSheets.size)
+            assertEquals(0, endCount)
+        }
+
+        @Test
+        fun `a download stopped from elsewhere ends the import without a message`() = runTest {
+            val sut = sharedLinkImport()
+            sut.start(talk25401)
+            runCurrent()
+
+            downloads.finish(talk25401, LinkImportOutcome.Cancelled)
+            runCurrent()
+
+            assertEquals(1, endCount)
+            assertFalse(sut.isLoading.value)
+            assertNull(sut.failure.value)
+        }
+    }
+
+    @Nested
+    inner class AfterCancelling {
+
+        @Test
+        fun `the next link only starts loading once the cancelled download has really ended`() = runTest {
             downloads.stopsOnCancel = false
             val sut = sharedLinkImport()
-            val replaced = imported()
-            val newest = imported()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
-            sut.share(talk25402)
+            sut.cancel()
             runCurrent()
 
-            downloads.finish(talk25401, replaced)
+            sut.start(talk25402)
             runCurrent()
-            downloads.finish(talk25402, newest)
+            assertEquals(listOf(talk25401), downloads.started, "25402 waits for 25401 to end")
+            assertTrue(sut.isLoading.value, "Loading window for 25402")
+
+            downloads.finish(talk25401, LinkImportOutcome.Cancelled)
             runCurrent()
 
-            assertEquals(listOf(replaced.uri), discarded)
-            assertEquals(listOf(newest), editSheets)
+            assertEquals(listOf(talk25401, talk25402), downloads.started)
+            assertEquals(1, downloads.maxParallel, "Never two downloads at the same time")
+            assertEquals(1, endCount, "Only the cancel ended an import")
         }
 
         @Test
@@ -354,7 +246,7 @@ class SharedLinkImportTest {
             downloads.stopsOnCancel = false
             val sut = sharedLinkImport()
             val late = imported()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
 
             sut.cancel()
@@ -369,7 +261,7 @@ class SharedLinkImportTest {
         @Test
         fun `a loaded link handed to the edit sheet is kept`() = runTest {
             val sut = sharedLinkImport()
-            sut.share(talk25401)
+            sut.start(talk25401)
             runCurrent()
 
             downloads.finish(talk25401, imported())
