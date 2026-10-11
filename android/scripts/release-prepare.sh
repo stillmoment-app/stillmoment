@@ -175,23 +175,21 @@ print_step "Checking data snapshot prerequisites..."
 
 SNAPSHOT_DIR="app/src/test/resources/data-snapshots/$VERSION"
 if [ -e "$SNAPSHOT_DIR" ]; then
-    print_error "Data snapshot $SNAPSHOT_DIR already exists"
-    echo "It belongs to a release that was prepared before. Remove it only if that release never shipped."
-    exit 1
-fi
-
-# The snapshot is written by the app on an emulator. 'make screenshots' starts one if
-# none is running; without screenshots one must already be running.
-if [ -n "$SKIP_SCREENSHOTS" ]; then
+    # Never regenerated: the capture step keeps it and only reads all snapshots.
+    print_warning "Data snapshot for $VERSION already exists — kept unchanged"
+elif [ -n "$SKIP_SCREENSHOTS" ]; then
+    # The snapshot is written by the app on an emulator. 'make screenshots' starts one if
+    # none is running; without screenshots one must already be running.
     if ! "$SCRIPT_DIR/capture-data-snapshot.sh" --check-device; then
         print_error "release-prepare captures the data snapshot of v$VERSION on an emulator (see above)"
         echo "Needs exactly one running emulator (or ANDROID_SERIAL). Without SKIP_SCREENSHOTS=1 the"
         echo "screenshot step starts one if none is running."
         exit 1
     fi
+    print_success "Data snapshot for v$VERSION can be captured"
+else
+    print_success "Data snapshot for v$VERSION will be captured after the screenshots"
 fi
-
-print_success "Data snapshot for v$VERSION can be captured"
 
 # ============================================================================
 # PREFLIGHT CHECKS (fail fast, before the long test/screenshot steps)

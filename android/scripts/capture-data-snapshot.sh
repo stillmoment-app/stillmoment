@@ -11,7 +11,8 @@
 #
 # Needs exactly one running emulator/device, or ANDROID_SERIAL set to pick one.
 # Overwrites the debug app's (com.stillmoment.dev) stored data on that device.
-# An existing snapshot folder is never overwritten (FORCE=1 to replace it).
+# An existing snapshot folder is never overwritten: the script keeps it, reads all
+# snapshots and exits successfully.
 
 set -euo pipefail
 
@@ -62,9 +63,17 @@ if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     fail "Usage: $0 <MAJOR.MINOR.PATCH> | --check-device"
 fi
 
+read_all_snapshots() {
+    echo "==> Reading all data snapshots with the current code"
+    (cd "$PROJECT_DIR" && ./gradlew --quiet :app:testDebugUnitTest --tests "com.stillmoment.datasnapshot.DataSnapshotUpgradeTest")
+}
+
 TARGET_DIR="$SNAPSHOTS_DIR/$VERSION"
-if [ -e "$TARGET_DIR" ] && [ -z "${FORCE:-}" ]; then
-    fail "Data snapshot $TARGET_DIR already exists (FORCE=1 replaces it)"
+if [ -e "$TARGET_DIR" ]; then
+    # A stored snapshot is what that release wrote; it is never regenerated.
+    echo "Data snapshot for $VERSION already exists — kept unchanged"
+    read_all_snapshots
+    exit 0
 fi
 
 check_device
@@ -94,13 +103,15 @@ for FILE in $FILES; do
     fi
     echo "    $FILE"
 done
-rm -rf "$TARGET_DIR"
 mkdir -p "$SNAPSHOTS_DIR"
 mv "$STAGING_DIR" "$TARGET_DIR"
-trap - EXIT
 chmod 755 "$TARGET_DIR" # mktemp creates it owner-only
+# From here on only the folder created in this run is removed on failure — never an existing one.
+trap 'rm -rf "$TARGET_DIR"' EXIT
 
-echo "==> Reading all data snapshots with the current code"
-(cd "$PROJECT_DIR" && ./gradlew --quiet :app:testDebugUnitTest --tests "com.stillmoment.datasnapshot.DataSnapshotUpgradeTest")
+if ! read_all_snapshots; then
+    fail "Reading the data snapshots failed; removed the new snapshot $TARGET_DIR again"
+fi
+trap - EXIT
 
 echo "Data snapshot $VERSION stored in $TARGET_DIR"

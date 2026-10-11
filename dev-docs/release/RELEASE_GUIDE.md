@@ -82,8 +82,8 @@ Der Root-Aufruf führt erst iOS komplett aus (inkl. Commit + Tag), dann Android.
 2. **Sauberer Arbeitsbaum**: keine geänderten oder ungetrackten Dateien außer unter
    `<plattform>/fastlane/metadata/`.
 3. **Tag frei**: `ios-v2.6.0` bzw. `android-v2.6.0` existiert noch nicht.
-   Android zusätzlich: Es gibt noch keinen [Datenstand](#datenstand-je-release-upgrade-test) für die Version,
-   und mit `SKIP_SCREENSHOTS=1` läuft schon ein Emulator (sonst startet ihn Schritt 10).
+   Android zusätzlich: Fehlt der [Datenstand](#datenstand-je-release-upgrade-test) der Version noch, muss
+   mit `SKIP_SCREENSHOTS=1` schon ein Emulator laufen (sonst startet ihn Schritt 10).
 4. **Preflight** (`scripts/release/preflight.py`, braucht `uv`):
    `CHANGELOG.md` hat `## [2.6.0]`, unter `## [Unreleased]` steht nichts mehr;
    Release Notes je Sprache vorhanden, nicht leer, höchstens 4000 (iOS) bzw. 500 (Android) Zeichen.
@@ -131,7 +131,10 @@ Ein Fehler nennt Version und Wert.
 
 - `release-prepare` erzeugt den Datenstand selbst, nach den Screenshots. Er braucht genau einen laufenden
   Emulator (bei mehreren `ANDROID_SERIAL` setzen) und überschreibt dort die Daten der Debug-App.
-- Von Hand: `make -C android data-snapshot VERSION=x.y.z`. Ein vorhandener Ordner wird nie überschrieben.
+- Gibt es den Datenstand der Version schon, bleibt er unverändert („already exists — kept unchanged“);
+  prepare liest dann nur alle Datenstände zurück und läuft weiter. Scheitert das Zurücklesen direkt nach
+  einer Neuerzeugung, löscht das Skript nur den gerade erzeugten Ordner, nie einen vorhandenen.
+- Von Hand: `make -C android data-snapshot VERSION=x.y.z`, gleiches Verhalten.
 - Aufbewahrte Datenstände nie neu erzeugen oder anpassen. Liest eine neue Version einen alten nicht mehr,
   ist der Lesecode falsch, nicht der Datenstand.
 - Neue Werte kommen in `CanonicalDataSnapshot` dazu, bestehende bleiben unverändert. Gibt es einen Wert in
