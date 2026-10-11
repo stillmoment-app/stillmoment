@@ -222,6 +222,9 @@ final class TimerViewModel: ObservableObject {
 
     /// Starts the timer with selected duration
     func startTimer() {
+        // A new meditation starts without the previous sound message. Cleared before
+        // dispatching, so a failure while preparing this session is shown again.
+        self.errorMessage = nil
         self.dispatch(.startPressed)
     }
 

@@ -100,6 +100,36 @@ final class TimerViewModelAudioErrorTests: XCTestCase {
         self.assertShowsCalmSoundMessage(technicalError: AudioServiceError.playbackFailed)
     }
 
+    // MARK: - Next Meditation
+
+    func testStartingNextMeditation_previousSoundMessageDisappears() {
+        // Given: a sound failed in the previous meditation
+        self.mockAudioService.shouldThrowOnPlay = true
+        self.sut.dispatch(.timerCompleted)
+        XCTAssertNotNil(self.sut.errorMessage)
+        self.mockAudioService.shouldThrowOnPlay = false
+
+        // When
+        self.sut.startTimer()
+
+        // Then
+        XCTAssertNil(self.sut.errorMessage)
+    }
+
+    func testSoundFailsInNextMeditation_userSeesMessageAgain() {
+        // Given: a sound failed in the previous meditation
+        self.mockAudioService.shouldThrowOnPlay = true
+        self.sut.dispatch(.timerCompleted)
+        self.mockAudioService.shouldThrowOnPlay = false
+        self.mockAudioService.shouldThrowOnConfigure = true
+
+        // When: the next meditation cannot prepare its audio
+        self.sut.startTimer()
+
+        // Then
+        self.assertShowsCalmSoundMessage(technicalError: AudioServiceError.sessionConfigurationFailed)
+    }
+
     // MARK: - Helpers
 
     private func assertShowsCalmSoundMessage(
