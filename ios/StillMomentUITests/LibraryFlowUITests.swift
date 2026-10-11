@@ -18,7 +18,8 @@ final class LibraryFlowUITests: XCTestCase {
         self.app = XCUIApplication()
         self.app.launchArguments = [
             "-AppleLanguages", "(en)", // Force English for consistent testing
-            "-DisablePreparation" // Skip preparation phase for faster, more reliable tests
+            "-DisablePreparation", // Skip preparation phase for faster, more reliable tests
+            TestLaunchArguments.useTestStorage // Empty storage, independent of the simulator's data
         ]
 
         self.app.launch()

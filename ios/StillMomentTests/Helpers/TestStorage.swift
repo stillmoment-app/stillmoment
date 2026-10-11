@@ -11,14 +11,17 @@ import XCTest
 
 /// Own `UserDefaults` suite and own directory for one test, so nothing reaches the
 /// app's real storage. Create it in `setUp`, call `remove()` in `tearDown`.
+///
+/// Every test gets the same, emptied suite and folder: unit tests run one after another,
+/// and a fixed name keeps the simulator from collecting one settings file per test.
 final class TestStorage {
     // MARK: Lifecycle
 
     init() throws {
-        let name = "test.stillmoment.\(UUID().uuidString)"
-        self.suiteName = name
-        self.userDefaults = try XCTUnwrap(UserDefaults(suiteName: name))
-        self.baseDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+        self.userDefaults = try XCTUnwrap(UserDefaults(suiteName: Self.name))
+        self.baseDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(Self.name)
+        // Start empty, even if an earlier, aborted run left something behind
+        self.remove()
         try FileManager.default.createDirectory(at: self.baseDirectory, withIntermediateDirectories: true)
     }
 
@@ -38,11 +41,11 @@ final class TestStorage {
 
     /// Deletes the suite and the directory.
     func remove() {
-        self.userDefaults.removePersistentDomain(forName: self.suiteName)
+        self.userDefaults.removePersistentDomain(forName: Self.name)
         try? FileManager.default.removeItem(at: self.baseDirectory)
     }
 
     // MARK: Private
 
-    private let suiteName: String
+    private static let name = "StillMomentTests.TestStorage"
 }

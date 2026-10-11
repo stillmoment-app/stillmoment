@@ -54,8 +54,9 @@ struct StillMomentApp: App {
 
     init() {
         // ios-056: the one place that decides where the app persists. Everything below
-        // (services, theme, tab, Share inbox, migrations) uses this storage.
-        let storage = StorageLocation.production()
+        // (services, theme, tab, Share inbox, migrations) uses this storage. Unit and UI
+        // test runs get an emptied storage of their own (Debug builds only).
+        let storage = StorageLocation.forCurrentLaunch()
 
         // Composition Root (ios-055): every service of the app is created here, exactly once,
         // and handed down through initializers. Building the graph performs no persistence

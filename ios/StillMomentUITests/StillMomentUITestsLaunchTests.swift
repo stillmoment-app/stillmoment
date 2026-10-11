@@ -17,6 +17,7 @@ final class StillMomentUITestsLaunchTests: XCTestCase {
     @MainActor
     func testLaunch() {
         let app = XCUIApplication()
+        app.launchArguments = [TestLaunchArguments.useTestStorage]
         app.launch()
 
         // Wait for app to be ready
