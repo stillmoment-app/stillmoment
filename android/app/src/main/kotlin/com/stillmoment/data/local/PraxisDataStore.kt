@@ -37,14 +37,22 @@ private val Context.praxisDataStore: DataStore<Preferences> by preferencesDataSt
  * 1. Load from stored JSON in praxis DataStore
  * 2. Migrate from existing MeditationSettings in SettingsDataStore
  * 3. Fresh install: use Praxis.Default
+ *
+ * The primary constructor takes the underlying [DataStore] so the data-snapshot upgrade
+ * test (shared-144) can read a stored release file through this exact class; the app
+ * always goes through the injected constructor and the `praxis` file.
  */
 @Singleton
-class PraxisDataStore
-@Inject
-constructor(
-    @ApplicationContext private val context: Context,
+class PraxisDataStore internal constructor(
+    private val dataStore: DataStore<Preferences>,
     private val logger: LoggerProtocol
 ) : PraxisRepository {
+    @Inject
+    constructor(
+        @ApplicationContext context: Context,
+        logger: LoggerProtocol
+    ) : this(context.praxisDataStore, logger)
+
     private val _praxisState = MutableStateFlow<Praxis?>(null)
     override val praxisFlow: Flow<Praxis> = _praxisState.filterNotNull()
 
@@ -53,7 +61,7 @@ constructor(
     }
 
     override suspend fun load(): Praxis {
-        val prefs = context.praxisDataStore.data.first()
+        val prefs = dataStore.data.first()
         val json = prefs[Keys.CURRENT_PRAXIS]
 
         if (json != null) {
@@ -70,7 +78,7 @@ constructor(
 
     override suspend fun save(praxis: Praxis) {
         val json = praxisJson.encodeToString(praxis)
-        context.praxisDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             prefs[Keys.CURRENT_PRAXIS] = json
         }
         _praxisState.value = praxis

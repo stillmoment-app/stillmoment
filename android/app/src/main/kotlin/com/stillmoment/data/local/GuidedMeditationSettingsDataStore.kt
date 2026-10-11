@@ -24,13 +24,17 @@ private val Context.guidedMeditationSettingsDataStore: DataStore<Preferences> by
 /**
  * DataStore-based implementation of GuidedMeditationSettingsRepository.
  * Persists guided meditation settings using Jetpack DataStore.
+ *
+ * The primary constructor takes the underlying [DataStore] so the data-snapshot upgrade
+ * test (shared-144) can read a stored release file through this exact class; the app
+ * always goes through the injected constructor and the `guided_meditation_settings` file.
  */
 @Singleton
-class GuidedMeditationSettingsDataStore
-@Inject
-constructor(
-    @ApplicationContext private val context: Context
+class GuidedMeditationSettingsDataStore internal constructor(
+    private val dataStore: DataStore<Preferences>
 ) : GuidedMeditationSettingsRepository {
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context.guidedMeditationSettingsDataStore)
 
     private object Keys {
         val PREPARATION_TIME_ENABLED = booleanPreferencesKey("preparation_time_enabled")
@@ -38,7 +42,7 @@ constructor(
     }
 
     override val settingsFlow: Flow<GuidedMeditationSettings> =
-        context.guidedMeditationSettingsDataStore.data
+        dataStore.data
             .map { preferences ->
                 GuidedMeditationSettings(
                     preparationTimeEnabled = preferences[Keys.PREPARATION_TIME_ENABLED]
@@ -55,7 +59,7 @@ constructor(
     }
 
     override suspend fun updateSettings(settings: GuidedMeditationSettings) {
-        context.guidedMeditationSettingsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[Keys.PREPARATION_TIME_ENABLED] = settings.preparationTimeEnabled
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
         }
