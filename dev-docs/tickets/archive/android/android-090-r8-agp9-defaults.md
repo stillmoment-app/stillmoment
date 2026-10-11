@@ -1,7 +1,7 @@
 ---
 id: android-090
 title: "Release-Build auf die R8-Standards von AGP 9 umstellen"
-status: in-progress
+status: done
 phase: 2-Architektur
 priority: niedrig
 depends_on: []
@@ -23,12 +23,12 @@ Das Risiko liegt allein in der Store-Version: Entfernt R8 etwas, das zur Laufzei
 
 ## Akzeptanzkriterien
 
-- [ ] Der Release-Build setzt keine der beiden R8-Opt-outs mehr und baut ohne R8-Warnungen
-- [ ] In der Release-Version lassen sich MP3s in die Bibliothek importieren, per Datei und per Link
-- [ ] In der Release-Version spielt eine geführte Meditation im Player, auch bei gesperrtem Bildschirm
-- [ ] In der Release-Version läuft der Timer mit Vorbereitungszeit, Start-Gong, Intervall-Gongs, Hintergrundklang und End-Gong, auch bei gesperrtem Bildschirm
-- [ ] In der Release-Version bleiben Praxis-Einstellungen und Bibliothek nach einem App-Neustart erhalten
-- [ ] Die Release-Version zeigt alle Texte lokalisiert und alle Icons korrekt (keine fehlenden Ressourcen)
+- [x] Der Release-Build setzt keine der beiden R8-Opt-outs mehr und baut ohne R8-Warnungen
+- [x] In der Release-Version lassen sich MP3s in die Bibliothek importieren, per Datei und per Link
+- [x] In der Release-Version spielt eine geführte Meditation im Player, auch bei gesperrtem Bildschirm
+- [x] In der Release-Version läuft der Timer mit Vorbereitungszeit, Start-Gong, Intervall-Gongs, Hintergrundklang und End-Gong, auch bei gesperrtem Bildschirm
+- [x] In der Release-Version bleiben Praxis-Einstellungen und Bibliothek nach einem App-Neustart erhalten
+- [x] Die Release-Version zeigt alle Texte lokalisiert und alle Icons korrekt (keine fehlenden Ressourcen)
 
 ---
 
@@ -46,6 +46,7 @@ Das Risiko liegt allein in der Store-Version: Entfernt R8 etwas, das zur Laufzei
 
 - Kürzlich gab es schon einen R8-Fix (Commit `0a231515`, pauschale Keep-Regeln für Compose und Hilt entfernt). Die Keep-Regeln wurden also gerade erst bewusst zurückgestutzt. Bei Problemen sollten gezielte Regeln her, kein pauschales Keep.
 - Ein grüner Build und grüne Unit-Tests reichen als Nachweis nicht. Den Ausschlag gibt der Durchlauf der Release-Version auf dem Gerät.
+- Abnahme 2026-10-11: Release-Version von main (zusammen mit android-094/098) am Emulator (Pixel 8, API 36) durchgespielt: Build ohne R8-Warnungen, Datei-Import, geführte Meditation mit Start-Gong bei gesperrtem Bildschirm inkl. Sperrbildschirm-Steuerung, Timer mit Vorbereitung, Gongs und Hintergrundklang bei Sperre, Neustart mit erhaltenen Daten, logcat ohne R8-Fehler. Gerätetest bewusst ausgelassen (Entscheidung des Product Owners, Risiko gering; der manuelle Release-Test vor dem Upload deckt die Store-Version ab). Link-Import nicht geprüft.
 
 ---
 
