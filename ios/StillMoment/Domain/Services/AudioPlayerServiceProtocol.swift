@@ -77,8 +77,14 @@ protocol AudioPlayerServiceProtocol {
 
     /// Emits when an interruption (phone call, Siri, alarm) begins (ios-065)
     ///
-    /// Running playback is already paused then; it never resumes on its own.
+    /// Running playback is already paused then.
     var interruptionBegan: PassthroughSubject<Void, Never> { get }
+
+    /// Emits when an interruption ends and the system gives the sound back (shared-146)
+    ///
+    /// Playback the interruption paused has already resumed then. Not sent when the
+    /// interruption ends without giving the sound back.
+    var interruptionEnded: PassthroughSubject<Void, Never> { get }
 
     /// Loads an audio file for playback
     ///
