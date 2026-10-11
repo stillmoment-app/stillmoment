@@ -11,8 +11,10 @@ import AVFoundation
 
 /// AVAudioPlayerDelegate that notifies when a gong finishes playing.
 /// Used to transition the timer state machine after the start gong completes.
-/// Always fires onFinish — even on interruption (successfully: false) — to prevent
-/// the state machine from getting stuck in `.startGong`.
+/// Fires onFinish when playback ends, also when it ends abnormally (successfully: false).
+/// It does NOT fire on an audio session interruption: AVAudioPlayer only pauses then.
+/// Callers that must never get stuck observe interruptions themselves
+/// (see `MeditationGongPlayer`).
 class GongPlayerDelegate: NSObject, AVAudioPlayerDelegate {
     let onFinish: () -> Void
 
