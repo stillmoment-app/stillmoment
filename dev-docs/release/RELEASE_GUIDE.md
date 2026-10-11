@@ -3,6 +3,46 @@
 Schritt für Schritt von `[Unreleased]` bis in die Stores. Alle Befehle aus dem Repo-Root,
 sofern nicht anders angegeben. Beispielversion: `2.6.0`.
 
+## Release durch Claude (Standardweg)
+
+Der Entwickler sagt „Release 2.6.0“ (oder nur „Release“, dann schlägt Claude die Version vor).
+Claude führt den [Ablauf](#ablauf) unten selbst aus. **Einzige Freigabe sind die Release Notes:**
+
+1. Claude erzeugt die Release Notes mit `/release-notes`, zeigt sie für beide Plattformen und beide
+   Sprachen und wartet. Vor der Freigabe wird nichts committet. Änderungswünsche einarbeiten, erneut zeigen.
+2. Nach der Freigabe läuft der Rest ohne Rückfrage: Commit, `release-prepare` (erst `DRY_RUN=1`),
+   Push mit Tags, CI auf `main` abwarten, `make release`.
+3. Claude hält nur an, wenn
+   - ein [Gerätetest](#gerätetest) fällig ist: geänderte Bereiche nennen, um den Test bitten, auf Bestätigung warten;
+   - die CI auf `main` für den Release-Stand rot ist: nicht hochladen, berichten;
+   - ein Schritt scheitert: Ursache berichten, Wiederanlauf nach [Wenn etwas schiefgeht](#wenn-etwas-schiefgeht)
+     vorschlagen. Gepushte Historie auf `main` wird nie umgeschrieben.
+4. Zum Schluss berichtet Claude je Plattform: Version, Tag, Upload-Status und was noch aussteht
+   (bis ios-063 umgesetzt ist: Build in App Store Connect auswählen und einreichen, siehe [Nach dem Upload](#nach-dem-upload)).
+
+`release-prepare` dauert lange (Tests, Release-Build, Screenshots) — im Hintergrund laufen lassen,
+nicht mit Bash-Timeout abbrechen.
+
+## Gerätetest
+
+Kein Pflicht-Testplan bei jedem Release. Ein kurzer Gerätetest (ca. 5 Min je Plattform:
+[`TEST_PLAN_IOS.md`](TEST_PLAN_IOS.md), [`TEST_PLAN_ANDROID.md`](TEST_PLAN_ANDROID.md)) ist **vor `make release`**
+nur dann fällig, wenn sich seit dem letzten Release-Tag der Plattform Code für Audio, Sperrbildschirm,
+Timer-Ablauf oder Hintergrund-Verhalten geändert hat. Prüfen:
+
+```bash
+git diff --stat ios-v2.5.0..HEAD -- ios/StillMoment/Infrastructure/Services ios/StillMoment/StillMomentApp.swift
+git diff --stat android-v2.5.0..HEAD -- android/app/src/main/kotlin/com/stillmoment/infrastructure/audio \
+  android/app/src/main/AndroidManifest.xml android/app/src/main/kotlin/com/stillmoment/domain/services/TimerReducer.kt
+```
+
+Im Zweifel lieber testen. Unter `ios/…/Infrastructure/Services` liegen auch Dienste ohne Audio-Bezug;
+Claude bewertet die Treffer und nennt sie.
+
+Bewusst nicht mehr manuell geprüft: Darstellung, Barrierefreiheit, Sprache, Import, Unterbrechungen —
+das tragen die automatischen Tests bzw. das Risiko ist gering. Der Upgrade-Pfad (Daten älterer Versionen)
+ist bis zur Umsetzung von shared-144 ungeprüft.
+
 ## Ablauf
 
 ```bash
@@ -26,8 +66,7 @@ make release VERSION=2.6.0
 # oder je Plattform: make -C ios release VERSION=2.6.0 / make -C android release VERSION=2.6.0
 ```
 
-Danach: [Nach dem Upload](#nach-dem-upload) — dort steht, wann der manuelle Testplan dran ist.
-Für Android liegt er **vor** Schritt 5.
+Vor Schritt 5 prüfen, ob ein [Gerätetest](#gerätetest) fällig ist. Danach: [Nach dem Upload](#nach-dem-upload).
 
 **Warum ein Commit in Schritt 2:** `release-prepare` bricht ab, sobald außerhalb von
 `<plattform>/fastlane/metadata/` etwas geändert oder ungetrackt ist — ein nicht committetes
@@ -101,19 +140,15 @@ Was danach passiert:
 
 ### iOS
 
-1. Testplan [`TEST_PLAN_IOS.md`](TEST_PLAN_IOS.md) mit dem TestFlight-Build durchführen.
-2. App Store Connect → Version 2.6.0: den neuen Build auswählen. `deliver` ordnet ihn nur beim
+Bis ios-063 umgesetzt ist, bleiben zwei Schritte im Browser:
+
+1. App Store Connect → Version 2.6.0: den neuen Build auswählen. `deliver` ordnet ihn nur beim
    Einreichen zu (`deliver/submit_for_review.rb#select_build`), und das macht die Lane nicht.
-3. „Zur Prüfung einreichen“. Nach Apples Freigabe geht die Version automatisch an alle.
+2. „Zur Prüfung einreichen“. Nach Apples Freigabe geht die Version automatisch an alle.
 
 ### Android
 
-Der Testplan [`TEST_PLAN_ANDROID.md`](TEST_PLAN_ANDROID.md) gehört **vor** `make release`, weil der
-Upload direkt in die Prüfung und danach an alle geht. Für den Upgrade-Test (Abschnitt 0) ein lokales
-Release-Build über die Store-Version installieren (`adb install -r`). Ob das klappt, ist offen: Mit
-Play App Signing trägt die Store-Version Googles Signatur, das lokale Build die des Upload-Keys —
-`adb` lehnt es dann ab. In dem Fall bleibt nur ein interner Test-Track der Play Console; dafür gibt
-es kein Make-Target, und ein dort hochgeladener `versionCode` lässt sich nicht noch einmal hochladen.
+Nichts zu tun: Der Upload geht direkt in Googles Prüfung und danach an alle.
 
 Nach der Freigabe: Store-Einträge kurz ansehen (Screenshots, Beschreibung, Release Notes).
 
@@ -183,7 +218,7 @@ beider Plattformen (`make -C ios build-release`, `make -C android build-release`
 | Thema | Ort |
 |-------|-----|
 | Release Notes schreiben | Skill `/release-notes` (`.claude/skills/release-notes/SKILL.md`) |
-| Manuelle Testpläne | [`TEST_PLAN_IOS.md`](TEST_PLAN_IOS.md), [`TEST_PLAN_ANDROID.md`](TEST_PLAN_ANDROID.md) |
+| Gerätetest (nur bei Audio-Änderungen) | [`TEST_PLAN_IOS.md`](TEST_PLAN_IOS.md), [`TEST_PLAN_ANDROID.md`](TEST_PLAN_ANDROID.md) |
 | Prepare-Skripte | `ios/scripts/release-prepare.sh`, `android/scripts/release-prepare.sh` |
 | Preflight / Guard | `scripts/release/preflight.py`, `scripts/release/release-guard.sh` (Tests: `make test-release-tooling`) |
 | Technisches Changelog | `CHANGELOG.md` |

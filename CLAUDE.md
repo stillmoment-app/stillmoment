@@ -116,7 +116,10 @@ make release-prepare VERSION=x.y.z [DRY_RUN=1]   # checks, tests, release build,
 git push origin main --tags
 make release VERSION=x.y.z                       # release guard + store upload
 ```
-Full guide (manual test plans, submitting, recovery): `dev-docs/release/RELEASE_GUIDE.md`
+On "Release x.y.z" Claude runs all of this itself. The **only approval is the release notes**: show them, wait,
+then run through without further questions. Stop only for a due device test (audio/lock-screen code changed
+since the last tag), red CI on `main`, or a failing step.
+Full guide (Claude flow, device test, submitting, recovery): `dev-docs/release/RELEASE_GUIDE.md`
 
 ---
 
