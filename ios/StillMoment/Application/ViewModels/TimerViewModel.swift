@@ -417,7 +417,7 @@ private extension TimerViewModel {
             Logger.viewModel.info("Timer session activated (audio session + keep-alive)")
         } catch {
             Logger.viewModel.error("Failed to activate timer session", error: error)
-            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
+            self.showSoundFailedMessage()
         }
     }
 
@@ -426,7 +426,7 @@ private extension TimerViewModel {
             try self.audioService.startBackgroundAudio(soundId: soundId, volume: volume)
         } catch {
             Logger.viewModel.error("Failed to start background audio", error: error)
-            self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
+            self.showSoundFailedMessage()
         }
     }
 
@@ -438,7 +438,7 @@ private extension TimerViewModel {
             )
         } catch {
             Logger.viewModel.error("Failed to play start gong", error: error)
-            self.errorMessage = "Failed to play start sound: \(error.localizedDescription)"
+            self.showSoundFailedMessage()
         }
     }
 
@@ -447,7 +447,7 @@ private extension TimerViewModel {
             try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
         } catch {
             Logger.viewModel.error("Failed to play interval gong", error: error)
-            self.errorMessage = "Failed to play interval sound: \(error.localizedDescription)"
+            self.showSoundFailedMessage()
         }
     }
 
@@ -459,8 +459,14 @@ private extension TimerViewModel {
             )
         } catch {
             Logger.viewModel.error("Failed to play completion sound", error: error)
-            self.errorMessage = "Failed to play sound: \(error.localizedDescription)"
+            self.showSoundFailedMessage()
         }
+    }
+
+    /// One calm message for every sound failure: the user cannot act differently per sound,
+    /// and technical details stay in the log.
+    func showSoundFailedMessage() {
+        self.errorMessage = NSLocalizedString("error.timerSoundFailed", comment: "A timer sound could not be played")
     }
 }
 
