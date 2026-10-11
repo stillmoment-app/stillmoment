@@ -594,8 +594,9 @@ final class AudioServiceTests: XCTestCase {
 
     // MARK: - Delegate Robustness Tests
 
-    func testGongCompletionPublisher_EmitsOnPlayback() {
-        // Given
+    func testGongCompletionPublisher_EmitsOnPlayback() throws {
+        // Given - a start gong rings
+        try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 0.8)
         let expectation = expectation(description: "Gong completion")
         var cancellable: AnyCancellable?
 
@@ -605,7 +606,7 @@ final class AudioServiceTests: XCTestCase {
                 _ = cancellable // retain
             }
 
-        // When - Simulate delegate callback directly (no real audio needed)
+        // When - Simulate the delegate callback of the gong ringing out
         self.sut.gongPlayerDelegate.onFinish()
 
         // Then

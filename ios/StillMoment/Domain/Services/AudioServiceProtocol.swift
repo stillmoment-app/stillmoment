@@ -11,6 +11,8 @@ import Foundation
 /// Protocol defining audio playback behavior
 protocol AudioServiceProtocol {
     /// Publishes when a gong sound (start/interval/completion) finishes playing.
+    /// Also when the gong is interrupted (phone call, Siri) or cannot start — exactly once
+    /// per gong, so the timer never waits for a gong that will not end (shared-147).
     var gongCompletionPublisher: AnyPublisher<Void, Never> { get }
 
     /// Configures the audio session for background-capable playback

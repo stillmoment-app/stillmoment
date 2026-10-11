@@ -57,13 +57,20 @@ constructor(
         // Register conflict handler to stop background audio when another source takes over
         coordinator.registerConflictHandler(AudioSource.TIMER) {
             logger.d(TAG, "Audio conflict: stopping timer audio for other source")
+            forgetTimerInterruption()
             stopBackgroundAudioInternal()
         }
 
-        // Register pause handler for system audio focus loss (phone call, other app)
+        // Interruption (phone call, voice assistant, other app): the timer goes quiet but keeps counting
         coordinator.registerPauseHandler(AudioSource.TIMER) {
-            logger.d(TAG, "Audio focus lost: pausing timer background audio")
-            pauseBackgroundAudio()
+            logger.d(TAG, "Audio focus lost: timer sounds pause")
+            beginTimerInterruption()
+        }
+
+        // The system gave the sound back after a temporary loss
+        coordinator.registerResumeHandler(AudioSource.TIMER) {
+            logger.d(TAG, "Audio focus gained: timer sounds resume")
+            endTimerInterruption()
         }
 
         // Register conflict handler to stop preview audio when another source takes over
@@ -82,6 +89,14 @@ constructor(
     private var meditationPreviewPositionJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
+
+    // A start/end gong is playing and the timer waits for its end (interval gongs never do)
+    private var gongAwaitsCompletion = false
+
+    // shared-147: interruption of the running timer (see "Timer Interruption" below)
+    private var timerInterrupted = false
+    private var resumeBackgroundAfterInterruption = false
+    private var pendingBackgroundStart: (() -> Unit)? = null
 
     // Completion flows for ViewModel to observe
     private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -192,6 +207,12 @@ constructor(
                 return
             }
             releaseGongPlayer()
+            if (timerInterrupted) {
+                // Due during an interruption: stays silent and counts as finished (shared-147)
+                logger.d(TAG, "Gong skipped during interruption: $soundId")
+                _gongCompletionFlow.tryEmit(Unit)
+                return
+            }
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
@@ -200,10 +221,12 @@ constructor(
                 setOnCompletionListener {
                     release()
                     gongPlayer = null
+                    gongAwaitsCompletion = false
                     _gongCompletionFlow.tryEmit(Unit)
                 }
                 start()
             }
+            gongAwaitsCompletion = gongPlayer != null
             if (gongPlayer == null) {
                 logger.e(TAG, "Failed to create player for gong: ${gongSound.id}")
                 reportTimerSoundFailed()
@@ -231,6 +254,11 @@ constructor(
      * silent because it also serves the settings preview, which never shows the timer message.
      */
     fun playTimerIntervalGong(soundId: String, volume: Float) {
+        if (timerInterrupted && soundId != GongSound.VIBRATION_ID) {
+            // Due during an interruption: skipped, not made up for later (shared-147)
+            logger.d(TAG, "Interval gong skipped during interruption: $soundId")
+            return
+        }
         if (!startIntervalGong(soundId, volume)) {
             reportTimerSoundFailed()
         }
@@ -468,6 +496,7 @@ constructor(
      * @param volume The playback volume (0.0 to 1.0), defaults to DEFAULT_AMBIENT_VOLUME
      */
     fun startBackgroundAudioFromFile(filePath: String, volume: Float = DEFAULT_AMBIENT_VOLUME) {
+        if (deferBackgroundStartDuringInterruption { startBackgroundAudioFromFile(filePath, volume) }) return
         try {
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
                 logger.w(TAG, "Failed to acquire audio session for background audio from file")
@@ -489,6 +518,11 @@ constructor(
                 false
             }
             player.setOnPreparedListener {
+                if (timerInterrupted) {
+                    // Loaded during an interruption: starts once the system gives the sound back
+                    resumeBackgroundAfterInterruption = true
+                    return@setOnPreparedListener
+                }
                 player.start()
                 fadeToVolume(targetVolume)
                 logger.d(TAG, "Started background audio from file: $filePath, volume: $targetVolume")
@@ -509,6 +543,7 @@ constructor(
      * @param volume The playback volume (0.0 to 1.0), defaults to DEFAULT_AMBIENT_VOLUME
      */
     fun startBackgroundAudio(soundId: String, volume: Float = DEFAULT_AMBIENT_VOLUME) {
+        if (deferBackgroundStartDuringInterruption { startBackgroundAudio(soundId, volume) }) return
         try {
             // Request exclusive audio session
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
@@ -548,6 +583,7 @@ constructor(
      * Stop background audio and release the audio session.
      */
     fun stopBackgroundAudio() {
+        forgetTimerInterruption()
         volumeAnimator.cancel()
         stopBackgroundAudioInternal()
         coordinator.releaseAudioSession(AudioSource.TIMER)
@@ -620,6 +656,59 @@ constructor(
      */
     fun isBackgroundAudioPlaying(): Boolean {
         return backgroundPlayer?.isPlaying == true
+    }
+
+    // MARK: - Timer Interruption (shared-147)
+    //
+    // While an interruption lasts, no timer sound plays (vibration still does); the timer itself
+    // keeps counting. A start/end gong that is interrupted or due counts as finished, so the timer
+    // never waits for it. Interval gongs due meanwhile are skipped. Once the system gives the
+    // sound back, the background sound plays again. Without that (permanent loss) the timer stays
+    // silent until it ends.
+
+    private fun beginTimerInterruption() {
+        timerInterrupted = true
+        // "||": a second loss during the interruption finds the sound already paused.
+        // An own soundscape still loading is marked for resuming by its onPrepared.
+        resumeBackgroundAfterInterruption = resumeBackgroundAfterInterruption || isBackgroundAudioPlaying()
+        pauseBackgroundAudio()
+        val gongWasAwaited = gongAwaitsCompletion
+        releaseGongPlayer()
+        if (gongWasAwaited) {
+            _gongCompletionFlow.tryEmit(Unit)
+        }
+    }
+
+    private fun endTimerInterruption() {
+        val pendingStart = pendingBackgroundStart
+        val resume = resumeBackgroundAfterInterruption
+        forgetTimerInterruption()
+        when {
+            pendingStart != null -> pendingStart()
+            resume -> resumeBackgroundAudio()
+        }
+    }
+
+    private fun forgetTimerInterruption() {
+        timerInterrupted = false
+        resumeBackgroundAfterInterruption = false
+        pendingBackgroundStart = null
+    }
+
+    /**
+     * During an interruption the background sound must not ask the system for the sound: during a
+     * phone call Android refuses, which would show an error and leave the sound off for the whole
+     * session. The start is kept and runs once the system gives the sound back.
+     *
+     * @return true if the start was deferred
+     */
+    private fun deferBackgroundStartDuringInterruption(start: () -> Unit): Boolean {
+        if (!timerInterrupted) return false
+        logger.d(TAG, "Background audio start deferred until the interruption ends")
+        stopBackgroundAudioInternal()
+        resumeBackgroundAfterInterruption = false
+        pendingBackgroundStart = start
+        return true
     }
 
     // MARK: - Meditation Preview
@@ -829,5 +918,6 @@ constructor(
     private fun releaseGongPlayer() {
         safeRelease(gongPlayer, "gong player")
         gongPlayer = null
+        gongAwaitsCompletion = false
     }
 }

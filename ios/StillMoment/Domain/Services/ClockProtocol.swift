@@ -26,4 +26,10 @@ protocol ClockProtocol {
     ///
     /// Used for time-based calculations (e.g., background handling)
     func now() -> Date
+
+    /// Returns a monotonic point in time for measuring elapsed time
+    ///
+    /// Keeps counting while the device sleeps and ignores changes of the device time
+    /// (by the user or network time), unlike `now()`.
+    func monotonicNow() -> ContinuousClock.Instant
 }
