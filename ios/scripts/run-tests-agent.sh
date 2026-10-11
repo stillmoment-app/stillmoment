@@ -96,8 +96,12 @@ TOTAL=$(echo "$SUMMARY_LINE" | sed -E 's/.*Executed ([0-9]+) test.*/\1/')
 FAIL_COUNT=$(echo "$SUMMARY_LINE" | sed -E 's/.*with ([0-9]+) failure.*/\1/')
 PASS_COUNT=$((TOTAL - FAIL_COUNT))
 
-if [ "$FAIL_COUNT" -eq 0 ]; then
+if [ "$FAIL_COUNT" -eq 0 ] && [ "$XCODE_EXIT" -eq 0 ]; then
     echo "RESULT: PASS"
+elif [ "$FAIL_COUNT" -eq 0 ]; then
+    # No failing test, but xcodebuild failed: the run aborted mid-suite (e.g. test
+    # runner crash). The last summary line then only covers the suites that ran.
+    echo "RESULT: ERROR"
 else
     echo "RESULT: FAIL"
 fi
@@ -105,6 +109,13 @@ echo "PASSED: $PASS_COUNT"
 echo "FAILED: $FAIL_COUNT"
 echo "TOTAL: $TOTAL"
 echo "TIME: ${ELAPSED}s"
+
+if [ "$FAIL_COUNT" -eq 0 ] && [ "$XCODE_EXIT" -ne 0 ]; then
+    echo ""
+    echo "ERROR: xcodebuild exited with $XCODE_EXIT although no test failed — the run did not complete."
+    echo "OUTPUT (last 30 lines):"
+    tail -30 "$TEMP_OUTPUT"
+fi
 
 # Show failure details
 if [ "$FAIL_COUNT" -gt 0 ]; then
