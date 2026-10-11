@@ -1,7 +1,7 @@
 ---
 id: ios-063
 title: "iOS-Release ohne App Store Connect: automatisch einreichen"
-status: in-progress
+status: done
 phase: 2-Architektur
 priority: mittel
 depends_on: []
