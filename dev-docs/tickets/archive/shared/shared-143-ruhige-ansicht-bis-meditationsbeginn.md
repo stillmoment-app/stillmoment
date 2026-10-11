@@ -2,7 +2,7 @@
 id: shared-143
 title: "Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt"
 status:
-  ios: in-progress
+  ios: done
   android: done
 phase: 1-Quick Fix
 priority: hoch
@@ -32,14 +32,14 @@ Ein Doppelstart oder ein Sprung zurück reißt aus der Ruhe, gerade in den erste
 
 <!-- Gelten fuer BEIDE Plattformen. -->
 
-- [ ] Während Start-Gong und Atempause zeigt der Player die ruhige Ansicht ohne Play-Knopf, Wellenform und Spulen
-- [ ] Nach Start-Gong und Atempause beginnt die Meditation genau einmal, am Anfang (bei gesetztem Wiedergabebereich an dessen Anfang), und der Player wechselt in die Ansicht der laufenden Meditation
-- [ ] Mit Vorbereitungszeit und Start-Gong folgen Vorbereitung, Gong, Atempause und Meditation ohne Rückkehr zur Ansicht der laufenden Meditation dazwischen
-- [ ] Ohne Start-Gong und ohne Vorbereitungszeit verhält sich der Start wie bisher
-- [ ] Der Start-Gong klingt nur beim ersten Start; Fortsetzen nach Pause und Neustart nach dem Ende spielen ihn nicht erneut
-- [ ] Bei sofort gesperrtem Bildschirm beginnt die Meditation nach Gong und Atempause weiterhin (android-098)
-- [ ] Schließen des Players oder Stopp von außen während Gong oder Atempause bricht weiterhin alles ab, danach spielt nichts nach
-- [ ] Nach einem Stopp von außen startet Play die Meditation weiterhin direkt, ohne Vorbereitung und Start-Gong
+- [x] Während Start-Gong und Atempause zeigt der Player die ruhige Ansicht ohne Play-Knopf, Wellenform und Spulen
+- [x] Nach Start-Gong und Atempause beginnt die Meditation genau einmal, am Anfang (bei gesetztem Wiedergabebereich an dessen Anfang), und der Player wechselt in die Ansicht der laufenden Meditation
+- [x] Mit Vorbereitungszeit und Start-Gong folgen Vorbereitung, Gong, Atempause und Meditation ohne Rückkehr zur Ansicht der laufenden Meditation dazwischen
+- [x] Ohne Start-Gong und ohne Vorbereitungszeit verhält sich der Start wie bisher
+- [x] Der Start-Gong klingt nur beim ersten Start; Fortsetzen nach Pause und Neustart nach dem Ende spielen ihn nicht erneut
+- [x] Bei sofort gesperrtem Bildschirm beginnt die Meditation nach Gong und Atempause weiterhin (android-098)
+- [x] Schließen des Players oder Stopp von außen während Gong oder Atempause bricht weiterhin alles ab, danach spielt nichts nach
+- [x] Nach einem Stopp von außen startet Play die Meditation weiterhin direkt, ohne Vorbereitung und Start-Gong
 
 ---
 
