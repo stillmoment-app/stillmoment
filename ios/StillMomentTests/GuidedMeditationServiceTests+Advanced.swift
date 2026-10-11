@@ -21,9 +21,7 @@ extension GuidedMeditationServiceTests {
         // When
         let meditation = try sut.addMeditation(
             from: tempURL,
-            metadata: AudioMetadata(artist: nil, title: nil, duration: 300),
-            teacher: "Teacher",
-            name: "Test"
+            draft: self.makeImportDraft(for: tempURL, teacher: "Teacher", name: "Test")
         )
 
         // Then — the copied audio file lives inside that storage, never in the app's own folder

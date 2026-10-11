@@ -49,13 +49,15 @@ final class StorageLocationTests: XCTestCase {
         let audioFile = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).mp3")
         FileManager.default.createFile(atPath: audioFile.path, contents: Data([0x1]))
         defer { try? FileManager.default.removeItem(at: audioFile) }
+        let draft = GuidedMeditation(
+            localFilePath: "",
+            fileName: audioFile.lastPathComponent,
+            duration: 300,
+            teacher: "Melissa Gein",
+            name: "Achtsame Übung"
+        )
         _ = try GuidedMeditationService(userDefaults: earlier.userDefaults, baseDirectory: earlier.baseDirectory)
-            .addMeditation(
-                from: audioFile,
-                metadata: AudioMetadata(artist: nil, title: nil, duration: 300),
-                teacher: "Melissa Gein",
-                name: "Achtsame Übung"
-            )
+            .addMeditation(from: audioFile, draft: draft)
         earlier.userDefaults.set(AppearanceMode.light.rawValue, forKey: "appearanceMode")
 
         // When — the next test launch asks for a test storage
