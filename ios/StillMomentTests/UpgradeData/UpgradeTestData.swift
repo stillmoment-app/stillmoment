@@ -18,7 +18,7 @@ import Foundation
 enum UpgradeTestData {
     // MARK: - Library
 
-    /// A meditation with teacher, title, playback range and both gongs on.
+    /// A meditation with teacher, title, playback range, both gongs on and a non-default gong sound.
     /// Only the reference to the audio file is stored, not the file itself.
     static let meditation = GuidedMeditation(
         id: meditationId,
@@ -32,26 +32,27 @@ enum UpgradeTestData {
         trimEnd: 600,
         startGongEnabled: true,
         endGongEnabled: true,
-        gongSoundId: GongSound.defaultSoundId
+        gongSoundId: "clear-strike"
     )
 
     // MARK: - Praxis
 
-    /// Timer settings that differ from the factory defaults wherever the ticket asks for it.
+    /// Timer settings, every value away from the factory default (a lost value then shows),
+    /// identical to the Android writer.
     static let praxis = Praxis(
         id: praxisId,
         durationMinutes: 20,
         preparationTimeEnabled: true,
         preparationTimeSeconds: 15,
         startGongSoundId: "deep-resonance",
-        gongVolume: 1.0,
+        gongVolume: 0.8,
         intervalGongsEnabled: true,
-        intervalMinutes: 5,
-        intervalMode: .repeating,
-        intervalSoundId: GongSound.defaultIntervalSoundId,
-        intervalGongVolume: 0.75,
+        intervalMinutes: 7,
+        intervalMode: .beforeEnd,
+        intervalSoundId: "temple-bell",
+        intervalGongVolume: 0.5,
         backgroundSoundId: "forest",
-        backgroundSoundVolume: 0.15
+        backgroundSoundVolume: 0.3
     )
 
     // MARK: - My Sounds
