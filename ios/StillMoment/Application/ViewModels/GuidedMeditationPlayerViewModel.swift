@@ -118,35 +118,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Used to prevent countdown from triggering again on resume
     private(set) var hasSessionStarted = false
 
-    /// Formatted current time string (MM:SS or HH:MM:SS)
-    var formattedCurrentTime: String {
-        self.formatTime(self.currentTime)
-    }
-
-    /// Formatted remaining time string (MM:SS or HH:MM:SS) — counts down to the trim end
-    var formattedRemainingTime: String {
-        let remaining = max(self.meditation.effectiveEnd - self.currentTime, 0)
-        return self.formatTime(remaining)
-    }
-
-    /// Restzeit fuer das "NOCH … MIN"-Label im neuen Player-Layout.
-    ///
-    /// Identisch mit `formattedRemainingTime` — eigene Property, weil der
-    /// View-Aufruf so semantisch klar bleibt ("Minuten-Label im Atemkreis-Player").
-    var formattedRemainingMinutes: String {
-        self.formattedRemainingTime
-    }
-
-    /// Progress within the effective (trimmed) range as a value between 0 and 1
-    var progress: Double {
-        let effectiveDuration = self.meditation.effectiveDuration
-        guard effectiveDuration > 0 else {
-            return 0
-        }
-        let elapsed = self.currentTime - self.meditation.effectiveStart
-        return min(max(elapsed / effectiveDuration, 0), 1)
-    }
-
     // MARK: - Public Methods
 
     /// Loads and prepares the audio for playback
@@ -187,8 +158,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     ///
     /// Ignored before the meditation audio begins — a tap during preparation, start gong or
     /// breath pause must not start the meditation early (shared-143). The sequence starts
-    /// it exactly once itself. After an interruption aborted that sequence, the tap starts
-    /// it over (ios-065).
+    /// it exactly once itself. After an interruption aborted that sequence, it starts over
+    /// when the system gives the sound back, or with the next tap — whichever comes first
+    /// (ios-065, shared-146).
     func togglePlayPause() {
         guard !self.isBeforeAudio else {
             return
@@ -263,6 +235,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Cleans up resources when done
     func cleanup() {
+        self.restartsPreRollAfterInterruption = false
         self.countdownTimer?.cancel()
         self.countdownTimer = nil
         self.breathPauseTimer?.cancel()
@@ -285,6 +258,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         guard !self.isBeforeAudio else {
             return
         }
+        self.restartsPreRollAfterInterruption = false
 
         // If session already started, just toggle play/pause (no countdown on resume)
         guard !self.hasSessionStarted else {
@@ -330,6 +304,10 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// on release.
     private var dragWasPlaying = false
 
+    /// Set when an interruption aborted the pre-roll; it starts over when the system gives
+    /// the sound back (shared-146). A tap on Play or closing the player clears it.
+    private var restartsPreRollAfterInterruption = false
+
     // MARK: - Private Methods
 
     private func setupBindings() {
@@ -366,18 +344,13 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
                 self?.handleInterruption()
             }
             .store(in: &self.cancellables)
-    }
 
-    private func formatTime(_ time: TimeInterval) -> String {
-        let hours = Int(time) / 3600
-        let minutes = (Int(time) % 3600) / 60
-        let seconds = Int(time) % 60
-
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return String(format: "%d:%02d", minutes, seconds)
-        }
+        self.playerService.interruptionEnded
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.handleInterruptionEnded()
+            }
+            .store(in: &self.cancellables)
     }
 
     // MARK: - Countdown Methods
@@ -478,11 +451,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.transitionToPlayback()
     }
 
-    // MARK: - Interruption (ios-065)
+    // MARK: - Interruption (ios-065, shared-146)
 
-    /// A phone call (or Siri, an alarm) never leads to an automatic resume. During playback
-    /// the service has already paused; a scrub in progress must not resume on release either.
-    /// Before the meditation audio begins, the pre-roll is aborted.
+    /// During playback the service has already paused (and resumes by itself when the system
+    /// gives the sound back); a scrub in progress must not resume on release. Before the
+    /// meditation audio begins, the pre-roll is aborted.
     private func handleInterruption() {
         self.dragWasPlaying = false
         if self.isBeforeAudio {
@@ -490,8 +463,18 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         }
     }
 
-    /// Preparation, start gong and breath pause stop, the player waits paused at the
-    /// beginning, and the next tap on Play starts the pre-roll over.
+    /// The system gave the sound back: an aborted pre-roll starts over, so the meditation
+    /// still begins exactly once.
+    private func handleInterruptionEnded() {
+        guard self.restartsPreRollAfterInterruption else {
+            return
+        }
+        Logger.audioPlayer.info("Restarting pre-roll after interruption")
+        self.startPlayback()
+    }
+
+    /// Preparation, start gong and breath pause stop and the player waits paused at the
+    /// beginning, until the interruption ends with the sound given back or the user taps Play.
     private func abortPreRoll() {
         self.countdownTimer?.cancel()
         self.countdownTimer = nil
@@ -502,6 +485,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.countdownState = .idle
         self.isStartGongSequenceActive = false
         self.hasSessionStarted = false
+        self.restartsPreRollAfterInterruption = true
         Logger.audioPlayer.info("Pre-roll aborted by interruption")
     }
 }
@@ -509,47 +493,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 // MARK: - Waveform Window & Scrub (shared-109)
 
 extension GuidedMeditationPlayerViewModel {
-    // MARK: Window geometry inputs
-
-    /// Playable range (absolute file time) the scrub is clamped to: the trimmed range,
-    /// or the whole file when no trim is set.
-    var scrubBounds: ClosedRange<TimeInterval> {
-        let lower = self.meditation.effectiveStart
-        let upper = max(self.meditation.effectiveEnd, lower)
-        return lower...upper
-    }
-
-    /// The absolute time the window is centered on: the live drag position while scrubbing,
-    /// otherwise the real audio position (source of truth for clean background recovery).
-    var displayTime: TimeInterval {
-        self.isDragging ? self.dragPosition : self.currentTime
-    }
-
-    /// Current position relative to the trim start (`mm:ss`). Follows the live drag while
-    /// scrubbing and the audio position otherwise — used for the live readout and the
-    /// scrub slider's accessibility value.
-    var formattedPosition: String {
-        let relative = max(self.displayTime - self.meditation.effectiveStart, 0)
-        return self.formatTime(relative)
-    }
-
-    /// Total playable length (trimmed), shown as `position / total` while dragging (`mm:ss`).
-    var formattedEffectiveDuration: String {
-        self.formatTime(self.meditation.effectiveDuration)
-    }
-
-    /// State of the central resting line below the wave (AK-4). While dragging the view
-    /// shows the live position instead.
-    var remainingLineState: RemainingLineState {
-        if self.isCompleted {
-            return .finished
-        }
-        if self.isPaused {
-            return .paused
-        }
-        return .remaining(self.formattedRemainingTime)
-    }
-
     // MARK: Waveform loading (AK-1, AK-8)
 
     /// Loads the precomputed waveform for the scrolling window.

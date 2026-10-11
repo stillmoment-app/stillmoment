@@ -218,20 +218,24 @@ hat das System den Ton bereits angehalten. Timer und gefuehrte Meditation reagie
 
 | Event | Timer (`AudioService`) | Gefuehrte Meditation (`AudioPlayerService`) |
 |-------|------------------------|---------------------------------------------|
-| `.began` | Nur Log | Laufende Wiedergabe → `.paused` (auch Now-Playing-Rate 0); `.finished`/`.idle` bleiben. Meldet `interruptionBegan` an das ViewModel |
-| `.ended` | Keep-Alive neu starten, wenn `timerSessionActive` (unabhaengig von `.shouldResume`) | Nichts: kein automatisches Fortsetzen, auch nicht bei `.shouldResume` |
+| `.began` | Nur Log | Laufende Wiedergabe → `.paused` (auch Now-Playing-Rate 0); `.finished`/`.idle` bleiben. Meldet `interruptionBegan` an das ViewModel. Mit `AVAudioSessionInterruptionWasSuspendedKey` ignoriert |
+| `.ended` | Keep-Alive neu starten, wenn `timerSessionActive` (unabhaengig von `.shouldResume`) | Bei `.shouldResume` setzt eine Wiedergabe, die die Unterbrechung pausiert hat, an derselben Stelle fort (Now-Playing-Rate 1); `interruptionEnded` geht ans ViewModel. Ohne `.shouldResume` passiert nichts |
 
-**Gefuehrte Meditation (ios-065):** Kein automatisches Fortsetzen ist eine Produktentscheidung (wie Android
-bei Fokusverlust): Wer telefoniert hat, entscheidet selbst, ob es weitergeht; ein Tipp auf Play setzt an
-derselben Stelle fort. Haelt der Finger beim Anruf gerade die Wellenform, setzt auch das Loslassen nicht
-fort. Der Observer lebt so lange wie der Dienst und bleibt ueber `load()`/`cleanup()`
-hinweg angemeldet.
+**Gefuehrte Meditation (shared-146):** Eine Unterbrechung haelt den Ton an; gibt das System ihn wieder frei
+(`.shouldResume`), laeuft weiter, was lief. Keine Unterscheidung zwischen angenommenem und ignoriertem Anruf.
+Ohne Freigabe bleibt die Meditation pausiert, ein Tipp auf Play setzt an derselben Stelle fort. Was vorher
+pausiert war (auch durch Halten der Wellenform) oder beendet ist, bleibt so. Jedes Play/Pause/Stop des Nutzers,
+ein neues `load()` und `cleanup()` loeschen das Fortsetzen. Der Observer lebt so lange wie der Dienst und bleibt
+ueber `load()`/`cleanup()` hinweg angemeldet. Apple garantiert kein `.ended` zu jedem `.began`; bleibt es aus,
+verhaelt sich die Meditation wie ohne Freigabe.
 
 **Unterbrechung im Vorlauf:** Waehrend Vorbereitungszeit, Start-Gong oder Atempause bricht
 `GuidedMeditationPlayerViewModel` auf `interruptionBegan` hin den Vorlauf ab: Countdown und Atempause enden,
-der Gong verstummt, das Silent-Audio stoppt. Der Player steht pausiert am Anfang; der naechste Tipp auf Play
-startet den ganzen Vorlauf neu, danach beginnt die Meditation genau einmal. Eine Gong-Completion, die erst
-nach dem Abbruch ankommt, wird ignoriert.
+der Gong verstummt, das Silent-Audio stoppt. Eine Gong-Completion, die erst nach dem Abbruch ankommt, wird
+ignoriert. Auf `interruptionEnded` beginnt der ganze Vorlauf von selbst neu; ohne Freigabe steht der Player
+pausiert am Anfang, und der naechste Tipp auf Play startet den Vorlauf neu. In beiden Faellen beginnt die
+Meditation genau einmal. Hat der Nutzer den Vorlauf schon waehrend der Unterbrechung neu gestartet, startet
+`interruptionEnded` ihn nicht ein zweites Mal.
 
 ---
 
@@ -384,6 +388,7 @@ Physisches Geraet erforderlich. Kritische Szenarien:
 - Gesperrter Bildschirm waehrend stiller Meditation: Background Audio funktioniert?
 - Tab-Wechsel waehrend Playback: Koordination funktioniert?
 - Telefonanruf-Unterbrechung: Timer laeuft nach Anruf weiter?
+- Anruf waehrend gefuehrter Meditation (gesperrt; ignoriert, angenommen, waehrend des Start-Gongs): laeuft danach von selbst weiter bzw. Vorlauf beginnt neu?
 - Lock Screen Controls fuer Guided Meditations sichtbar?
 
 ---

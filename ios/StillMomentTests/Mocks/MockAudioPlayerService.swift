@@ -12,6 +12,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var currentTime = CurrentValueSubject<TimeInterval, Never>(0)
     var duration = CurrentValueSubject<TimeInterval, Never>(0)
     let interruptionBegan = PassthroughSubject<Void, Never>()
+    let interruptionEnded = PassthroughSubject<Void, Never>()
 
     var loadedMeditation: GuidedMeditation?
     var loadedURL: URL?
@@ -30,6 +31,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var configureEndGongCalled = false
     var endGongSoundId: String?
     var endGongVolume: Float?
+    private var resumesAfterInterruption = false
 
     func load(url: URL, meditation: GuidedMeditation) async throws {
         if self.loadShouldThrow {
@@ -44,11 +46,13 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     func play() throws {
         self.playCalled = true
         self.playCallCount += 1
+        self.resumesAfterInterruption = false
         self.state.send(.playing)
     }
 
     func pause() {
         self.pauseCalled = true
+        self.resumesAfterInterruption = false
         self.state.send(.paused)
     }
 
@@ -95,12 +99,25 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     }
 
     /// Simulates a phone call like the real service: running playback pauses, then the
-    /// interruption is reported. Nothing happens when it ends (ios-065).
+    /// interruption is reported (ios-065).
     func simulateInterruption() {
         if self.state.value == .playing {
             self.pause()
+            self.resumesAfterInterruption = true
         }
         self.interruptionBegan.send()
+    }
+
+    /// Simulates the end of a phone call like the real service (shared-146): when the system
+    /// gives the sound back, playback the call paused resumes, then the end is reported.
+    func simulateInterruptionEnded(withResume: Bool) {
+        if withResume {
+            if self.resumesAfterInterruption {
+                try? self.play()
+            }
+            self.interruptionEnded.send()
+        }
+        self.resumesAfterInterruption = false
     }
 
     func cleanup() {
