@@ -67,9 +67,11 @@ class MainActivity : ComponentActivity() {
     /**
      * Applies Locale.getDefault() to the activity context.
      *
-     * Used by screenshot tests: LocaleTestRule sets Locale.setDefault(),
-     * then the test calls recreate() which triggers this method.
-     * This ensures Compose stringResource() uses the correct locale.
+     * Intended for screenshot tests: LocaleTestRule sets Locale.setDefault() before the
+     * activity starts, and this method applies it so Compose stringResource() uses that locale.
+     * The screenshot tests no longer call recreate(): because the launch can reset the default
+     * locale (API 36), ScreengrabScreenshotTests.setup() sets the locale after launch directly
+     * on the activity's resources.
      */
     override fun attachBaseContext(newBase: Context) {
         val locale = Locale.getDefault()

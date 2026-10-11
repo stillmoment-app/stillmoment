@@ -64,24 +64,22 @@ platform :ios do
       only_testing: ["StillMomentUITests/ScreenshotTests"]
     )
 
-    # Framing disabled — plain screenshots for now
-    # sh("cd .. && ./scripts/frame-screenshots.sh")
-
     # Post-process: copy and rename to docs/images/screenshots/
     sh("cd .. && ./scripts/process-screenshots.sh")
 
-    # Curate App Store set + display order (website keeps all 16 from step above)
+    # Curate App Store set + display order (website images were already copied in the
+    # step above — only the screens mapped in process-screenshots.sh)
     sh("cd .. && ./scripts/curate-store-screenshots.sh")
 
     UI.success("Screenshots generated successfully!")
-    UI.message("Output: ../docs/images/screenshots/")
+    UI.message("Output: App Store set in fastlane/screenshots/, website images in ../docs/images/screenshots/")
   end
 
   desc "Generate single screenshot in all languages (keeps existing screenshots)"
   lane :screenshot_single do |options|
     test_name = options[:test] || ENV["TEST"]
 
-    UI.user_error!("TEST parameter required. Usage: bundle exec fastlane screenshot_single test:testScreenshot05_SettingsView") unless test_name
+    UI.user_error!("TEST parameter required. Usage: bundle exec fastlane screenshot_single test:testScreenshot05_settingsView") unless test_name
 
     capture_screenshots(
       only_testing: ["StillMomentUITests/ScreenshotTests/#{test_name}"],

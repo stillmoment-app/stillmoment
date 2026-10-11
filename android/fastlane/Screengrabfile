@@ -40,6 +40,7 @@ reinstall_app(false)
 # Continue generating remaining screenshots even if a test fails
 exit_on_test_failure(false)
 
-# Device configuration - Pixel 6 Pro for consistent 6.7" screenshots
-# Note: Emulator must be running before executing screengrab
-# Start with: emulator -avd Pixel_6_Pro_API_34
+# Device configuration
+# Note: An emulator must be running before executing screengrab.
+# `make screenshots` (android/Makefile) starts one if none is running — which AVD it
+# picks is defined there.
