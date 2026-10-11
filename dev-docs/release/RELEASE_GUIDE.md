@@ -131,8 +131,8 @@ Was danach passiert:
   sie mit diesem Build zur Prüfung ein. Nach Apples Freigabe startet automatisch die gestaffelte
   Veröffentlichung (7 Tage; betrifft nur automatische Updates, wer im App Store selbst aktualisiert,
   bekommt die Version sofort). Scheitert das Einreichen, endet der Befehl mit Fehler; die Meldung
-  nennt Ursache und nächsten Schritt (Build ist dann schon hochgeladen — `make release` ohne
-  `SKIP_BUILD=1` nicht wiederholen). `SKIP_BUILD=1` lädt nur Metadaten + Screenshots und reicht nichts ein.
+  nennt Ursache und nächsten Schritt (Build ist dann schon hochgeladen; eingereicht wird in
+  App Store Connect, `make release` würde nur erneut bauen und hochladen). `SKIP_BUILD=1` lädt nur Metadaten + Screenshots und reicht nichts ein.
 - **Android** (`make -C android release`): baut das App-Bundle und lädt es mit Metadaten,
   Release Notes und Screenshots in den Production-Track. Ohne `release_status` gilt bei fastlane
   `completed`: das Release geht direkt in Googles Prüfung und nach Freigabe an alle Nutzer —
