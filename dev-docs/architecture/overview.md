@@ -58,18 +58,14 @@ StillMoment/
 ├── StillMomentApp.swift   # App-Einstieg
 ├── AppDependencies.swift  # Composition Root: erzeugt alle Dienste
 ├── Domain/           # Reine Business-Logik (keine Abhaengigkeiten)
-│   ├── Models/       # Entities, Value Objects
-│   ├── Protocols/    # Service-Interfaces
-│   └── Services/     # Pure Domain Services
-├── Application/      # Use Cases & ViewModels
-│   └── ViewModels/   # @MainActor, @Published
-├── Presentation/     # UI Layer (SwiftUI)
-│   └── Views/        # Keine Business-Logik!
-├── Infrastructure/   # Externe Abhaengigkeiten
-│   ├── Audio/        # AVFoundation Implementierungen
-│   ├── Persistence/  # UserDefaults, File Storage
-│   └── Services/     # Protokoll-Implementierungen
-└── Resources/        # Assets, Sounds, Localizable.strings
+│   ├── Models/       # Entities, Value Objects, Actions, Effects
+│   └── Services/     # Service-Protokolle + pure Domain Services (z.B. Reducer)
+├── Application/      # ViewModels, App-Ablaeufe
+├── Presentation/     # UI Layer (SwiftUI), keine Business-Logik
+│   ├── Theme/        # Farben, Typografie
+│   └── Views/
+├── Infrastructure/   # Protokoll-Implementierungen (Audio, Persistenz, Logging)
+└── Resources/        # Sounds, Fonts, Lokalisierung
 ```
 
 **Dependency Rules:**
@@ -92,18 +88,20 @@ erzeugt Dienste selbst, so laufen zustandsbehaftete Dienste nie unbemerkt doppel
 
 ```
 app/src/main/kotlin/com/stillmoment/
+├── StillMomentApp.kt # Application (Hilt-Einstieg)
+├── MainActivity.kt   # Entry Point
 ├── domain/           # Business-Logik
-│   ├── models/       # Entities
-│   └── services/     # Interfaces
-├── data/             # Data Layer
-│   └── repositories/ # Repository Implementierungen
+│   ├── models/       # Entities, Value Objects, Actions, Effects
+│   ├── repositories/ # Repository-Interfaces
+│   └── services/     # Service-Interfaces + pure Domain Services (z.B. Reducer)
+├── data/             # Repository-Implementierungen, lokale Speicherung, Migrationen
 ├── infrastructure/   # Externe Abhaengigkeiten
-│   ├── audio/        # MediaPlayer, ExoPlayer
-│   └── di/           # Hilt/Dagger Module
-├── presentation/     # UI Layer (Jetpack Compose)
-│   ├── ui/           # Screens, Components
-│   └── viewmodels/   # ViewModels
-└── MainActivity.kt   # Entry Point
+│   ├── audio/        # MediaPlayer, Media3-Session, Foreground-Services
+│   └── di/           # Hilt-Module (Composition Root: AppModule.kt)
+└── presentation/     # UI Layer (Jetpack Compose)
+    ├── navigation/
+    ├── ui/           # Screens, Components, Theme
+    └── viewmodel/    # ViewModels
 ```
 
 ### Build Commands
@@ -137,7 +135,7 @@ Beide Plattformen implementieren dieselben Features:
 | Architecture | MVVM + Clean Architecture | MVVM + Clean Architecture |
 | DI | Constructor Injection | Hilt |
 | Async | Combine | Coroutines/Flow |
-| Audio | AVFoundation | MediaPlayer/ExoPlayer |
+| Audio | AVFoundation | MediaPlayer (+ Media3-Session fuer den Sperrbildschirm) |
 
 ### Naming Conventions
 
@@ -161,18 +159,15 @@ Beide Plattformen implementieren dieselben Features:
 
 ### Test Files Structure
 
-```
-StillMomentTests/
-├── Domain/               # Domain Model Tests
-├── Application/          # ViewModel Tests
-└── Infrastructure/       # Service Tests
+iOS: `StillMomentTests/` ist gemischt organisiert. Viele Tests liegen direkt im Wurzelordner oder in
+Feature-Ordnern (z.B. `TimerViewModel/`, `PraxisSettings/`), nur ein Teil in Schicht-Ordnern
+(`Domain/`, `Application/`, `Infrastructure/`, `Presentation/`). Gemeinsame Test-Doubles liegen in
+`Mocks/`, Hilfen in `Helpers/`. `StillMomentUITests/` enthaelt die Flow-Tests
+(`TimerFlowUITests`, `LibraryFlowUITests`) und die App-Store-Screenshots (`ScreenshotTests`, mit
+Fastlanes `SnapshotHelper.swift`).
 
-StillMomentUITests/
-├── TimerFlowUITests.swift    # Timer Funktionalitaet
-├── LibraryFlowUITests.swift  # Library Funktionalitaet
-├── ScreenshotTests.swift     # App Store Screenshots
-└── SnapshotHelper.swift      # Fastlane Integration
-```
+Android: Unit-Tests unter `app/src/test/` spiegeln die Paketstruktur (`domain/`, `data/`,
+`infrastructure/`, `presentation/`); UI- und Screenshot-Tests laufen als `androidTest` auf dem Emulator.
 
 ### Coverage Targets
 
@@ -233,8 +228,16 @@ Siehe: `audio-system.md`, ADR-001
 Semantische Farben statt direkter Farbwerte:
 
 ```swift
-.foregroundColor(.textPrimary)    // Richtig
-.foregroundColor(.warmBlack)      // Falsch
+// Richtig: Theme-Farbe aus dem Environment (reaktiv bei Theme-/Dark-Mode-Wechsel)
+@Environment(\.themeColors)
+private var theme
+
+Image(systemName: "play.circle")
+    .foregroundColor(self.theme.interactive)
+
+// Falsch: direkter Farbwert. Statische `Color`-Properties wie `Color.textPrimary`
+// gibt es nicht mehr (entfernt, weil nicht reaktiv).
+.foregroundColor(.warmBlack)
 ```
 
 Siehe: `../reference/color-system.md`

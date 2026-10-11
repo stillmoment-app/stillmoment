@@ -48,7 +48,7 @@ Konfiguriert in `BackgroundAudio/sounds.json` (Source of Truth). Neue Sounds: JS
 
 ### Problem
 
-Timer und Guided Meditations koennen gleichzeitig in der TabView laufen und Audio-Konflikte verursachen.
+Timer, Guided Meditations und Vorhoer-Audio nutzen dieselbe Audio-Session. Die Produktregel (Tab-Wechsel beendet die laufende Sitzung) verhindert, dass zwei Sitzungen in der UI nebeneinander laufen; trotzdem muss jede Quelle die Session exklusiv anfordern und wieder freigeben, sonst bleiben Audio, Keep-Alive oder Sperrbildschirm-Anzeige einer beendeten Quelle haengen (z.B. Vorhoeren in den Einstellungen und anschliessender Timer-Start).
 
 ### Loesung
 
@@ -87,20 +87,11 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 | `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen (oder Vibration wenn `GongSound.vibrationId`) |
 | `playCompletionSound` | Abschluss-Gong abspielen |
 
-**Ausfuehrung:** ViewModel empfaengt Effects vom Reducer und delegiert an AudioService.
-
-```swift
-// iOS - TimerViewModel
-private func executeEffect(_ effect: TimerEffect) {
-    switch effect {
-    case .playStartGong:
-        try audioService.playStartGong(soundId: settings.startGongSoundId, volume: settings.gongVolume)
-    case let .startBackgroundAudio(soundId, volume):
-        try audioService.startBackgroundAudio(soundId: soundId, volume: volume)
-    // ...
-    }
-}
-```
+**Ausfuehrung:** `TimerViewModel` empfaengt die Effects vom Reducer und fuehrt sie der Reihe nach aus,
+aufgeteilt nach Audio-Session-, Audio-Wiedergabe- und Timer-Effects. Audio-Effects delegieren an
+`AudioService`. Wirft ein Audio-Aufruf einen Fehler, wird er geloggt und als `errorMessage` gesetzt;
+die uebrigen Effects laufen weiter, der Timer laeuft also notfalls ohne Audio.
+Umsetzung: `ios/StillMoment/Application/ViewModels/TimerViewModel.swift` (Abschnitt „Effect Execution“).
 
 ---
 
@@ -123,7 +114,7 @@ Keep-Alive wird NICHT gestoppt wenn Background-Audio oder Gong spielt. Die lautl
 
 **Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed`, `.timerCompleted` (via `endGongFinished`). Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
 
-**Audio-Unterbrechung:** Im Interruption-Handler wird Keep-Alive neu gestartet falls `timerSessionActive == true` und `.shouldResume` gesetzt ist.
+**Audio-Unterbrechung:** Im Interruption-Handler wird Keep-Alive neu gestartet falls `timerSessionActive == true` (unabhaengig von `.shouldResume`).
 
 ### Analogie zu Guided Meditations
 
@@ -151,25 +142,13 @@ Waehrend des Vorbereitungs-Countdowns (max 45s) fuer gefuehrte Meditationen ist 
 2. **Countdown Ende**: `stopSilentBackgroundAudio()` stoppt Silent Audio
 3. **MP3 Playback**: Beginnt sofort danach (gleiche Audio-Session)
 
-### Fallback: Zeit-basierte Berechnung
-
-Falls Audio-Session unterbrochen wird (z.B. Anruf), berechnet `handleReturnFromBackground()` die verbleibende Zeit:
-
-```swift
-let elapsedSeconds = Int(clock.now().timeIntervalSince(startedAt))
-let remainingSeconds = totalSeconds - elapsedSeconds
-if remainingSeconds <= 0 {
-    // Countdown abgelaufen - MP3 sofort starten
-}
-```
-
 ### ClockProtocol
 
 Ermoeglicht deterministisches Testen ohne echte Zeitverzoegerungen:
 
 | Implementation | Beschreibung |
 |---------------|--------------|
-| `SystemClock` | Produktion: `Timer.publish` + `Date()` |
+| `SystemClock` | Produktion: `DispatchSourceTimer` + `Date()` (feuert auch bei gesperrtem Bildschirm, anders als `Timer.publish`) |
 | `MockClock` | Tests: Manuelles `tick()` und `advanceTime(by:)` |
 
 ---
@@ -178,46 +157,27 @@ Ermoeglicht deterministisches Testen ohne echte Zeitverzoegerungen:
 
 ### Architektur
 
-```swift
-// Protocol in Domain/Services/
-protocol AudioSessionCoordinatorProtocol {
-    var activeSource: CurrentValueSubject<AudioSource?, Never> { get }
-    func requestAudioSession(for source: AudioSource) throws -> Bool
-    func releaseAudioSession(for source: AudioSource)
-}
-
-// Implementation in Infrastructure/Services/
-AudioSessionCoordinator.shared (singleton, nur in AppDependencies.live() gelesen
-                               und per Initializer an die Dienste gereicht)
-```
+Das Protokoll `AudioSessionCoordinatorProtocol` (zusammen mit dem Enum `AudioSource`) liegt in
+`ios/StillMoment/Domain/Services/AudioSessionCoordinatorProtocol.swift`, die Implementierung
+`AudioSessionCoordinator` in `Infrastructure/Services/`. `AudioSessionCoordinator.shared` wird nur in
+`AppDependencies.live()` gelesen und per Initializer an die Dienste gereicht.
 
 ### Ablauf
 
-1. Services fordern Audio Session vor Playback an:
-   ```swift
-   try coordinator.requestAudioSession(for: .timer)
-   ```
-2. Coordinator gewaehrt exklusiven Zugriff und benachrichtigt andere Services
-3. Andere Services beobachten `activeSource` und pausieren ihr Audio
-4. Services geben Session frei wenn fertig:
-   ```swift
-   coordinator.releaseAudioSession(for: .timer)
-   ```
+1. Jeder Dienst registriert beim Erzeugen einen Conflict Handler fuer seine Quelle(n)
+   (`AudioService`: `.timer` und `.preview`, `AudioPlayerService`: `.guidedMeditation`).
+2. Vor der Wiedergabe fordert der Dienst die Session fuer seine Quelle an.
+3. Ist eine andere Quelle aktiv, ruft der Koordinator synchron deren Conflict Handler auf (sie stoppt
+   ihr Audio), uebernimmt die neue Quelle als `activeSource` und aktiviert die `AVAudioSession`.
+4. Ist der Dienst fertig, gibt er die Session frei; nur die aktuelle Besitzer-Quelle kann freigeben,
+   danach wird die `AVAudioSession` deaktiviert.
 
 ### Fehlerbehandlung
 
-```swift
-do {
-    guard try coordinator.requestAudioSession(for: .timer) else {
-        Logger.audio.warning("Audio Session nicht verfuegbar")
-        return
-    }
-    // Audio starten
-} catch {
-    Logger.audio.error("Audio Session Fehler", error: error)
-    // Graceful degradation: Timer laeuft ohne Audio weiter
-}
-```
+Die Aktivierung der `AVAudioSession` wird bis zu dreimal versucht; scheitert sie, wirft
+`requestAudioSession` den Fehler, statt `false` zu liefern. Die Dienste reichen ihn an den Aufrufer
+weiter. Beim Timer loggt `TimerViewModel` ihn und setzt `errorMessage`; die folgenden Effects laufen
+trotzdem weiter (Timer ohne Audio, siehe „Integration mit TimerEffect“).
 
 ### Lock Screen Controls (AudioPlayerService)
 
@@ -248,19 +208,14 @@ Audio-Unterbrechungen (Anrufe, Alerts) via `AVAudioSession.interruptionNotificat
 
 ### Architektur
 
-```kotlin
-// Domain Layer - Interface
-interface AudioSessionCoordinatorProtocol {
-    val activeSource: StateFlow<AudioSource?>
-    fun registerConflictHandler(source: AudioSource, handler: () -> Unit)
-    fun requestAudioSession(source: AudioSource): Boolean
-    fun releaseAudioSession(source: AudioSource)
-}
-
-// Infrastructure Layer - Implementation
-@Singleton
-class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorProtocol
-```
+Das Interface `AudioSessionCoordinatorProtocol` (Domain) entspricht im Kern dem iOS-Protokoll
+(request/release/Conflict Handler); die
+Implementierung `AudioSessionCoordinator` ist ein Hilt-`@Singleton` (Bindung in `AppModule`).
+Android-Besonderheit: Neben dem Conflict Handler (andere Quelle der App uebernimmt) gibt es einen
+**Pause Handler** (`registerPauseHandler`). Der Koordinator fordert bei jeder Anfrage System-Audiofokus
+ueber `AudioFocusManager` an; verliert die App den Fokus (Anruf, andere App), ruft er den Pause Handler
+der aktiven Quelle auf. Wird der Fokus verweigert, liefert `requestAudioSession` `false` und die
+Quelle wird nicht aktiv.
 
 ### Wichtige Dateien
 
@@ -273,18 +228,12 @@ class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorPro
 
 ### Ablauf
 
-1. Services registrieren Conflict Handler bei Init:
-   ```kotlin
-   coordinator.registerConflictHandler(AudioSource.TIMER) {
-       stopBackgroundAudioInternal()
-   }
-   ```
-2. Services fordern Session vor Playback an:
-   ```kotlin
-   if (!coordinator.requestAudioSession(AudioSource.TIMER)) return
-   ```
-3. Coordinator ruft Conflict Handler der aktuellen Source auf
-4. Services geben Session frei wenn fertig
+1. `AudioService` und `AudioPlayerService` registrieren beim Erzeugen Conflict und Pause Handler fuer ihre Quellen.
+   Auch `GuidedMeditationPlayerViewModel` registriert einen Conflict Handler fuer `GUIDED_MEDITATION`;
+   pro Quelle gilt nur ein Handler (der zuletzt registrierte ueberschreibt den vorherigen).
+2. Vor der Wiedergabe fordern sie die Session an; bei `false` startet die Timer-Wiedergabe nicht.
+3. Der Koordinator ruft den Conflict Handler der bisher aktiven Quelle auf.
+4. Die Dienste geben die Session frei, wenn sie fertig sind.
 
 ### Sperrbildschirm-Steuerung (Guided Meditations, seit android-094)
 
@@ -389,20 +338,12 @@ Custom Soundscapes nutzen die bestehende Audio-Pipeline:
 
 ### Unit Tests
 
-Audio-Koordination wird ueber Mock-Protokolle getestet:
-
-```swift
-// iOS
-final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
-    var requestedSources: [AudioSource] = []
-    var shouldGrantSession = true
-
-    func requestAudioSession(for source: AudioSource) throws -> Bool {
-        requestedSources.append(source)
-        return shouldGrantSession
-    }
-}
-```
+Audio-Koordination wird ueber das Protokoll getestet. iOS: `MockAudioSessionCoordinator`
+(`ios/StillMomentTests/Mocks/MockAudioSessionCoordinator.swift`) protokolliert angeforderte und
+freigegebene Quellen, ruft wie das Original die Conflict Handler auf und kann per Flag eine
+fehlschlagende Aktivierung simulieren. Android: Tests mocken `AudioSessionCoordinatorProtocol`
+mit Mockito oder nutzen kleine Fakes in der Testdatei; den echten Koordinator testet
+`AudioSessionCoordinatorTest`.
 
 ### Integrations-Tests
 

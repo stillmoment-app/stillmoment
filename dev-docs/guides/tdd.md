@@ -36,10 +36,10 @@ When tests fail, use this systematic approach:
 
 ```bash
 # 1. Identify failing tests
-open TestResults.xcresult  # Visual report in Xcode
+make test-failures      # Lists failures from the last run
 
 # 2. Run single test to understand failure
-make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
+make test-single TEST=ClassName/testMethod
 
 # 3. Analyze test code
 # - What is being tested?
@@ -61,16 +61,16 @@ make test-unit
 // Example: Adding skip-to-end feature to timer
 
 // 1. Write test BEFORE implementation
-func testSkipToEnd() {
+func testSkipToEnd() throws {
     // Given
-    sut.start(durationMinutes: 10)
+    let timer = try MeditationTimer(durationMinutes: 10).withState(.running)
 
     // When
-    sut.skipToEnd()  // ❌ Method doesn't exist yet!
+    let skipped = timer.skipToEnd()  // ❌ Method doesn't exist yet!
 
     // Then
-    XCTAssertEqual(sut.remainingSeconds, 0)
-    XCTAssertEqual(sut.state, .completed)
+    XCTAssertEqual(skipped.remainingSeconds, 0)
+    XCTAssertEqual(skipped.state, .completed)
 }
 ```
 
@@ -79,17 +79,20 @@ func testSkipToEnd() {
 ### Step 2: Implement Minimum Code (GREEN)
 
 ```swift
-// MeditationTimer.swift
+// MeditationTimer.swift — returns a new instance, never mutates
 func skipToEnd() -> MeditationTimer {
     MeditationTimer(
         durationMinutes: self.durationMinutes,
         remainingSeconds: 0,
         state: .completed,
-        countdownSeconds: 0,
-        lastIntervalGongAt: nil
+        remainingPreparationSeconds: 0,
+        preparationTimeSeconds: self.preparationTimeSeconds,
+        lastIntervalGongAt: self.lastIntervalGongAt
     )
 }
 ```
+
+`skipToEnd()` is a made-up feature; the initializer and `withState(_:)` are the real ones in `ios/StillMoment/Domain/Models/MeditationTimer.swift`.
 
 Run tests: `make test-unit`
 
@@ -173,20 +176,15 @@ make test-single TEST=TestClass/testMethod  # Debug specific test
 
 ### Coverage Reporting
 
-**Coverage is ONLY available with complete test runs:**
+**iOS:** coverage is only collected by `make test` (unit + UI tests together, the only complete data).
+`make test-unit` and `make test-ui` skip it; `make test-report` shows the report of the last full run.
 
-```bash
-# ✅ Coverage available
-make test           # ALL tests (unit + UI) → Shows coverage
-
-# ❌ NO coverage (faster, for TDD loop)
-make test-unit      # Unit tests only
-make test-ui        # UI tests only
-```
+**Android:** `make test` runs all unit tests (`./gradlew test`, debug variant), `make test-ui` runs the
+UI tests on a running emulator. The Makefile has no coverage target.
 
 **Workflow:**
 1. **TDD inner loop**: Use `make test-unit` (fast, no coverage)
-2. **Before commit**: Use `make test` (complete validation + coverage)
+2. **Before commit**: Use `make test` (complete validation; coverage on iOS)
 
 ## UI Tests vs. Unit Tests in TDD
 
@@ -246,30 +244,26 @@ Coverage: Critical user paths only
 ### UI Test Example
 
 ```swift
-// Still MomentUITests/TimerFlowUITests.swift
+// ios/StillMomentUITests/TimerFlowUITests.swift (shortened)
 
-func testCompleteTimerFlow() {
-    // Given - App launches
-    XCTAssertTrue(app.staticTexts["Select Duration"].exists)
+func testTimerEndFlow() {
+    // Given - Timer is running
+    self.app.buttons["timer.button.start"].tap()
+    let timerDisplay = self.app.staticTexts["timer.display.time"]
+    XCTAssertTrue(timerDisplay.waitForExistence(timeout: 3.0))
 
-    // When - User sets duration and starts
-    app.buttons["Start"].tap()
+    // When - User ends the session
+    self.app.buttons["timer.button.end"].tap()
 
-    // Then - Countdown should start
-    let countdownLabel = app.staticTexts.matching(
-        NSPredicate(format: "label MATCHES %@", "[0-9]{2}")
-    ).firstMatch
-    XCTAssertTrue(countdownLabel.waitForExistence(timeout: 2.0))
-
-    // When - User closes the session
-    app.buttons["Close"].tap()
-
-    // Then - Should return to initial state
-    XCTAssertTrue(app.staticTexts["Select Duration"].exists)
+    // Then - Back to idle: dial and start button reappear
+    let dial = self.app.descendants(matching: .any)["timer.dial"]
+    XCTAssertTrue(dial.waitForExistence(timeout: 2.0))
+    XCTAssertTrue(self.app.buttons["timer.button.start"].waitForExistence(timeout: 2.0))
 }
 ```
 
 **Note:** UI tests use accessibility identifiers, not localized strings (avoids brittleness).
+The real test also does setup (launch arguments, navigating to the Timer tab); see the file.
 
 ### UI Test Best Practices
 
@@ -311,9 +305,12 @@ make test-unit          # Fast inner loop (30-60s)
 # Before commit (full validation)
 make test               # Includes UI tests (2-5min)
 
-# Run specific UI test (advanced)
-xcodebuild test -only-testing:Still MomentUITests/TimerFlowUITests
+# Run a single UI test class or method (iOS)
+make test-single TEST=TimerFlowUITests/testTimerEndFlow
 ```
+
+On iOS `make test-single` treats a class name containing `UITests` as a UI test and runs it in the
+`StillMomentUITests` target (see `ios/scripts/run-single-test.sh`).
 
 **UI test flakiness:** Simulator issues (Spotlight crashes) are normal. Re-run if needed.
 
@@ -330,19 +327,9 @@ When writing tests first:
 
 ## Pre-commit Hook Integration
 
-TDD works best with automated test execution:
-
-```bash
-# .git/hooks/pre-commit (auto-installed via `make setup`)
-make format             # Auto-format
-make lint               # Check standards
-make test-unit          # ← Run tests before EVERY commit
-```
-
-**Benefits:**
-- Catches test failures before push
-- Prevents test drift
-- Enforces TDD discipline
+The pre-commit hook (installed by `make setup` in `ios/`) runs static checks such as formatting and lint;
+the authoritative list of hooks is `.pre-commit-config.yaml` (repo root).
+**It does not run tests.** Run `make test-unit` yourself before every commit; CI runs the full suites.
 
 ## Real Example: Timer Countdown Feature
 
@@ -352,37 +339,21 @@ make test-unit          # ← Run tests before EVERY commit
 3. 43 tests broke
 4. 2 hours debugging
 
-**With TDD:**
+**With TDD** (the countdown later became today's preparation phase, `TimerState.preparation`):
 ```bash
-# 1. Write tests for countdown behavior
-vim Still MomentTests/MeditationTimerTests.swift
-# Add: testStartCountdown(), testCountdownToRunning()
-
-# 2. Run tests (RED)
+# 1. Write tests for the new behavior (RED)
+#    ios/StillMomentTests/ (domain tests live in Domain/)
 make test-unit  # ❌ Tests fail (feature doesn't exist)
 
-# 3. Implement countdown (GREEN)
-vim Still Moment/Domain/Models/MeditationTimer.swift
-# Add: func startCountdown(), update tick() logic
-
-# 4. Run tests (GREEN)
+# 2. Implement in the domain model (GREEN)
+#    ios/StillMoment/Domain/Models/MeditationTimer.swift
 make test-unit  # ✅ All tests pass
 
-# 5. Update existing tests
-vim Still MomentTests/TimerServiceTests.swift
-# Update: testStartTimer() expects .countdown not .running
-
-# 6. Run tests (GREEN)
+# 3. Update tests whose expectations changed on purpose
+#    (e.g. start now goes to .preparation instead of .running)
 make test-unit  # ✅ All tests pass
 
-# 7. Document
-vim CLAUDE.md
-# Update: Timer feature section with countdown behavior
-
-# 8. Commit
-git add .
-git commit -m "feat: Add 15-second countdown before meditation starts"
-# Pre-commit hook runs tests automatically ✅
+# 4. Document (dev-docs, CLAUDE.md if architecture changed), then commit
 ```
 
 **Result:** Zero test drift, feature documented, tests green from day one.
@@ -453,7 +424,7 @@ Before starting ANY feature:
 - [ ] Run `make test-unit` after each step
 - [ ] Update CLAUDE.md if architecture changed
 - [ ] Verify coverage with `make test`
-- [ ] Commit with confidence (pre-commit hook validates)
+- [ ] Commit (pre-commit hook checks format and lint, not tests)
 
 **TDD is not optional.** It's the primary defense against test drift and the main tool for maintaining 9/10 quality.
 
@@ -469,13 +440,12 @@ Before starting ANY feature:
 | Destinations | `-maximum-concurrent-test-simulator-destinations` | Multiple simulator instances |
 | Test Plans | `.xctestplan` | Per-bundle configuration |
 
-### Recommended Configuration
+### Current Configuration
 
-| Test Type | Parallel | Worker | Destinations | Reason |
-|-----------|----------|--------|--------------|--------|
-| Unit Tests | YES | 2 | 1 | Fast but controlled |
-| UI Tests | NO | - | 1 | Shared simulator state |
-| All Tests | NO | - | 1 | Stability over speed |
+`ios/scripts/run-tests.sh` and `ios/scripts/run-tests-agent.sh` run every test mode (unit, UI, all)
+with parallel testing disabled. Parallel unit tests were tried and dropped: all tests ran on the
+first simulator clone anyway, so there was no speed gain, and serial runs are more stable for CI
+and agents. Check the scripts for the exact `xcodebuild` flags.
 
 ### When Parallelization Makes Sense
 
@@ -490,18 +460,6 @@ Before starting ANY feature:
 - Tests with real network/backend (rate limits, server state)
 - Performance tests (CPU contention skews results)
 
-### Flags in run-tests.sh
-
-```bash
-# Unit Tests: Parallel with guardrails
--parallel-testing-enabled YES
--parallel-testing-worker-count 2
--maximum-concurrent-test-simulator-destinations 1
-
-# UI Tests / All Tests: Serial for stability
--parallel-testing-enabled NO
-```
-
 ### Symptoms of Wrong Parallelization
 
 - Multiple simulators start simultaneously
@@ -512,4 +470,4 @@ Before starting ANY feature:
 ---
 
 **See also:**
-- [CLAUDE.md](../CLAUDE.md): Testing Philosophy
+- [CLAUDE.md](../../CLAUDE.md): Testing Philosophy

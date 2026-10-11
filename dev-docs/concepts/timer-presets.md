@@ -1,6 +1,6 @@
 # Feature-Konzept: Timer Presets
 
-**Status**: Konzeptphase - Brainstorming
+**Status**: Historisch — so nicht umgesetzt. Mehrere benannte Presets (`TimerPreset`) gibt es nicht; umgesetzt wurde stattdessen eine einzige gespeicherte Timer-Konfiguration, das Domain-Modell `Praxis` mit `PraxisRepository` (shared-062, shared-064, vereinfacht in shared-068; die Preset-Auswahl shared-063 ist wontfix). Aktueller Stand: `Praxis` im Glossar (`dev-docs/reference/glossary.md`); der Text unten ist der unveränderte Brainstorming-Stand.
 **Erstellt**: 2026-01-18
 
 ## Problemanalyse

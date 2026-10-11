@@ -125,7 +125,7 @@ Full guide (Claude flow, device test, submitting, recovery): `dev-docs/release/R
 
 ## Code Standards
 
-**Design System** — use semantic colors (`.textPrimary`), never direct values (`.warmBlack`).
+**Design System** — use semantic colors, never direct values (`.warmBlack`). iOS: read them from the theme in the environment (`@Environment(\.themeColors)` → `theme.textPrimary`), never static `Color` properties (removed; they were not reactive).
 Full guide: `dev-docs/reference/color-system.md`
 
 **Logging** — use structured logging, never `print()`:

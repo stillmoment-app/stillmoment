@@ -1,32 +1,22 @@
 # Cross-Platform Screenshot Consistency
 
-This guide documents the best practices for maintaining consistent screenshots across iOS and Android.
+This guide documents what iOS and Android screenshots share, where they deliberately differ, and how to add a screen on both platforms.
 
 ## Overview
 
-Still Moment generates **identical screenshots** on both platforms to ensure consistent marketing materials and store listings.
+Both platforms capture their screenshots with Fastlane UI tests (iOS: Snapshot, Android: Screengrab) via `make screenshots`. The screenshot sets are **not identical**: each platform has its own tests, its own numbering, and its own curated store selection. What is shared is the content (fixtures, languages), the naming of screens, and the curation mechanism.
 
-## Consistency Checklist
+## What Is Shared
 
-| Aspect | Requirement | Status |
-|--------|-------------|--------|
-| Screenshot count | 5 screens x 2 languages = 10 per platform | Enforced |
-| Languages | de-DE, en-US | Identical |
-| Output (iOS) | `docs/images/screenshots/` | For website |
-| Output (Android) | `fastlane/metadata/android/` | Direct to Play Store |
-| Test fixtures | Same 5 meditations with identical metadata | Verified |
+| Aspect | Rule |
+|--------|------|
+| Screen keys | A screen that exists on both platforms has the same key (`LibraryList`, `PlayerView`, …) |
+| Capture names | `NN_ScreenKey` - `NN` is the platform's own test number and may differ between platforms |
+| Languages | German (`de-DE`) and English - iOS uses `en-GB` (App Store Connect locale, see `ios/fastlane/Snapfile`), Android `en-US` (`android/fastlane/Screengrabfile`) |
+| Test fixtures | Same meditations with identical metadata |
+| Store curation | Each platform has a `scripts/curate-store-screenshots.sh` that selects and orders screens by key via its `ORDER` array |
 
-## Screenshots
-
-Both platforms generate these 5 screenshots:
-
-| # | Internal Name | Output File | Description |
-|---|---------------|-------------|-------------|
-| 01 | `timerIdle` | `timer-main.png` | Timer with duration picker |
-| 02 | `timerRunning` | `timer-running.png` | Active timer (~00:57) |
-| 03 | `libraryList` | `library-list.png` | Meditation library |
-| 04 | `playerView` | `player-view.png` | Audio player |
-| 05 | `settingsView` | `timer-settings.png` | Timer settings |
+The tests themselves are listed in `ios/StillMomentUITests/ScreenshotTests.swift` and `android/app/src/androidTest/.../screenshots/ScreengrabScreenshotTests.kt`. The store selection of each platform is the `ORDER` array in its curate script; the two lists may differ.
 
 ## Test Fixtures
 
@@ -42,134 +32,108 @@ Both platforms generate these 5 screenshots:
 
 ### Implementation
 
-- **iOS**: Bundle resources in `StillMoment-Screenshots` target
-- **Android**: `TestFixtureSeeder` + assets in `androidTest/assets/testfixtures/`
+- **iOS**: `ios/StillMoment-Screenshots/TestFixtureSeeder.swift` (bundle resources in the `StillMoment-Screenshots` target)
+- **Android**: `TestFixtureSeeder.kt` + assets in `androidTest/assets/testfixtures/`
 
 When adding new fixtures, update **both** platforms simultaneously.
 
 ## Naming Conventions
 
-### Test Method Names
-
-Both platforms use camelCase for test methods:
+Test methods are camelCase with the number and screen key; the capture name uses the same number and the key in PascalCase:
 
 ```swift
 // iOS
-func testScreenshot01_timerIdle() { ... }
+func testScreenshotNN_screenKey() {
+    // …
+    snapshot("NN_ScreenKey", timeWaitingForIdle: 0)
+}
 ```
 
 ```kotlin
 // Android
-fun screenshot01_timerIdle() { ... }
+@Test
+fun screenshotNN_screenKey() {
+    // …
+    takeScreenshot("NN_ScreenKey")
+}
 ```
 
-### Screenshot Capture Names
+## Output Paths
 
-Both platforms capture with the same internal name:
+**iOS** writes raw captures to `ios/fastlane/screenshots/<locale>/`. The `screenshots` lane (`ios/fastlane/Fastfile`) then runs two scripts:
 
-```swift
-// iOS
-snapshot("01_TimerIdle")
-```
+1. `ios/scripts/process-screenshots.sh` copies the mapped screens to `docs/images/screenshots/` for the website, renamed to kebab-case (`timer-main.png`, German with suffix `-de`).
+2. `ios/scripts/curate-store-screenshots.sh` reduces `ios/fastlane/screenshots/` to the App Store selection.
 
-```kotlin
-// Android
-takeScreenshot("01_TimerIdle")
-```
+**Android** ends up in `android/fastlane/metadata/android/<locale>/images/phoneScreenshots/`: `PlayStoreScreenshotCallback` saves captures without timestamps, the `screenshots` lane (`android/fastlane/Fastfile`) renames Screengrab's `screenshots/` folder to `phoneScreenshots/`, and `android/scripts/curate-store-screenshots.sh` reduces it to the Play Store selection.
 
-### Output Paths
-
-**iOS** (for website): `process-screenshots.sh` converts to kebab-case names in `docs/images/screenshots/`:
-- `01_TimerIdle` → `timer-main.png` / `timer-main-de.png`
-
-**Android** (for Play Store): `PlayStoreScreenshotCallback` writes directly to Supply-expected paths:
-- `01_TimerIdle` → `metadata/android/en-US/images/phoneScreenshots/01_TimerIdle.png`
-- `01_TimerIdle` → `metadata/android/de-DE/images/phoneScreenshots/01_TimerIdle.png`
+Only iOS feeds the website. Android screenshots go to the Play Store only.
 
 ## Adding New Screenshots
 
-When adding a new screenshot, follow these steps on **both platforms**:
-
 ### 1. Add Test Method
+
+Use the next free number `NN` in each platform's test file (the numbers need not match across platforms) and the same screen key on both:
 
 **iOS** (`ios/StillMomentUITests/ScreenshotTests.swift`):
 ```swift
-func testScreenshot06_newView() {
-    // Navigate and capture
-    snapshot("06_NewView")
+func testScreenshotNN_newView() {
+    // Navigate and wait for the view
+    snapshot("NN_NewView", timeWaitingForIdle: 0)
 }
 ```
 
-**Android** (`android/.../ScreengrabScreenshotTests.kt`):
+**Android** (`android/.../screenshots/ScreengrabScreenshotTests.kt`):
 ```kotlin
 @Test
-fun screenshot06_newView() {
-    // Navigate and capture
-    takeScreenshot("06_NewView")
+fun screenshotNN_newView() {
+    // Navigate and wait for the view
+    takeScreenshot("NN_NewView")
 }
 ```
 
-### 2. Update iOS Process Script
+### 2. Website (iOS only, optional)
 
-Update `ios/scripts/process-screenshots.sh` with the new mapping:
-
-```bash
-["06_NewView"]="new-view"
-```
-
-(Android needs no script update - screenshots go directly to Play Store metadata)
-
-### 3. Verify Consistency
-
-Run screenshots on both platforms and compare output:
+To publish the screen on the website, add it to `ios/scripts/process-screenshots.sh` in two places: a `case` branch in `get_output_name()` and the list of source names in the processing loop.
 
 ```bash
-cd ios && make screenshots
-cd ../android && make screenshots
-
-# Verify both created the same files
-ls -la ../docs/images/screenshots/
+"NN_NewView")       echo "new-view" ;;
 ```
+
+### 3. Store Selection (both platforms, optional)
+
+To ship the screen to the stores, add its key (`NewView`) to `ORDER` in the platform's `scripts/curate-store-screenshots.sh` at the desired position. `ORDER` alone defines the store selection and its size; `make release` checks each curated set for exactly that many screenshots. Without an `ORDER` entry the curate script deletes the capture.
+
+### 4. Verify
+
+Run `make screenshots` in `ios/` and `android/`, then check:
+
+- the new screen appears in both curated store sets (if added to `ORDER`), in both languages
+- the website image exists in `docs/images/screenshots/` (if mapped)
+- each curated set holds as many screenshots per language as `ORDER` lists
 
 ## Device Configuration
 
-| | iOS | Android |
-|---|-----|---------|
-| Device | iPhone 17 Pro Max | Pixel 6 Pro |
-| Screen Size | 6.7" | 6.7" |
-| Resolution | 1290x2796px | Similar |
-
-Both use 6.7" devices for store listing requirements.
+Each platform's device is configured in its Fastlane files: iOS in `ios/fastlane/Snapfile` (`devices`), Android in `android/fastlane/Screengrabfile` and the `screenshots` target in `android/Makefile` (which AVD is booted).
 
 ## Workflow Integration
 
 Both platforms use the same `make` command:
 
 ```bash
-# iOS - for website
-cd ios && make screenshots
-# Output: docs/images/screenshots/
+# iOS - App Store (ios/fastlane/screenshots/) + website (docs/images/screenshots/)
+make -C ios screenshots
 
-# Android - for Play Store
-cd android && make screenshots
-# Output: fastlane/metadata/android/*/images/phoneScreenshots/
+# Android - Play Store (android/fastlane/metadata/android/*/images/phoneScreenshots/)
+make -C android screenshots
 ```
 
 ## Validation
 
-Before release, verify cross-platform consistency:
+Before release, `make release` runs `scripts/release/release-guard.sh`, which checks that each curated store set is complete (as many screenshots per language as `ORDER` lists) and prints how old the screenshots are. Beyond that, compare visually:
 
-1. **File count**: 10 files per platform (5 screens x 2 languages)
-2. **Visual content**: Similar UI elements visible
-3. **Fixtures**: Same meditations shown in library
-
-```bash
-# iOS validation
-ls docs/images/screenshots/*.png | wc -l  # Should be 10
-
-# Android validation
-ls android/fastlane/metadata/android/*/images/phoneScreenshots/*.png | wc -l  # Should be 10
-```
+1. **Visual content**: Shared screens show the same UI elements
+2. **Fixtures**: Same meditations shown in library
 
 ---
 

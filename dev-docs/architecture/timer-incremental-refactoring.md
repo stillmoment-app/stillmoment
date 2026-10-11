@@ -1,5 +1,11 @@
 # Konzept: Inkrementelles Timer-Refactoring
 
+> **Status: Abgeschlossener Plan (historisch).** Alle fuenf Schritte sind auf
+> iOS und Android umgesetzt (shared-054 bis shared-057, shared-059). Das als
+> moegliches Folgeziel genannte Aggregate wurde in shared-058 verworfen; der
+> Reducer bleibt. Code-Bloecke zeigen den damaligen Planungsstand; den
+> aktuellen Stand beschreiben `ddd.md` und `audio-system.md`.
+
 > Loest die gleichen Kernprobleme wie das MeditationSession-Aggregate-Konzept,
 > aber in 5 kleinen, einzeln testbaren Schritten innerhalb des bestehenden
 > Reducer-Patterns. Dient gleichzeitig als Zwischenschritt zum Aggregate,
@@ -114,7 +120,7 @@ Kein Schritt haengt von einem anderen ab (Reihenfolge ist empfohlen, nicht zwing
   Schritt 2: TimerDisplayState eliminieren     <- loest P2 (erledigt: shared-057 iOS+Android)
   Schritt 3: endGong-Phase einfuehren          <- neues Feature (erledigt: shared-055)
   Schritt 4: Preview-Audio trennen             <- loest P3 (erledigt: shared-054)
-  Schritt 5: Keep-Alive strukturell absichern  <- loest P4 (Fragilitaet)
+  Schritt 5: Keep-Alive strukturell absichern  <- loest P4 (erledigt: shared-059)
 ```
 
 ### Architektur-Uebergang
