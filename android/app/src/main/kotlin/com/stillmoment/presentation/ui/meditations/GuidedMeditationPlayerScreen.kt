@@ -50,7 +50,6 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.PreparationCountdown
-import com.stillmoment.presentation.ui.common.MeditationBottomLabel
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
 import com.stillmoment.presentation.ui.common.PreRollCircleContent
@@ -337,17 +336,6 @@ private fun PreRollBody(
         }
 
         Spacer(modifier = Modifier.weight(1f))
-
-        MeditationBottomLabel(
-            phase = uiState.phase,
-            formattedRemainingMinutes = uiState.formattedRemainingMinutes,
-            reduceMotion = false,
-            hintModifier = Modifier.testTag("player.text.preRollHint"),
-            remainingModifier = Modifier.testTag("player.text.remainingTime"),
-            isPaused = !uiState.isPlaying,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -505,7 +493,7 @@ private enum class CircleMode {
     /** Preparation countdown number. */
     Countdown,
 
-    /** Start gong and breath pause: only the calm disc, nothing to tap (shared-143). */
+    /** Start gong and breath pause: the empty ring, nothing to read or tap (shared-143). */
     StartGong,
 
     /** Meditation audio: disc with the play/pause button. */
@@ -549,7 +537,12 @@ private fun CircleContent(
                         contentDescription = countdownDescription
                     }
             )
-            CircleMode.StartGong -> PlayerCenterDisc(modifier = Modifier.testTag("player.startGong"))
+            // Empty ring: no number, no text, nothing to tap (shared-143).
+            CircleMode.StartGong -> Box(
+                modifier = Modifier
+                    .size(circleSize)
+                    .testTag("player.startGong")
+            )
             CircleMode.Controls -> Box(contentAlignment = Alignment.Center) {
                 PlayerCenterDisc()
                 GlassPauseButton(
