@@ -129,11 +129,11 @@ screenshots: ## Generate all screenshots (MODE=dark default)
 		exit 1; \
 	fi
 	@SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshots
-	@echo "✅ Screenshots generated in docs/images/screenshots/"
+	@echo "✅ Screenshots generated: App Store set in fastlane/screenshots/, website images in ../docs/images/screenshots/"
 
 screenshot-single: ## Run single screenshot (TEST=... MODE=dark optional)
 	@if [ -z "$(TEST)" ]; then \
-		echo "Usage: make screenshot-single TEST=testScreenshot05_SettingsView"; \
+		echo "Usage: make screenshot-single TEST=testScreenshot05_settingsView"; \
 		exit 1; \
 	fi
 	@if [ ! -d "vendor/bundle" ]; then \

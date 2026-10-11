@@ -140,8 +140,9 @@ final class ScreenshotTests: XCTestCase {
     // MARK: - Screenshot Tests
 
     //
-    // Order and naming matches Android (ScreengrabScreenshotTests.kt):
-    // 01_TimerIdle, 02_TimerRunning, 03_LibraryList, 04_PlayerView, 05_SettingsView
+    // Screen keys (the token after NN_, e.g. LibraryList) match Android
+    // (ScreengrabScreenshotTests.kt) for shared screens; the NN_ numbers differ between
+    // platforms. Store selection and order: ORDER in scripts/curate-store-screenshots.sh.
 
     /// Screenshot 1: Timer idle state with breath dial (shared-086)
     func testScreenshot01_timerIdle() {

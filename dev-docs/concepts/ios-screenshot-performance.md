@@ -1,5 +1,10 @@
 # Konzept: iOS Screenshot-Performance optimieren
 
+> **Status:** Analyse und Konzept, nur teilweise umgesetzt. Statt der vorgeschlagenen Quick Wins (kürzerer
+> `sleep` im `SnapshotHelper`, parallele Simulatoren) setzt `ScreenshotTests` `waitForAnimations: false` und ruft
+> `snapshot(…, timeWaitingForIdle: 0)` auf. Aktueller Stand: `dev-docs/guides/fastlane-ios.md`
+> („Screenshot-Performance optimieren“). Code-Verweise unten spiegeln den Stand bei Erstellung.
+
 ## Ausgangssituation
 
 | Plattform | Screenshot-Dauer | Faktor |

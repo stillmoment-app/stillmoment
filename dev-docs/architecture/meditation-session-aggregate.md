@@ -1,8 +1,15 @@
 # Konzept: MeditationSession Aggregate (DDD)
 
-> Ersetzt das Reducer-Pattern fuer den Meditations-Timer durch ein
+> **Status: Verworfenes Konzept (historisch).** Das Aggregate wurde nicht
+> umgesetzt; in shared-058 fiel die Entscheidung, den Reducer zu behalten
+> (Begruendung: `architecture-review-2026-09.md`, Abschnitt 5). Die hier
+> beschriebenen Kernprobleme hat stattdessen das inkrementelle Refactoring
+> geloest (`timer-incremental-refactoring.md`). Aktueller Stand: `ddd.md`.
+> Code-Bloecke unten zeigen das damalige Zielbild, nicht den heutigen Code.
+>
+> Urspruengliche Idee: das Reducer-Pattern fuer den Meditations-Timer durch ein
 > DDD Aggregate mit klarem Lifecycle, Domain Events und einer einzigen
-> Quelle der Wahrheit.
+> Quelle der Wahrheit ersetzen.
 
 > **Hinweis (shared-088):** Dieses Konzept entstand vor Entfernung des
 > Einstimmungs-Features. Code-Beispiele, Diagramme und API-Skizzen unten
@@ -15,17 +22,10 @@
 
 ### Implementierungsfortschritt
 
-Dieses Konzept wird inkrementell umgesetzt (siehe `timer-incremental-refactoring.md`).
-
-| Schritt | Beschreibung | Status | Ticket |
-|---------|-------------|--------|--------|
-| 1 | `tick()` emittiert Events | ✅ Implementiert (iOS) | shared-056 |
-| 2 | `TimerDisplayState` eliminieren | Offen | - |
-| 3 | `endGong` als eigene Phase | ✅ Implementiert (iOS + Android) | shared-055 |
-| 4 | Preview-Audio trennen | Offen | - |
-| 5 | Keep-Alive strukturell absichern | Offen | - |
-
-**Schritt 1 (shared-056):** `MeditationTimer.tick(intervalSettings:)` gibt `(MeditationTimer, [TimerEvent])` zurueck. `TimerEvent` enum mit `.preparationCompleted`, `.meditationCompleted`, `.intervalGongDue`. Intervall-Gong-Erkennung vom ViewModel ins Domain-Modell verschoben. `previousState`, `handlePhaseTransitions()`, `checkIntervalGongs()` aus dem ViewModel entfernt.
+Alle fuenf Schritte des inkrementellen Refactorings sind auf iOS und Android umgesetzt:
+`tick()` emittiert Events (shared-056), `TimerDisplayState` eliminiert (shared-057),
+`endGong` als eigene Phase (shared-055), Preview-Audio getrennt (shared-054),
+Keep-Alive strukturell abgesichert (shared-059). Das Aggregate selbst entfiel (shared-058).
 
 ---
 

@@ -5,7 +5,7 @@
 # und nummeriert sie in die gewuenschte Anzeige-Reihenfolge um.
 #
 # Laeuft automatisch am Ende der `screenshots`-Fastlane-Lane (nach
-# process-screenshots.sh, das vorher ALLE Screenshots fuer die Website sichert).
+# process-screenshots.sh, das vorher die dort gemappten Screens fuer die Website kopiert).
 # Kein manueller Schritt pro Release.
 #
 # Idempotent: mehrfaches Ausfuehren aendert nichts.

@@ -8,7 +8,9 @@ Extends the root `CLAUDE.md`. Read that first.
 
 ### Hilt Dependency Injection
 
-All ViewModels use `@HiltViewModel` with `@Inject constructor`:
+All ViewModels use `@HiltViewModel` with `@Inject constructor`. Inject Domain interfaces
+(repositories, `…Protocol` services) rather than concrete implementations.
+Full example: `presentation/viewmodel/TimerViewModel.kt`.
 
 ```kotlin
 @HiltViewModel
@@ -17,9 +19,8 @@ class TimerViewModel
 constructor(
     application: Application,
     private val timerRepository: TimerRepository,
-    private val audioService: AudioServiceProtocol,
-    private val foregroundService: TimerForegroundServiceProtocol,
-    private val praxisRepository: PraxisRepository
+    private val praxisRepository: PraxisRepository,
+    // further dependencies …
 ) : AndroidViewModel(application)
 ```
 
@@ -36,22 +37,21 @@ Bindings are in `infrastructure/di/AppModule.kt` with `@Provides @Singleton`.
 
 ### Coroutines & ViewModelScope
 
-Side effects run in `viewModelScope.launch`:
+The effect handler has one branch per effect (exhaustive `when` over the sealed class).
+Synchronous calls run directly; `suspend` calls run in `viewModelScope.launch`.
+Full handler: `handleEffect` in `TimerViewModel.kt`.
 
 ```kotlin
 private fun handleEffect(effect: TimerEffect) {
     when (effect) {
-        is TimerEffect.StartTimer -> {
-            viewModelScope.launch {
-                timerRepository.start(effect.durationMinutes, effect.preparationTimeSeconds)
-            }
-        }
+        is TimerEffect.StopForegroundService -> foregroundService.stopService()
         is TimerEffect.SaveSettings -> viewModelScope.launch {
             val currentPraxis = _uiState.value.currentPraxis
             praxisRepository.save(
                 currentPraxis.withDurationMinutes(effect.settings.durationMinutes)
             )
         }
+        // … one branch per remaining TimerEffect
     }
 }
 ```
@@ -64,6 +64,7 @@ private var timerJob: Job? = null
 private fun startTimerLoop() {
     timerJob?.cancel()
     timerJob = viewModelScope.launch {
+        var shouldContinue = true
         while (shouldContinue) {
             delay(1000L)
             shouldContinue = processTimerTick()
@@ -93,11 +94,15 @@ Collect flows in `viewModelScope`:
 
 ```kotlin
 viewModelScope.launch {
-    settingsRepository.settingsFlow.collect { settings ->
-        _uiState.update { state -> state.copy(settings = settings) }
+    praxisRepository.praxisFlow.collect { praxis ->
+        _uiState.update { state ->
+            state.copy(settings = praxis.toMeditationSettings(), currentPraxis = praxis)
+        }
     }
 }
 ```
+
+(Simplified from `observePraxis()` in `TimerViewModel.kt`.)
 
 ### Sealed Classes for Type Safety
 
@@ -120,34 +125,35 @@ sealed class TimerState {
 
 ### Immutable Data Classes
 
-Domain models use `data class` with `copy()` — never mutate:
+Domain models use `data class` with `copy()` — never mutate. Invariants are checked in `init`.
+Full example: `domain/models/MeditationTimer.kt`.
 
 ```kotlin
 data class MeditationTimer(
     val durationMinutes: Int,
     val remainingSeconds: Int,
-    val state: TimerState
+    val state: TimerState,
+    // …
 ) {
     init {
         require(durationMinutes in 1..60) {
-            "Invalid duration: $durationMinutes minutes."
+            "Invalid duration: $durationMinutes minutes. Duration must be between 1 and 60 minutes."
         }
     }
 
-    fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>> {
-        // Returns (newTimer, events) — events are domain events emitted during this tick
-        val newRemaining = maxOf(0, remainingSeconds - 1)
-        val newState = if (newRemaining <= 0) TimerState.EndGong else state
-        val events = if (newState == TimerState.EndGong) listOf(TimerEvent.MeditationCompleted) else emptyList()
-        return copy(remainingSeconds = newRemaining, state = newState) to events
+    // Returns a new instance plus the domain events of this tick — never mutates
+    fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>> { … }
+
+    fun withState(newState: TimerState): MeditationTimer {
+        return copy(state = newState)
     }
 }
 ```
 
-Builder-style methods for field updates:
+Builder-style methods for field updates (e.g. in `domain/models/Praxis.kt`), validating where needed:
 
 ```kotlin
-fun withCustomTeacher(teacher: String?): GuidedMeditation = copy(customTeacher = teacher)
+fun withDurationMinutes(minutes: Int): Praxis = copy(durationMinutes = validateDuration(minutes))
 ```
 
 ### Validation in Companion Objects
@@ -190,12 +196,14 @@ object TimerReducer {
 
 ### Explicit Effects as Sealed Classes
 
+Excerpt — the full list lives in `domain/models/TimerEffect.kt`:
+
 ```kotlin
 sealed class TimerEffect {
-    data class StartTimer(val durationMinutes: Int, val preparationTimeSeconds: Int) : TimerEffect()
     data class PlayStartGong(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
     data class SaveSettings(val settings: MeditationSettings) : TimerEffect()
     data object StopForegroundService : TimerEffect()
+    // …
 }
 ```
 
@@ -218,23 +226,37 @@ private fun dispatch(action: TimerAction) {
 
 ## Repository Pattern
 
-Domain defines the interface, Infrastructure implements with DataStore:
+Domain defines the interface (`domain/repositories/`), the data layer implements it
+(persistent ones with DataStore in `data/local/`), and `AppModule` binds implementation to
+interface. Consumers only ever see the interface. Example: `PraxisRepository` →
+`PraxisDataStore`.
 
 ```kotlin
 // Domain
-interface TimerRepository {
-    val timerFlow: Flow<MeditationTimer>
-    suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int)
-    suspend fun reset()
-    fun tick(): MeditationTimer?
+interface PraxisRepository {
+    val praxisFlow: Flow<Praxis>
+    suspend fun load(): Praxis
+    suspend fun save(praxis: Praxis)
 }
 
-// Infrastructure
+// Data layer
 @Singleton
-class TimerRepositoryImpl @Inject constructor() : TimerRepository {
-    private val _timer = MutableStateFlow<MeditationTimer?>(null)
-    override val timerFlow: Flow<MeditationTimer> = _timer.filterNotNull()
-    ...
+class PraxisDataStore
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
+    private val logger: LoggerProtocol
+) : PraxisRepository {
+    private val _praxisState = MutableStateFlow<Praxis?>(null)
+    override val praxisFlow: Flow<Praxis> = _praxisState.filterNotNull()
+    // …
+}
+
+// AppModule
+@Provides
+@Singleton
+fun providePraxisRepository(impl: PraxisDataStore): PraxisRepository {
+    return impl
 }
 ```
 
@@ -242,18 +264,13 @@ class TimerRepositoryImpl @Inject constructor() : TimerRepository {
 
 ## Logging
 
-Use `LoggerProtocol` — never `println()` or raw `Log.d`:
+Inject `LoggerProtocol` (Domain, `domain/services/LoggerProtocol.kt`) — never `println()` or
+raw `Log.d`. `AndroidLogger` implements it and is bound in `AppModule`; tests pass a mock.
+The available log levels are in `LoggerProtocol.kt`.
 
 ```kotlin
-// Domain
-interface LoggerProtocol {
-    fun d(tag: String, message: String)
-    fun e(tag: String, message: String, throwable: Throwable)
-}
-
-// Infrastructure
-@Singleton
-class AndroidLogger @Inject constructor() : LoggerProtocol { ... }
+logger.d(TAG, "Saved praxis id=${praxis.id}")
+logger.e(TAG, "JSON decode failed", e)
 ```
 
 ---
@@ -318,14 +335,14 @@ make test-unit-agent        # All unit tests, agent-optimized output (<10 lines 
 make test-single TEST=Class # Single test class, human-readable
 make test-single-agent TEST=Class/method  # Single test, agent-optimized
 make test-failures          # Show failures from last run (no re-run)
-make test                   # Full suite (debug + release variants)
+make test                   # All unit tests, debug variant only (release-only breakage: make build-release)
 make test-ui                # All UI tests (androidTest, incl. screenshot tests) on the running emulator
 make test-ui-agent          # Same, agent-optimized output
 ```
 
 UI tests need a running emulator or connected device (`connectedDebugAndroidTest`).
 CI runs the identical task as check "Android UI Tests" (`.github/workflows/ci.yml`,
-job `android-ui-tests`, API 36 `google_apis` x86_64 emulator, animations off). On a red
+job `android-ui-tests`; emulator image and profile in the job's `env`, animations off). On a red
 run the check summary lists each failed test with its message; JUnit XML and the HTML
 report are attached as artifact `android-ui-test-results`.
 
@@ -373,7 +390,7 @@ fun `create timer with zero duration throws exception`() {
 
 ### UI Tests (Emulator)
 
-Run with `./gradlew :app:connectedDebugAndroidTest` (CI does not run them yet). With more than one
+Run with `make test-ui` (`connectedDebugAndroidTest`; CI runs the same, see above). With more than one
 emulator attached, set `ANDROID_SERIAL=<serial>`, otherwise the suite runs on every device.
 
 - **Endless frame loops use `withInfiniteAnimationFrameNanos`/`…Millis`**, never plain

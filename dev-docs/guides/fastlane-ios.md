@@ -151,18 +151,9 @@ um bis zu 21 Sekunden verzoegern koennen.
 
 ### Problemstellung: SnapshotHelper.swift
 
-```swift
-// In SnapshotHelper.swift (Fastlane-generiert)
-open class func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = 20) {
-    if timeout > 0 {
-        self.waitForLoadingIndicatorToDisappear(within: timeout)  // Bis zu 20s!
-    }
-    if Snapshot.waitForAnimations {
-        sleep(1)  // Harter 1s Sleep
-    }
-    // ... Screenshot erstellen
-}
-```
+`Snapshot.snapshot()` im Fastlane-generierten `ios/StillMomentUITests/SnapshotHelper.swift` wartet vor
+jedem Screenshot standardmaessig, bis der Netzwerk-Ladeindikator in der Statusleiste verschwindet
+(`timeWaitingForIdle`), und schlaeft danach pauschal, solange `waitForAnimations` gesetzt ist.
 
 **Zeitfresser:**
 | Parameter | Default | Auswirkung |

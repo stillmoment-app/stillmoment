@@ -2,7 +2,7 @@
 
 ## Status
 
-Akzeptiert (Abschnitt 2 aktualisiert 2026-10-09: seit shared-057 gibt der Reducer keinen State mehr zurueck, nur Effects; bestaetigt in shared-058)
+Akzeptiert (Abschnitt 2 aktualisiert 2026-10-09: seit shared-057 gibt der Reducer keinen State mehr zurueck, nur Effects; bestaetigt in shared-058; aktualisiert 2026-10-11: Codebeispiele an den heutigen Code angepasst bzw. als vereinfacht markiert)
 
 ## Kontext
 
@@ -43,21 +43,25 @@ class MeditationTimer {
 Alle Domain Models sind **structs ohne mutating functions**. Aenderungen erzeugen neue Instanzen.
 
 ```swift
+// Vereinfacht
 struct MeditationTimer: Equatable {
     let durationMinutes: Int
     let remainingSeconds: Int
     let state: TimerState
+    // …
 
     // Gibt neue Instanz zurueck, mutiert nichts
     func tick() -> MeditationTimer {
         MeditationTimer(
-            durationMinutes: durationMinutes,
-            remainingSeconds: max(0, remainingSeconds - 1),
-            state: state
+            durationMinutes: self.durationMinutes,
+            remainingSeconds: max(0, self.remainingSeconds - 1),
+            state: self.state
         )
     }
 }
 ```
+
+Das echte `tick(intervalSettings:)` gibt zusaetzlich die Domain-Events des Ticks zurueck (`(MeditationTimer, [TimerEvent])`); siehe `Domain/Models/MeditationTimer.swift` und `../ddd.md`.
 
 ### 2. Reducer Pattern
 
@@ -81,11 +85,12 @@ Ob der Reducer ins Domain-Modell absorbiert werden soll, wurde in shared-058 gep
 Side Effects werden als Domain-Objekte modelliert, nicht direkt ausgefuehrt.
 
 ```swift
+// Auszug aus Domain/Models/TimerEffect.swift
 enum TimerEffect: Equatable {
     case playStartGong
-    case playIntervalGong
+    case playIntervalGong(soundId: String, volume: Float)
     case startTimer(durationMinutes: Int)
-    case saveSettings(MeditationSettings)
+    // …
 }
 ```
 
@@ -102,8 +107,8 @@ enum TimerEffect: Equatable {
 ```swift
 // Test ist trivial
 func testTick_DecrementsRemainingSeconds() {
-    let timer = MeditationTimer(durationMinutes: 1, remainingSeconds: 60, state: .running)
-    let newTimer = timer.tick()
+    let timer = MeditationTimer.stub(durationMinutes: 1, state: .running)
+    let (newTimer, _) = timer.tick()
     XCTAssertEqual(newTimer.remainingSeconds, 59)
 }
 
@@ -112,7 +117,7 @@ func testStartPressed_ReturnsCorrectEffects() {
         action: .startPressed,
         timerState: .idle,
         selectedMinutes: 10,
-        settings: defaultSettings
+        settings: MeditationSettings.default
     )
     XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
 }

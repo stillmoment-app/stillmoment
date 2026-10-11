@@ -198,7 +198,9 @@ Getestete Kombinationen pro Palette (11 Checks):
 ```swift
 // ViewModifier liest Environment, uebergibt an ButtonStyle
 private struct WarmPrimaryButtonModifier: ViewModifier {
-    @Environment(\.themeColors) private var theme
+    @Environment(\.themeColors)
+    private var theme
+
     func body(content: Content) -> some View {
         content.buttonStyle(ButtonStyles.WarmPrimary(colors: self.theme))
     }
@@ -229,21 +231,22 @@ Definiert als `Double` Extension in `Double+Opacity.swift`:
 
 ## View-Struktur mit Gradient
 
+Muster fuer Screens mit Form/List; echte Umsetzung z.B. `Presentation/Views/AppSettings/SoundAttributionsView.swift`.
+Ein `NavigationStack` (falls der Screen einen braucht) ist nicht Teil des Musters.
+
 ```swift
 @Environment(\.themeColors)
 private var theme
 
 var body: some View {
-    NavigationView {
-        ZStack {
-            self.theme.backgroundGradient
-                .ignoresSafeArea()
+    ZStack {
+        self.theme.backgroundGradient
+            .ignoresSafeArea()
 
-            Form {
-                // ...
-            }
-            .scrollContentBackground(.hidden)
+        Form {
+            // …
         }
+        .scrollContentBackground(.hidden)
     }
 }
 ```

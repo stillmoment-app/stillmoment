@@ -52,8 +52,9 @@ import tools.fastlane.screengrab.locale.LocaleTestRule
  *
  * Run with: cd android && make screenshots
  *
- * Generates 9 screenshots per locale; the curate script (curate-store-screenshots.sh)
- * reduces them to the 8 Play Store screens in marketing order.
+ * Generates one screenshot per test method and locale; the curate script
+ * (scripts/curate-store-screenshots.sh) reduces them to the Play Store selection in
+ * marketing order, as defined by its ORDER list.
  * - 01_TimerIdle: Timer idle state with breath dial
  * - 02_TimerRunning: Active timer showing countdown
  * - 03_LibraryList: Guided meditations library (with 5 test meditations)

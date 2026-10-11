@@ -8,9 +8,8 @@ Screenshots are generated **automatically** using Fastlane Snapshot with XCUITes
 
 - **Fully automated** - No manual interaction required
 - **Multi-language** - German (de) and English (en)
-- **App Store ready** - iPhone 15 Pro Max (6.7") for all sizes
+- **App Store ready** - one large iPhone (see `devices` in `ios/fastlane/Snapfile`) for all sizes
 - **Reproducible** - Test fixtures ensure consistent content
-- **Fast** - ~5-10 minutes for all screenshots
 
 ## Quick Start
 
@@ -33,19 +32,15 @@ cd ios
 make screenshots
 ```
 
-Screenshots are saved to `docs/images/screenshots/`.
+The curated App Store set ends up in `ios/fastlane/screenshots/<locale>/` (gitignored); the screens mapped for
+the website are copied to `docs/images/screenshots/`.
 
 ## What Screenshots Are Generated
 
-| Screenshot | Description | Source |
-|------------|-------------|--------|
-| `timer-main.png` / `timer-main-de.png` | Timer idle with duration picker | Timer tab, 1 min selected |
-| `timer-running.png` / `timer-running-de.png` | Active meditation timer (~00:57) | Timer started, ~3s elapsed |
-| `library-list.png` / `library-list-de.png` | Guided meditations library | Library tab with test fixtures |
-| `player-view.png` / `player-view-de.png` | Audio player | First meditation tapped |
-| `timer-settings.png` / `timer-settings-de.png` | Timer settings with options | Settings with preparation time + interval gongs enabled |
-
-**Total**: 5 screenshots × 2 languages = 10 files
+Each `testScreenshotNN_…` method in `ios/StillMomentUITests/ScreenshotTests.swift` produces one screenshot
+per language. Which of them go to the website, and under which file name, is decided by `get_output_name()` in
+`ios/scripts/process-screenshots.sh`. The App Store set and its order come from the `ORDER` list in
+`ios/scripts/curate-store-screenshots.sh`.
 
 ## How It Works
 
@@ -69,28 +64,23 @@ ios/
 ### Flow
 
 1. **Fastlane Snapshot** runs `ScreenshotTests` against `StillMoment-Screenshots` scheme
-2. **Screenshots target** provides 5 test meditations (no manual import needed)
+2. **Screenshots target** provides pre-seeded test meditations (no manual import needed)
 3. **XCUITests** navigate app and call `snapshot("name")`
-4. **Post-processing** renames and copies to `docs/images/screenshots/`
+4. **Post-processing** (`process-screenshots.sh`) renames and copies to `docs/images/screenshots/`
+5. **Curation** (`curate-store-screenshots.sh`) reduces `fastlane/screenshots/` to the App Store set
 
 ### Test Fixtures
 
-The Screenshots target includes 5 pre-seeded meditations:
-
-| Teacher | Meditation | Duration |
-|---------|------------|----------|
-| Sarah Kornfield | Mindful Breathing | 7:33 |
-| Sarah Kornfield | Body Scan for Beginners | 15:42 |
-| Tara Goldstein | Loving Kindness | 12:17 |
-| Tara Goldstein | Evening Wind Down | 19:05 |
-| Jon Salzberg | Present Moment Awareness | 25:48 |
+The Screenshots target seeds the library with fictional teachers and meditations, defined in
+`ios/StillMoment-Screenshots/TestFixtureSeeder.swift`.
 
 ## Commands
 
-| Command | Description | Duration |
-|---------|-------------|----------|
-| `make screenshot-setup` | Install Ruby/Fastlane (one-time) | ~2 min |
-| `make screenshots` | Generate all screenshots (headless) | ~3-5 min |
+| Command | Description |
+|---------|-------------|
+| `make screenshot-setup` | Install Ruby/Fastlane (one-time) |
+| `make screenshots` | Generate all screenshots (headless, `MODE=dark` by default) |
+| `make screenshot-single TEST=testScreenshotNN_…` | Regenerate one screenshot in all languages |
 
 **Debug with visible simulator:** `HEADLESS=false make screenshots`
 
@@ -123,14 +113,8 @@ bundle exec fastlane screenshots
 
 ## App Store Requirements
 
-Apple requires specific screenshot sizes. We use **iPhone 15 Pro Max** (6.7"):
-
-| Size | Requirement | Our Approach |
-|------|-------------|--------------|
-| 6.7" | Required | iPhone 15 Pro Max |
-| 6.5" | Optional | Auto-scaled by Apple |
-| 5.5" | Optional | Auto-scaled by Apple |
-
+Apple requires specific screenshot sizes (see [Apple Screenshot Specifications](https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications)).
+We render on a single large iPhone, configured in `devices` in `ios/fastlane/Snapfile`.
 Apple's **Media Manager** automatically scales larger screenshots for smaller devices.
 
 ## Troubleshooting
@@ -165,7 +149,10 @@ bundle check
 
 **Solution**: Check `Snapfile` has both languages:
 ```ruby
-languages(["de-DE", "en-US"])
+languages([
+  "de-DE",
+  "en-GB"
+])
 ```
 
 ### Simulator Issues
@@ -183,21 +170,25 @@ make screenshots
 
 ## Adding New Screenshots
 
-1. **Add test method** in `ScreenshotTests.swift`:
+1. **Add test method** in `ScreenshotTests.swift` (`NN` = next free number there):
    ```swift
-   func testScreenshot05_NewView() {
+   func testScreenshotNN_newView() {
        // Navigate to view
-       // ...
-       snapshot("05_NewView")
+       // …
+       snapshot("NN_NewView", timeWaitingForIdle: 0)
    }
    ```
 
-2. **Update mapping** in `scripts/process-screenshots.sh`:
+2. **For the website:** in `scripts/process-screenshots.sh`, add a `case` line to `get_output_name()` **and** add
+   `"NN_NewView"` to the list of source names in the processing loop:
    ```bash
-   ["05_NewView"]="new-view"
+   "NN_NewView")       echo "new-view" ;;
    ```
 
-3. **Run**: `make screenshots`
+3. **For the App Store:** add the key (`NewView`) to `ORDER` in `scripts/curate-store-screenshots.sh`.
+
+4. **Run**: `make screenshots` (`make screenshot-single TEST=testScreenshotNN_newView` is quicker but skips
+   the App Store curation)
 
 ## File Structure
 
@@ -215,19 +206,13 @@ stillmoment/
 │   │   ├── SnapshotHelper.swift            # Fastlane helper
 │   │   └── ScreenshotTests.swift           # Tests
 │   └── scripts/
-│       └── process-screenshots.sh          # Post-processing
-└── docs/images/screenshots/                # Final output
-    ├── timer-main.png
-    ├── timer-main-de.png
-    ├── timer-running.png
-    ├── timer-running-de.png
-    ├── library-list.png
-    ├── library-list-de.png
-    ├── player-view.png
-    ├── player-view-de.png
-    ├── timer-settings.png
-    └── timer-settings-de.png
+│       ├── process-screenshots.sh          # Post-processing (website)
+│       └── curate-store-screenshots.sh     # App Store selection
+└── docs/images/screenshots/                # Final output (website)
 ```
+
+Website files are named `<name>.png` (English) and `<name>-de.png` (German); `<name>` comes from
+`get_output_name()` in `process-screenshots.sh`.
 
 ## Resources
 

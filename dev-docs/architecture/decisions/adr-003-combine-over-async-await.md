@@ -2,7 +2,7 @@
 
 ## Status
 
-Akzeptiert
+Akzeptiert (aktualisiert 2026-10-11: Codebeispiele an den heutigen `TimerServiceProtocol` angepasst)
 
 ## Kontext
 
@@ -23,24 +23,19 @@ Swift bietet zwei Paradigmen:
 Wir verwenden **Combine** fuer alle reaktiven Datenstroeme.
 
 ```swift
-// Services publizieren ueber Combine
+// Services publizieren ueber Combine (Auszug aus TimerServiceProtocol)
 protocol TimerServiceProtocol {
-    var timerPublisher: AnyPublisher<MeditationTimer, Never> { get }
+    var timerPublisher: AnyPublisher<(MeditationTimer, [TimerEvent]), Never> { get }
+    // …
 }
 
-// ViewModels subscriben
-class TimerViewModel: ObservableObject {
-    private var cancellables = Set<AnyCancellable>()
-
-    init(timerService: TimerServiceProtocol) {
-        timerService.timerPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] timer in
-                self?.handleTimerUpdate(timer)
-            }
-            .store(in: &cancellables)
+// ViewModels subscriben (Auszug aus TimerViewModel)
+self.timerService.timerPublisher
+    .receive(on: DispatchQueue.main)
+    .sink { [weak self] timer, events in
+        self?.handleTimerUpdate(timer, events: events)
     }
-}
+    .store(in: &self.cancellables)
 ```
 
 ## Konsequenzen
@@ -54,18 +49,17 @@ class TimerViewModel: ObservableObject {
 - **Testbarkeit**: `PassthroughSubject` und `CurrentValueSubject` fuer Mocks
 
 ```swift
-// Einfaches Mocking in Tests
-class MockTimerService: TimerServiceProtocol {
-    let timerSubject = PassthroughSubject<MeditationTimer, Never>()
-    var timerPublisher: AnyPublisher<MeditationTimer, Never> {
-        timerSubject.eraseToAnyPublisher()
+// Auszug aus StillMomentTests/Mocks/MockTimerService.swift
+final class MockTimerService: TimerServiceProtocol {
+    var timerPublisher: AnyPublisher<(MeditationTimer, [TimerEvent]), Never> {
+        self.subject.eraseToAnyPublisher()
     }
+    // …
+    private let subject = PassthroughSubject<(MeditationTimer, [TimerEvent]), Never>()
 }
-
-// Im Test
-mockService.timerSubject.send(timerWithOneSecondRemaining)
-XCTAssertEqual(viewModel.displayedTime, "0:01")
 ```
+
+Tests treiben das ViewModel ueber Helfer des Mocks (z.B. `simulateCompletion()`), die Timer und Events ueber das Subject senden.
 
 ### Negativ
 

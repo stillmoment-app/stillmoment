@@ -8,18 +8,19 @@ Extends the root `CLAUDE.md`. Read that first.
 
 ### @MainActor ViewModels
 
-All ViewModels are `@MainActor final class`:
+All ViewModels are `@MainActor final class`, dependencies come in as protocols through the initializer
+(real example: `Application/ViewModels/TimerViewModel.swift`):
 
 ```swift
 @MainActor
 final class TimerViewModel: ObservableObject {
     @Published var timer: MeditationTimer?
-    @Published var selectedMinutes: Int = 10
-    @Published var settings: MeditationSettings = .default
+    // …
 
     init(
         timerService: TimerServiceProtocol,
         audioService: AudioServiceProtocol
+        // further dependencies …
     ) { ... }
 }
 ```
@@ -56,8 +57,8 @@ Always `receive(on:)` before UI updates, always `[weak self]`:
 private func setupBindings() {
     timerService.timerPublisher
         .receive(on: DispatchQueue.main)
-        .sink { [weak self] timer in
-            self?.handleTimerUpdate(timer)
+        .sink { [weak self] timer, events in
+            self?.handleTimerUpdate(timer, events: events)
         }
         .store(in: &cancellables)
 }
@@ -102,7 +103,9 @@ do {
 Prefer `guard let` for optionals:
 
 ```swift
-guard let value = optional else { return }
+guard let value = optional else {
+    return
+}
 ```
 
 ---
@@ -137,7 +140,8 @@ func withLocalFilePath(_ path: String) -> GuidedMeditation {
 
 ### Reducer Pattern
 
-Pure effect mapper: `(Action, TimerState, Settings) -> [Effect]`:
+Pure effect mapper — takes an action plus the current state and returns effects
+(exact signature: `TimerReducer.reduce` in `Domain/Services/TimerReducer.swift`):
 
 ```swift
 enum TimerReducer {
@@ -154,7 +158,7 @@ No intermediate display state — the ViewModel holds `MeditationTimer?` directl
 
 ### Explicit Effects
 
-Side effects are data, not hidden calls:
+Side effects are data, not hidden calls (excerpt; full list in `Domain/Models/TimerEffect.swift`):
 
 ```swift
 enum TimerEffect: Equatable {
@@ -162,6 +166,7 @@ enum TimerEffect: Equatable {
     case deactivateTimerSession
     case playStartGong
     case startTimer(durationMinutes: Int)
+    // …
 }
 ```
 
@@ -192,7 +197,8 @@ Logger.viewModel.error("Failed to configure", error: error)
 Logger.performance.measure(operation: "Loading audio") { try loadAudioFile() }
 ```
 
-Available loggers: `.timer`, `.audio`, `.audioPlayer`, `.viewModel`, `.infrastructure`, `.performance`
+Loggers are categories like `.timer` or `.viewModel`; the available ones are defined in
+`Infrastructure/Logging/Logger+StillMoment.swift`.
 
 ---
 
@@ -248,7 +254,7 @@ xcrun simctl list devices available
 
 Then set the ID:
 ```
-session-set-defaults { simulatorId: "29FD6D91-..." }
+session_set_defaults { simulatorId: "29FD6D91-..." }
 ```
 
 ---
@@ -257,18 +263,10 @@ session-set-defaults { simulatorId: "29FD6D91-..." }
 
 ### Mock Services via Protocols
 
-```swift
-@MainActor
-final class TimerViewModelTests: XCTestCase {
-    override func setUp() {
-        super.setUp()
-        sut = TimerViewModel(
-            timerService: MockTimerService(),
-            audioService: MockAudioService()
-        )
-    }
-}
-```
+ViewModel tests build the ViewModel with one `Mock…` per protocol dependency of its initializer. Mocks live in
+`StillMomentTests/Mocks/`. Reference: `setUp()` in `StillMomentTests/TimerViewModel/TimerViewModelBasicTests.swift`.
+If a new dependency has no mock yet, create the mock first.
+ViewModel test classes are `@MainActor` like the ViewModels they test (`@MainActor final class …Tests: XCTestCase`).
 
 ### Test Storage
 

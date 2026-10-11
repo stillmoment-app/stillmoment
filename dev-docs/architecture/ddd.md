@@ -24,7 +24,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 ### Aktions-Namenskonvention
 
 **Benutzer-Aktionen** (Verb + `Pressed`):
-- `startPressed`, `closePressed`
+- `startPressed`, `resetPressed`
 
 **System-Ereignisse** (Verb + Past Participle):
 - `preparationFinished`, `startGongFinished`, `endGongFinished`, `timerCompleted`
@@ -43,52 +43,44 @@ Alle Domain-Modelle sind **immutable Value Objects**.
 3. **Logik im Objekt**: Business-Regeln gehören zum Value Object
 4. **Vergleich by Value**: Zwei Objekte mit gleichen Werten sind gleich
 
-### Beispiel: MeditationTimer
+### Beispiel: MeditationTimer (vereinfacht)
 
 ```swift
-// iOS
+// Vereinfachtes Lehrbeispiel, nicht der echte Code
 struct MeditationTimer: Equatable {
     let durationMinutes: Int
     let remainingSeconds: Int
     let state: TimerState
+    // …
 
     // RICHTIG: Neue Instanz zurückgeben
     func tick() -> MeditationTimer {
         MeditationTimer(
-            durationMinutes: durationMinutes,
-            remainingSeconds: max(0, remainingSeconds - 1),
-            state: state
+            durationMinutes: self.durationMinutes,
+            remainingSeconds: max(0, self.remainingSeconds - 1),
+            state: self.state
         )
     }
 
     // RICHTIG: Domain-Logik im Model
     func shouldPlayIntervalGong(intervalMinutes: Int) -> Bool {
-        guard state == .running, intervalMinutes > 0 else { return false }
-        let elapsed = totalSeconds - remainingSeconds
-        return elapsed >= intervalMinutes * 60 && remainingSeconds > 0
+        guard self.state == .running, intervalMinutes > 0 else {
+            return false
+        }
+        let elapsed = self.totalSeconds - self.remainingSeconds
+        return elapsed >= intervalMinutes * 60
     }
 }
 ```
 
-```kotlin
-// Android
-data class MeditationTimer(
-    val durationMinutes: Int,
-    val remainingSeconds: Int,
-    val state: TimerState
-) {
-    // Kotlin data class hat copy() eingebaut
-    fun tick(): MeditationTimer = copy(
-        remainingSeconds = maxOf(0, remainingSeconds - 1)
-    )
+Auf Android ist `MeditationTimer` eine `data class`; neue Instanzen entstehen ueber das eingebaute `copy()`.
 
-    fun shouldPlayIntervalGong(intervalMinutes: Int): Boolean {
-        if (state != TimerState.Running || intervalMinutes <= 0) return false
-        val elapsed = totalSeconds - remainingSeconds
-        return elapsed >= intervalMinutes * 60 && remainingSeconds > 0
-    }
-}
-```
+Die echte Umsetzung (`ios/StillMoment/Domain/Models/MeditationTimer.swift`,
+`android/app/src/main/kotlin/com/stillmoment/domain/models/MeditationTimer.kt`) macht zusaetzlich:
+`tick(intervalSettings:)` gibt neben dem neuen Timer die Domain-Events des Ticks zurueck (`TimerEvent`),
+zaehlt die Vorbereitungsphase herunter, wechselt bei 0 nach `endGong` und prueft Intervall-Gongs nach
+`IntervalMode` (siehe unten). Die Dauer wird beim Erzeugen validiert (iOS: werfender Initializer,
+Android: `require` im `init`).
 
 ### Anti-Patterns
 
@@ -120,34 +112,16 @@ Zustandsänderungen erfolgen über eine **pure function**.
 ### Struktur
 
 ```
-Action + TimerState + Settings → [Effects]
+Action + aktueller Zustand + Einstellungen → [Effects]
 ```
+
+Die genaue Signatur steht in `TimerReducer.reduce` (`ios/StillMoment/Domain/Services/TimerReducer.swift`,
+`android/app/src/main/kotlin/com/stillmoment/domain/services/TimerReducer.kt`).
 
 Der Reducer ist ein reiner Effect Mapper — er gibt keinen neuen State zurueck.
-State-Transitions sind als Effects modelliert (z.B. `transitionToCompleted`, `clearTimer`).
+State-Transitions sind als Effects modelliert (z.B. `transitionToCompleted`; iOS zusaetzlich `clearTimer` fuer die Rueckkehr nach idle).
 
-```swift
-// iOS
-enum TimerReducer {
-    static func reduce(
-        action: TimerAction,
-        timerState: TimerState,
-        selectedMinutes: Int,
-        settings: MeditationSettings
-    ) -> [TimerEffect]
-}
-```
-
-```kotlin
-// Android (nutzt noch TimerDisplayState — Migration als shared-057 geplant)
-object TimerReducer {
-    fun reduce(
-        state: TimerDisplayState,
-        action: TimerAction,
-        settings: MeditationSettings
-    ): Pair<TimerDisplayState, List<TimerEffect>>
-}
-```
+iOS (`enum TimerReducer`) und Android (`object TimerReducer`) haben dieselbe Struktur und dieselben Parameter.
 
 ### State Machine
 
@@ -202,7 +176,7 @@ Waehrend der Timer im `Running`-Zustand ist, werden Intervall-Gongs in regelmaes
 **Referenz:**
 - Domain-Logik: `MeditationTimer.shouldPlayIntervalGong()`, `markIntervalGongPlayed()` (intern von tick() aufgerufen)
 - Domain-Events: `TimerEvent.intervalGongDue` (emittiert von tick())
-- Reducer: `TimerReducer.reduceIntervalGong()`
+- Reducer: `TimerReducer.reduceIntervalGong()` (iOS) / `reduceIntervalGongTriggered()` (Android)
 - ViewModel: `TimerViewModel.processTimerEvents()`
 
 ### Flexible Intervall-Modi
@@ -314,47 +288,36 @@ Side Effects werden als **explizite Domain-Objekte** modelliert.
 ### Beispiel
 
 ```swift
-// iOS
+// Auszug aus ios/StillMoment/Domain/Models/TimerEffect.swift
 enum TimerEffect: Equatable {
-    case configureAudioSession
+    case activateTimerSession
     case startBackgroundAudio(soundId: String, volume: Float)
-    case stopBackgroundAudio
     case playStartGong
-    case playIntervalGong(soundId: String, volume: Float)
-    case playCompletionSound
     case startTimer(durationMinutes: Int)
-    case resetTimer
-    case saveSettings(MeditationSettings)
+    case transitionToCompleted
+    // …
 }
 ```
 
-```kotlin
-// Android
-sealed class TimerEffect {
-    data object ConfigureAudioSession : TimerEffect()
-    data class StartForegroundService(val soundId: String) : TimerEffect()
-    data object StopForegroundService : TimerEffect()
-    data object PlayStartGong : TimerEffect()
-    data object PlayIntervalGong : TimerEffect()
-    data object PlayCompletionGong : TimerEffect()
-    data class StartTimer(val durationMinutes: Int) : TimerEffect()
-    data object ResetTimer : TimerEffect()
-    data class SaveSettings(val settings: MeditationSettings) : TimerEffect()
-}
-```
+Android modelliert die Effects als `sealed class TimerEffect`
+(`android/app/src/main/kotlin/com/stillmoment/domain/models/TimerEffect.kt`). Die Faelle sind
+plattformspezifisch: Android startet und stoppt statt einer Audio-Session den Foreground-Service,
+uebergibt Gong-Klang und -Lautstaerke direkt im Effect und speichert die Einstellungen per Effect.
 
 ### Test-Beispiel
 
 ```swift
-func testStartPressed_ReturnsCorrectEffects() {
-    let (_, effects) = TimerReducer.reduce(
-        state: .idle,
+// Gekuerzt aus ios/StillMomentTests/Domain/TimerReducerTests.swift
+func testStartPressed_producesStartTimerEffect() {
+    // When
+    let effects = TimerReducer.reduce(
         action: .startPressed,
-        settings: MeditationSettings(durationMinutes: 10)
+        timerState: .idle,
+        selectedMinutes: 10,
+        settings: MeditationSettings.default
     )
 
-    XCTAssertTrue(effects.contains(.configureAudioSession))
-    XCTAssertTrue(effects.contains(.playStartGong))
+    // Then
     XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
 }
 ```
@@ -366,19 +329,18 @@ func testStartPressed_ReturnsCorrectEffects() {
 Fehler werden als **typisierte Domain-Objekte** modelliert.
 
 ```swift
-// iOS
+// Auszug aus ios/StillMoment/Domain/Services/GuidedMeditationServiceProtocol.swift
 enum GuidedMeditationError: Error, LocalizedError {
     case persistenceFailed(reason: String)
-    case fileCopyFailed(reason: String)
     case fileNotFound
     case meditationNotFound(id: UUID)
-    case migrationFailed(reason: String)
+    // …
 
     var errorDescription: String? {
         switch self {
-        case .persistenceFailed(let reason):
-            return "Speichern fehlgeschlagen: \(reason)"
-        // ...
+        case let .persistenceFailed(reason):
+            "Failed to persist meditation library: \(reason)"
+        // …
         }
     }
 }

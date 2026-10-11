@@ -85,8 +85,8 @@ final class AudioService: AudioServiceProtocol {
     /// Activates a timer session: configures audio session and starts always-on keep-alive.
     ///
     /// Keep-alive runs continuously from timer start to timer end. It is NOT stopped when
-    /// background audio or gongs play — the silent audio at volume 0.01
-    /// does not interfere with other audio players.
+    /// background audio or gongs play — the silent audio at very low volume
+    /// (see `AudioService+KeepAlive.swift`) does not interfere with other audio players.
     ///
     /// Call once at timer start. The only counterpart is `deactivateTimerSession()`.
     func activateTimerSession() throws {
@@ -213,8 +213,8 @@ final class AudioService: AudioServiceProtocol {
     func startBackgroundAudio(soundId: String, volume: Float) throws {
         Logger.audio.info("Starting background audio", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
-        // Keep-alive runs in parallel — no need to stop it. The silent audio at 0.01 volume
-        // does not interfere with background audio. See shared-059.
+        // Keep-alive runs in parallel — no need to stop it. The silent audio at very low volume
+        // (see AudioService+KeepAlive.swift) does not interfere with background audio. See shared-059.
 
         let soundURL = try self.resolveBackgroundSoundURL(soundId: soundId)
         try self.startBackgroundAudioPlayer(url: soundURL, volume: volume)
