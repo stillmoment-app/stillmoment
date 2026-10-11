@@ -2,8 +2,8 @@
 id: shared-060
 title: Domain-Layer Bounded Contexts
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 2-Architektur
 priority: mittel
 ---
@@ -216,6 +216,10 @@ Dies stellt sicher, dass AI-Assistenten bei jeder neuen Konversation sofort wiss
 - [ ] Keine funktionalen Aenderungen - reines Refactoring
 
 ---
+
+## WONTFIX
+
+2026-10-11 Die Analyse ist überholt: Die Domain-Layer ist von 29/34 auf 60 (iOS) bzw. 78 (Android) Dateien gewachsen, die Kontext-Zuordnung passt nicht mehr (Import, Zuschnitt, Bibliothekssuche, Praxis, Soundscapes fehlen; ColorTheme, TimerDisplayState, Introduction existieren nicht mehr). Die Docstrings sind fast überall schon vorhanden, und `dev-docs/reference/glossary.md` dokumentiert die fachliche Gliederung bereits. Viele Dateien gehören zu mehreren Kontexten (GongSound, PreparationCountdown, MeditationSettings), die Package-Umstellung wäre auf Android sehr aufwendig — gemessen am Nutzen zu teuer. Falls die flachen `Models/`-Ordner stören: neues, schlankes Ticket nur für Unterordner nach den Glossar-Modulen anlegen.
 
 ## Manueller Test
 

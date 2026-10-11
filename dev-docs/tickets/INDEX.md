@@ -13,7 +13,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 |----|--------|-------|-----|---------|
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
-| [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
 | [shared-085](shared/shared-085-store-website-meditationen-zuerst.md) | Store + Website spiegeln Meditationen-zuerst-IA | 4-Polish | [ ] | [ ] |
 | [shared-117](shared/shared-117-lautstaerke-normalisierung.md) | Lautstärke-Normalisierung gefuehrter Meditationen | 3-Feature | [ ] | [ ] |
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
@@ -105,6 +104,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-057](archive/shared/shared-057-display-state-eliminieren.md) | TimerDisplayState eliminieren | 2-Architektur | [x] | [x] |
 | [shared-058](archive/shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [x] | [x] |
 | [shared-059](archive/shared/shared-059-keep-alive-invariante.md) | Keep-Alive strukturell absichern | 2-Architektur | [x] | [x] |
+| [shared-060](archive/shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [-] | [-] |
 | [shared-061](archive/shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [x] | [x] |
 | [shared-062](archive/shared/shared-062-praxis-datenmodell.md) | Praxis-Datenmodell und Persistenz | 2-Architektur | [x] | [x] |
 | [shared-063](archive/shared/shared-063-praxis-auswahl.md) | ~~Praxis-Auswahl (Pill-Button & Bottom Sheet)~~ WONTFIX | 3-Feature | [-] | [-] |
