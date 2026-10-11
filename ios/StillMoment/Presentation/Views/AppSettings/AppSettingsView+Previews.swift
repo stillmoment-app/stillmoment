@@ -11,7 +11,7 @@ import SwiftUI
 @available(iOS 17.0, *)
 #Preview {
     NavigationStack {
-        AppSettingsView(settingsRepository: AppDependencies.live().guidedSettingsRepository)
+        AppSettingsView(settingsRepository: AppDependencies.live(storage: .production()).guidedSettingsRepository)
     }
 }
 #endif

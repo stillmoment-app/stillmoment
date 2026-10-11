@@ -81,7 +81,7 @@ enum TestFixtureSeeder {
                 return
             }
 
-            let meditations = try createMeditations()
+            let meditations = try createMeditations(in: service.getMeditationsDirectory())
             try service.saveMeditations(meditations)
 
             Logger.infrastructure.info("Seeded \(meditations.count) test meditations for screenshots")
@@ -95,7 +95,7 @@ enum TestFixtureSeeder {
     /// - Parameter service: The meditation service to use for persistence
     static func forceSeed(service: GuidedMeditationServiceProtocol) {
         do {
-            let meditations = try createMeditations()
+            let meditations = try createMeditations(in: service.getMeditationsDirectory())
             try service.saveMeditations(meditations)
 
             Logger.infrastructure.info("Force-seeded \(meditations.count) test meditations for screenshots")
@@ -108,21 +108,15 @@ enum TestFixtureSeeder {
 
     /// Creates GuidedMeditation objects from fixtures
     ///
-    /// Copies bundle resources to Application Support/Meditations/ and creates
+    /// Copies bundle resources into the service's meditations directory and creates
     /// meditation entries with local file paths.
     ///
+    /// - Parameter meditationsDir: The meditations directory of the service that stores the library
     /// - Returns: Array of GuidedMeditation objects with local file paths
     /// - Throws: If bundle resources cannot be found or copy fails
-    private static func createMeditations() throws -> [GuidedMeditation] {
+    private static func createMeditations(in meditationsDir: URL) throws -> [GuidedMeditation] {
         var meditations: [GuidedMeditation] = []
         let fileManager = FileManager.default
-
-        // Get meditations directory
-        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            Logger.infrastructure.error("Could not get Application Support directory")
-            return []
-        }
-        let meditationsDir = appSupport.appendingPathComponent("Meditations")
 
         // Create directory if needed
         if !fileManager.fileExists(atPath: meditationsDir.path) {

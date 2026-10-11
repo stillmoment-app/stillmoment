@@ -10,18 +10,14 @@ import OSLog
 
 /// Concrete implementation of `WaveformCacheServiceProtocol`.
 ///
-/// Stores one JSON file per meditation under `Application Support/Waveforms/{id}.json`.
-/// The directory and `FileManager` are injectable so tests can use a temporary directory.
+/// Stores one JSON file per meditation under `<baseDirectory>/Waveforms/{id}.json`
+/// (in the app: Application Support).
 final class WaveformCacheService: WaveformCacheServiceProtocol {
     // MARK: Lifecycle
 
-    /// - Parameters:
-    ///   - fileManager: FileManager instance (defaults to `.default`).
-    ///   - directory: Override for the storage directory. When `nil`, resolves to
-    ///     `Application Support/Waveforms`.
-    init(fileManager: FileManager = .default, directory: URL? = nil) {
-        self.fileManager = fileManager
-        self.overrideDirectory = directory
+    /// - Parameter baseDirectory: Folder that holds the `Waveforms` subfolder.
+    init(baseDirectory: URL) {
+        self.directory = baseDirectory.appendingPathComponent("Waveforms")
     }
 
     // MARK: Internal
@@ -42,9 +38,8 @@ final class WaveformCacheService: WaveformCacheServiceProtocol {
     }
 
     func save(id: UUID, waveform: MeditationWaveform) throws {
-        let directory = self.waveformsDirectory()
-        if !self.fileManager.fileExists(atPath: directory.path) {
-            try self.fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        if !self.fileManager.fileExists(atPath: self.directory.path) {
+            try self.fileManager.createDirectory(at: self.directory, withIntermediateDirectories: true)
         }
 
         let data = try JSONEncoder().encode(waveform)
@@ -65,20 +60,10 @@ final class WaveformCacheService: WaveformCacheServiceProtocol {
 
     // MARK: Private
 
-    private let fileManager: FileManager
-    private let overrideDirectory: URL?
-
-    private func waveformsDirectory() -> URL {
-        if let overrideDirectory {
-            return overrideDirectory
-        }
-        // Application Support directory is guaranteed to exist on iOS.
-        // swiftlint:disable:next force_unwrapping
-        let appSupport = self.fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("Waveforms")
-    }
+    private let directory: URL
+    private let fileManager = FileManager.default
 
     private func fileURL(for id: UUID) -> URL {
-        self.waveformsDirectory().appendingPathComponent("\(id.uuidString).json")
+        self.directory.appendingPathComponent("\(id.uuidString).json")
     }
 }

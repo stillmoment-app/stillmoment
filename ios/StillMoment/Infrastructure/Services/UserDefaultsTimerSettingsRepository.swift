@@ -18,8 +18,8 @@ final class UserDefaultsTimerSettingsRepository {
     // MARK: Lifecycle
 
     /// Creates a repository with the specified UserDefaults instance
-    /// - Parameter userDefaults: The UserDefaults to use (defaults to .standard)
-    init(userDefaults: UserDefaults = .standard) {
+    /// - Parameter userDefaults: The UserDefaults to use
+    init(userDefaults: UserDefaults) {
         self.userDefaults = userDefaults
     }
 

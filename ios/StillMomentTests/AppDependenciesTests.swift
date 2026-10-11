@@ -10,9 +10,24 @@ import XCTest
 
 @MainActor
 final class AppDependenciesTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    private var storage: TestStorage!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        // The live graph gets its own storage, never the app's real data (ios-056)
+        self.storage = try TestStorage()
+    }
+
+    override func tearDown() {
+        self.storage.remove()
+        self.storage = nil
+        super.tearDown()
+    }
+
     func testEachPlayerGetsItsOwnPlaybackService() {
         // Given — the app's dependency graph
-        let dependencies = AppDependencies.live()
+        let dependencies = AppDependencies.live(storage: self.storage.location)
 
         // When — two players are opened one after the other
         let first = dependencies.makeAudioPlayerService()
@@ -24,7 +39,7 @@ final class AppDependenciesTests: XCTestCase {
 
     func testEachPlayerGetsItsOwnEndGongPlayer() {
         // Given
-        let dependencies = AppDependencies.live()
+        let dependencies = AppDependencies.live(storage: self.storage.location)
 
         // When
         let first = dependencies.makeGongPlayer()
@@ -36,7 +51,7 @@ final class AppDependenciesTests: XCTestCase {
 
     func testLiveGraphUsesProductionImplementations() {
         // Given
-        let dependencies = AppDependencies.live()
+        let dependencies = AppDependencies.live(storage: self.storage.location)
 
         // Then — the app runs on the real services, not on preview or test doubles
         XCTAssertTrue(dependencies.audioService is AudioService)

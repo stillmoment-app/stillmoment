@@ -30,7 +30,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
-| [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | Tests nutzen eigenen Speicher statt der App-Daten | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
+| [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | Tests nutzen eigenen Speicher statt der App-Daten | 5-QA | [~] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-061](ios/ios-061-link-ohne-pfad-geht-verloren.md) | Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts | 1-Quick Fix | [ ] | - |
 | [ios-062](ios/ios-062-gong-einstellungen-beim-import-pruefen.md) | Gong-Einstellungen gehen beim Import verloren | 1-Quick Fix | [~] | - |

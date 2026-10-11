@@ -11,19 +11,17 @@ import OSLog
 /// Concrete implementation of GuidedMeditationServiceProtocol
 ///
 /// Manages guided meditation library with UserDefaults persistence.
-/// Audio files are copied to Application Support/Meditations/.
+/// Audio files are copied to `<baseDirectory>/Meditations/` (in the app: Application Support).
 /// Legacy bookmarks are migrated on first load after update.
 final class GuidedMeditationService: GuidedMeditationServiceProtocol {
     // MARK: Lifecycle
 
-    /// Initializes the service with optional custom UserDefaults and FileManager
-    ///
     /// - Parameters:
-    ///   - userDefaults: UserDefaults instance (defaults to .standard)
-    ///   - fileManager: FileManager instance (defaults to .default)
-    init(userDefaults: UserDefaults = .standard, fileManager: FileManager = .default) {
+    ///   - userDefaults: Where the library list and migration markers are stored
+    ///   - baseDirectory: Folder that holds the `Meditations` subfolder with the audio files
+    init(userDefaults: UserDefaults, baseDirectory: URL) {
         self.userDefaults = userDefaults
-        self.fileManager = fileManager
+        self.baseDirectory = baseDirectory
     }
 
     // MARK: Internal
@@ -119,10 +117,7 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
     }
 
     func getMeditationsDirectory() -> URL {
-        // Application Support directory is guaranteed to exist on iOS
-        // swiftlint:disable:next force_unwrapping
-        let appSupport = self.fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("Meditations")
+        self.baseDirectory.appendingPathComponent("Meditations")
     }
 
     func needsMigration() -> Bool {
@@ -148,7 +143,8 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
     // MARK: Private
 
     private let userDefaults: UserDefaults
-    private let fileManager: FileManager
+    private let baseDirectory: URL
+    private let fileManager = FileManager.default
     private let storageKey = "guidedMeditationsLibrary"
     private let migrationKey = "guidedMeditationsMigratedToLocalFiles_v1"
     private let overrideMigrationKey = "guidedMeditationsOverrideMigratedV1"

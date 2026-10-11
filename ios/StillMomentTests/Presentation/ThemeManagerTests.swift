@@ -16,17 +16,20 @@ final class ThemeManagerTests: XCTestCase {
 
     // swiftlint:disable:next implicitly_unwrapped_optional
     private var sut: ThemeManager!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    private var storage: TestStorage!
 
-    override func setUp() {
-        super.setUp()
-        // Clear the stored value so each test starts like a fresh install
-        // (and so no @AppStorage state leaks between tests)
-        UserDefaults.standard.removeObject(forKey: Self.appearanceStorageKey)
-        self.sut = ThemeManager()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        // Own, empty settings: each test starts like a fresh install and never
+        // overwrites the appearance chosen in the app on this simulator
+        self.storage = try TestStorage()
+        self.sut = ThemeManager(store: self.storage.userDefaults)
     }
 
     override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: Self.appearanceStorageKey)
+        self.storage.remove()
+        self.storage = nil
         self.sut = nil
         super.tearDown()
     }
@@ -52,13 +55,13 @@ final class ThemeManagerTests: XCTestCase {
 
     func testStoredSystemSelectionWinsOverDarkDefault() {
         // Given the user picked "System" in an earlier app run
-        UserDefaults.standard.set(
+        self.storage.userDefaults.set(
             AppearanceMode.system.rawValue,
             forKey: Self.appearanceStorageKey
         )
 
         // When the app starts again
-        let restored = ThemeManager()
+        let restored = ThemeManager(store: self.storage.userDefaults)
 
         // Then the stored choice survives - the dark default must not overwrite it
         XCTAssertEqual(restored.appearanceMode, .system)
@@ -67,13 +70,13 @@ final class ThemeManagerTests: XCTestCase {
 
     func testStoredLightSelectionWinsOverDarkDefault() {
         // Given the user picked "Light" in an earlier app run
-        UserDefaults.standard.set(
+        self.storage.userDefaults.set(
             AppearanceMode.light.rawValue,
             forKey: Self.appearanceStorageKey
         )
 
         // When the app starts again
-        let restored = ThemeManager()
+        let restored = ThemeManager(store: self.storage.userDefaults)
 
         // Then the stored choice survives
         XCTAssertEqual(restored.appearanceMode, .light)

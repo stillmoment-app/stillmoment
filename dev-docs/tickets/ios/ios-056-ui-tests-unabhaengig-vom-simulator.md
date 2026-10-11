@@ -1,13 +1,15 @@
 ---
 id: ios-056
 title: Tests nutzen eigenen Speicher statt der App-Daten
-status: todo
+status: in-progress
 phase: 5-QA
 priority: mittel
 depends_on: [ios-055]
 ---
 
 # Ticket ios-056: Tests nutzen eigenen Speicher statt der App-Daten
+
+**Plan**: `dev-docs/tickets/plans/ios-056.md`
 
 **Komplexitaet**: Überschaubar. Risiko: Der Test-Speicher gelangt versehentlich in den Store-Build, oder Screenshot-Tests mit Beispiel-Meditationen verlieren ihren Zustand.
 **Abhaengigkeiten**: ios-055

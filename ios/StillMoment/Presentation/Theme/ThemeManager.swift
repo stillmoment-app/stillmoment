@@ -5,15 +5,24 @@
 //  Presentation Layer - Manages appearance mode (Light/Dark/System) and resolves colors.
 //
 //  Injected as @StateObject in StillMomentApp, accessed via @EnvironmentObject in Views.
-//  Uses @AppStorage for persistence (same pattern as selectedTab).
+//  Uses @AppStorage for persistence (same pattern as selectedTab), in the store the app
+//  chose at launch (ios-056).
 //
 
 import SwiftUI
 
 @MainActor
 final class ThemeManager: ObservableObject {
-    @AppStorage("appearanceMode")
-    var appearanceMode: AppearanceMode = .default
+    // MARK: Lifecycle
+
+    /// - Parameter store: Settings that hold the user's appearance choice
+    init(store: UserDefaults) {
+        self._appearanceMode = AppStorage(wrappedValue: .default, "appearanceMode", store: store)
+    }
+
+    // MARK: Internal
+
+    @AppStorage var appearanceMode: AppearanceMode
 
     /// Returns the `ColorScheme` override for `preferredColorScheme(_:)`.
     /// `nil` means follow system (no override).

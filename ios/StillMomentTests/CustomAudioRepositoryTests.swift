@@ -35,7 +35,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         if let defaults = testDefaults {
             self.sut = CustomAudioRepository(
                 userDefaults: defaults,
-                fileManager: .default
+                baseDirectory: dir
             )
         }
     }
@@ -167,7 +167,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
     }
 
     func testImportFile_persistsAcrossRepositoryInstances() throws {
-        guard let sut, let testDefaults else {
+        guard let sut, let testDefaults, let tempDir else {
             return XCTFail("sut not initialized")
         }
 
@@ -178,7 +178,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         // When - create a fresh repository with the same UserDefaults
         let repo2 = CustomAudioRepository(
             userDefaults: testDefaults,
-            fileManager: .default
+            baseDirectory: tempDir
         )
         let loaded = repo2.loadAll()
 
@@ -273,7 +273,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
     }
 
     func testDelete_persistsAcrossRepositoryInstances() throws {
-        guard let sut, let testDefaults else {
+        guard let sut, let testDefaults, let tempDir else {
             return XCTFail("sut not initialized")
         }
 
@@ -285,7 +285,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         // When - create fresh repository
         let repo2 = CustomAudioRepository(
             userDefaults: testDefaults,
-            fileManager: .default
+            baseDirectory: tempDir
         )
 
         // Then
@@ -337,6 +337,22 @@ final class CustomAudioRepositoryTests: XCTestCase {
         // Then
         let unwrappedURL = try XCTUnwrap(fileURL)
         XCTAssertTrue(FileManager.default.fileExists(atPath: unwrappedURL.path))
+    }
+
+    func testImportedSoundscapeLandsInTheGivenStorage() throws {
+        guard let sut, let tempDir else {
+            return XCTFail("sut not initialized")
+        }
+
+        // Given
+        let url = try createTempAudioFile(name: "own-storage.mp3")
+
+        // When
+        let imported = try sut.importFile(from: url)
+
+        // Then — the copy lives inside the repository's storage, never in the app's own folder
+        let fileURL = try XCTUnwrap(sut.fileURL(for: imported))
+        XCTAssertTrue(fileURL.standardizedFileURL.path.hasPrefix(tempDir.standardizedFileURL.path))
     }
 
     func testFileURL_deletedFile_returnsNil() throws {
@@ -417,7 +433,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
     }
 
     func testUpdate_persistsAcrossRepositoryInstances() throws {
-        guard let sut, let testDefaults else {
+        guard let sut, let testDefaults, let tempDir else {
             return XCTFail("sut not initialized")
         }
 
@@ -429,7 +445,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         // When — fresh repository with same UserDefaults
         let repo2 = CustomAudioRepository(
             userDefaults: testDefaults,
-            fileManager: .default
+            baseDirectory: tempDir
         )
 
         // Then

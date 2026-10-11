@@ -19,8 +19,8 @@ enum PreparationTimeConfigurer {
     ///
     /// Call this when the app receives `-DisablePreparation` launch argument.
     /// The timer will start immediately without the preparation countdown.
-    static func disable() {
-        UserDefaults.standard.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+    static func disable(userDefaults: UserDefaults) {
+        userDefaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
         Logger.infrastructure.info("Preparation time disabled via launch argument")
     }
 }

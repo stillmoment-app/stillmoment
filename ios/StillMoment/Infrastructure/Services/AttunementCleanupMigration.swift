@@ -15,7 +15,8 @@ import OSLog
 ///
 /// Touched data:
 /// - `UserDefaults`: `introductionId`, `introductionEnabled`, `customAudioFiles_attunement`
-/// - File system: `Application Support/CustomAudio/attunements/` (recursively removed)
+/// - File system: `<baseDirectory>/CustomAudio/attunements/` (recursively removed; in the app
+///   the base directory is Application Support)
 ///
 /// All operations are silent. The user sees no dialog or message.
 enum AttunementCleanupMigration {
@@ -31,14 +32,10 @@ enum AttunementCleanupMigration {
 
     /// Runs the cleanup migration if it has not run before. Idempotent.
     ///
-    /// - Parameter applicationSupportURL: Override for the Application Support directory.
-    ///   Production code uses the default (resolved via `fileManager`); tests inject a
-    ///   temporary directory to avoid touching the real Application Support folder.
-    static func runIfNeeded(
-        userDefaults: UserDefaults = .standard,
-        fileManager: FileManager = .default,
-        applicationSupportURL: URL? = nil
-    ) {
+    /// - Parameters:
+    ///   - userDefaults: Settings that may hold the legacy keys and the marker
+    ///   - baseDirectory: Folder that may hold the legacy `CustomAudio/attunements` subfolder
+    static func runIfNeeded(userDefaults: UserDefaults, baseDirectory: URL) {
         guard !userDefaults.bool(forKey: self.markerKey) else {
             return
         }
@@ -53,12 +50,10 @@ enum AttunementCleanupMigration {
             clearedKeys.append(key)
         }
 
-        let attunementDir = self.legacyAttunementDirectory(
-            fileManager: fileManager,
-            applicationSupportURL: applicationSupportURL
-        )
+        let fileManager = FileManager.default
+        let attunementDir = baseDirectory.appendingPathComponent("CustomAudio/attunements")
         var filesDeleted = 0
-        if let attunementDir, fileManager.fileExists(atPath: attunementDir.path) {
+        if fileManager.fileExists(atPath: attunementDir.path) {
             if let contents = try? fileManager.contentsOfDirectory(atPath: attunementDir.path) {
                 filesDeleted = contents.count
             }
@@ -73,14 +68,5 @@ enum AttunementCleanupMigration {
                 "userDefaultsKeysCleared": clearedKeys.count
             ]
         )
-    }
-
-    private static func legacyAttunementDirectory(
-        fileManager: FileManager,
-        applicationSupportURL: URL?
-    ) -> URL? {
-        let baseURL = applicationSupportURL
-            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-        return baseURL?.appendingPathComponent("CustomAudio/attunements")
     }
 }

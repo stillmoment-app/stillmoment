@@ -9,8 +9,8 @@ import Foundation
 @testable import StillMoment
 
 extension AudioService {
-    /// A real `AudioService` with bundled sounds and real custom-audio storage,
-    /// wired the same way `AppDependencies.live()` wires it.
+    /// A real `AudioService` with bundled sounds, wired the same way `AppDependencies.live()`
+    /// wires it — but without imported soundscapes, so it never reads the app's own storage (ios-056).
     static func makeForTesting(
         coordinator: AudioSessionCoordinatorProtocol = AudioSessionCoordinator.shared,
         fadeOutDuration: TimeInterval = 0.5
@@ -21,7 +21,7 @@ extension AudioService {
             soundRepository: soundRepository,
             soundscapeResolver: SoundscapeResolver(
                 soundRepository: soundRepository,
-                customAudioRepository: CustomAudioRepository()
+                customAudioRepository: MockCustomAudioRepository()
             ),
             fadeOutDuration: fadeOutDuration
         )

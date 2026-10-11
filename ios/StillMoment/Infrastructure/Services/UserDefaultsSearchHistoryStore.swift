@@ -13,7 +13,7 @@ import Foundation
 final class UserDefaultsSearchHistoryStore: SearchHistoryStore {
     // MARK: Lifecycle
 
-    init(userDefaults: UserDefaults = .standard, key: String = UserDefaultsSearchHistoryStore.defaultKey) {
+    init(userDefaults: UserDefaults, key: String = UserDefaultsSearchHistoryStore.defaultKey) {
         self.userDefaults = userDefaults
         self.key = key
     }
