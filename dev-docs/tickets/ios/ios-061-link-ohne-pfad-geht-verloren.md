@@ -1,7 +1,7 @@
 ---
 id: ios-061
 title: "Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts"
-status: todo
+status: in-progress
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []

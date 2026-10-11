@@ -20,10 +20,13 @@ final class MockAudioDownloadService: AudioDownloadServiceProtocol {
     var afterDownloaded: (@MainActor () -> Void)?
     /// Alle angefragten Adressen in Reihenfolge
     private(set) var requestedURLs: [URL] = []
+    /// Alle uebergebenen Dateinamen in Reihenfolge
+    private(set) var requestedFilenames: [String] = []
 
     func download(from url: URL, filename: String) async throws -> URL {
         self.downloadedURL = url
         self.requestedURLs.append(url)
+        self.requestedFilenames.append(filename)
         if let whileDownloading {
             await whileDownloading()
         }

@@ -50,6 +50,13 @@ enum ShareInbox {
     ///
     /// The entry is named after the link's last path component plus `.json`.
     ///
+    /// A link without path (`https://www.example.com/`, also with `?id=1`) has no usable
+    /// component — `lastPathComponent` is `"/"` or empty (ios-061). Its reference carries an
+    /// empty filename, so the download names the file itself (server name or `audio.mp3`/
+    /// `audio.m4a`). The entry gets the fixed name `link.json`: a bare `.json` would be a
+    /// hidden file the app never lists. Two such links share that name — the later one
+    /// replaces the waiting one, like links with the same ending (shared-132).
+    ///
     /// - Returns: The inbox entry
     @discardableResult
     static func storeLink(
@@ -57,8 +64,9 @@ enum ShareInbox {
         in inboxDirectory: URL,
         date: Date = Date()
     ) throws -> URL {
-        let filename = url.lastPathComponent
-        let destinationURL = inboxDirectory.appendingPathComponent("\(filename).json")
+        let filename = url.lastPathComponent == "/" ? "" : url.lastPathComponent
+        let entryName = filename.isEmpty || filename.hasPrefix(".") ? Self.pathlessLinkEntryName : filename
+        let destinationURL = inboxDirectory.appendingPathComponent("\(entryName).json")
         let reference = URLReference(
             url: url.absoluteString,
             filename: filename,
@@ -76,6 +84,9 @@ enum ShareInbox {
     }
 
     // MARK: Private
+
+    /// Entry name for links whose last path component cannot name a visible file
+    private static let pathlessLinkEntryName = "link"
 
     /// Puts the completely written (hidden) temporary file in place of `destinationURL`.
     ///
