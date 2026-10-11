@@ -271,22 +271,6 @@ final class AudioPlayerServiceInterruptionTests: XCTestCase {
         XCTAssertNotEqual(self.sut.state.value, .playing)
     }
 
-    func testWakeUpAfterSuspension_isNoInterruption() async throws {
-        // Given
-        try await self.loadMeditation()
-        try self.sut.play()
-        var reported = 0
-        let subscription = self.sut.interruptionBegan.sink { reported += 1 }
-
-        // When: iOS only reports late that the app was suspended
-        await self.postInterruptionBegan(wasSuspended: true)
-
-        // Then
-        XCTAssertEqual(self.sut.state.value, .playing)
-        XCTAssertEqual(reported, 0)
-        subscription.cancel()
-    }
-
     func testInterruptionEnded_whenPausedByUser_staysPaused() async throws {
         // Given: the user had paused before the call
         try await self.loadMeditation()
@@ -331,17 +315,11 @@ final class AudioPlayerServiceInterruptionTests: XCTestCase {
         try await self.sut.load(url: url, meditation: meditation)
     }
 
-    private func postInterruptionBegan(wasSuspended: Bool = false) async {
-        var userInfo: [AnyHashable: Any] = [
-            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue
-        ]
-        if wasSuspended {
-            userInfo[AVAudioSessionInterruptionWasSuspendedKey] = true
-        }
+    private func postInterruptionBegan() async {
         self.notificationCenter.post(
             name: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance(),
-            userInfo: userInfo
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
         )
         await self.drainMainQueue()
     }

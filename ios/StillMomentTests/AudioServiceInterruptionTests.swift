@@ -94,20 +94,6 @@ final class AudioServiceInterruptionTests: XCTestCase {
         self.sut.stopGongPreview()
     }
 
-    func testSuspendedReport_isNoInterruption() async throws {
-        // Given: start gong rings, background sound plays
-        try self.sut.activateTimerSession()
-        try self.sut.startBackgroundAudio(soundId: Self.audibleSoundId, volume: 0.15)
-        try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 0.8)
-
-        // When: iOS only reports late that the app was suspended
-        await self.postInterruptionBegan(wasSuspended: true)
-
-        // Then: nothing is touched
-        XCTAssertEqual(self.gongEnds, 0)
-        XCTAssertTrue(self.sut.isBackgroundAudioPlaying)
-    }
-
     // MARK: - End gong
 
     func testInterruptionDuringEndGong_endsTheGongSoTheCompletionScreenAppears() async throws {
@@ -214,14 +200,10 @@ final class AudioServiceInterruptionTests: XCTestCase {
     /// A bundled background sound that actually plays (not "silent")
     static let audibleSoundId = "forest"
 
-    func postInterruptionBegan(wasSuspended: Bool = false) async {
-        var userInfo: [AnyHashable: Any] = [
+    func postInterruptionBegan() async {
+        await self.postInterruption(userInfo: [
             AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue
-        ]
-        if wasSuspended {
-            userInfo[AVAudioSessionInterruptionWasSuspendedKey] = true
-        }
-        await self.postInterruption(userInfo: userInfo)
+        ])
     }
 
     func postInterruptionEnded(shouldResume: Bool) async {

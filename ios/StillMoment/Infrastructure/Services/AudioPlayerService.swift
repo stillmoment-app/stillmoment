@@ -440,10 +440,6 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
         switch type {
         case .began:
-            // Only a late report that the app was suspended, not a real interruption
-            guard userInfo[AVAudioSessionInterruptionWasSuspendedKey] as? Bool != true else {
-                return
-            }
             self.handleInterruptionBegan()
         case .ended:
             let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
