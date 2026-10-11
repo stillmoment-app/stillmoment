@@ -1,5 +1,6 @@
 package com.stillmoment.infrastructure.audio
 
+import android.app.Notification
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -13,6 +14,15 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /**
  * Foreground service for guided meditation audio playback.
@@ -20,11 +30,17 @@ import javax.inject.Inject
  * This service:
  * - Keeps the app alive during background audio playback
  * - Displays a persistent notification with media controls
- * - Handles media button events from notifications and lock screen
- * - Integrates with MediaSession for system-wide media control
+ * - Handles the play/pause action of the notification (Android 12 and older)
  *
- * The service delegates actual playback to AudioPlayerService and uses
- * MediaSessionManager for system integration.
+ * Lifecycle: started only via [MeditationPlayerServiceLauncher]. Every start calls
+ * [startForeground] right away — with a minimal notification if the meditation is already
+ * gone — so Android never sees a foreground-service start without a notification. The
+ * service then follows [AudioPlayerService.nowPlaying] and play/pause state: it updates the
+ * notification and stops itself once nothing is playing any more. Nobody sends it stop or
+ * update intents.
+ *
+ * Lock screen controls and headset buttons reach AudioPlayerService through the Media3
+ * session of MediaSessionManager, not through this service.
  */
 @AndroidEntryPoint
 class MeditationPlayerForegroundService : Service() {
@@ -37,6 +53,10 @@ class MeditationPlayerForegroundService : Service() {
     @Inject
     lateinit var mediaSessionManager: MediaSessionManager
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var observeJob: Job? = null
+    private var lastStartId = 0
+
     private val mediaButtonReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -47,10 +67,6 @@ class MeditationPlayerForegroundService : Service() {
                     MeditationNotificationManager.ACTION_PAUSE -> {
                         audioPlayerService.pause()
                     }
-                    MeditationNotificationManager.ACTION_STOP -> {
-                        audioPlayerService.stop()
-                        stopSelf()
-                    }
                 }
             }
         }
@@ -58,12 +74,11 @@ class MeditationPlayerForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // Register broadcast receiver for notification button events
+        // Register broadcast receiver for the notification's play/pause action
         val filter =
             IntentFilter().apply {
                 addAction(MeditationNotificationManager.ACTION_PLAY)
                 addAction(MeditationNotificationManager.ACTION_PAUSE)
-                addAction(MeditationNotificationManager.ACTION_STOP)
             }
         ContextCompat.registerReceiver(
             this,
@@ -74,19 +89,17 @@ class MeditationPlayerForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            ACTION_START -> {
-                val meditationJson = intent.getStringExtra(EXTRA_MEDITATION)
-                if (meditationJson != null) {
-                    startForegroundWithNotification()
-                }
-            }
-            ACTION_UPDATE -> {
-                updateNotification()
-            }
-            ACTION_STOP -> {
-                stopForegroundAndService()
-            }
+        lastStartId = startId
+
+        // Always go foreground first: started via startForegroundService, Android requires
+        // it even if the meditation already stopped in the meantime.
+        val isPlaying = audioPlayerService.playbackState.value.isPlaying
+        val notification =
+            buildMeditationNotification(isPlaying) ?: notificationManager.buildPlaceholderNotification()
+        startForegroundCompat(notification)
+
+        if (observeJob == null) {
+            observeJob = scope.launch { followPlayback() }
         }
         return START_NOT_STICKY
     }
@@ -94,6 +107,7 @@ class MeditationPlayerForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        scope.cancel()
         try {
             unregisterReceiver(mediaButtonReceiver)
         } catch (e: IllegalArgumentException) {
@@ -102,18 +116,35 @@ class MeditationPlayerForegroundService : Service() {
         super.onDestroy()
     }
 
-    private fun startForegroundWithNotification() {
-        val meditation = audioPlayerService.currentMeditation ?: return
-        val mediaSession = mediaSessionManager.mediaSession ?: return
-        val isPlaying = audioPlayerService.playbackState.value.isPlaying
+    /**
+     * Updates the notification on play/pause changes; stops the service once the meditation
+     * stopped, ended or failed (nowPlaying == null).
+     */
+    private suspend fun followPlayback() {
+        combine(
+            audioPlayerService.nowPlaying,
+            audioPlayerService.playbackState.map { it.isPlaying }.distinctUntilChanged()
+        ) { meditation, isPlaying -> meditation to isPlaying }
+            .collect { (meditation, isPlaying) ->
+                if (meditation == null) {
+                    stopForegroundAndService()
+                } else {
+                    buildMeditationNotification(isPlaying)?.let { notificationManager.showNotification(it) }
+                }
+            }
+    }
 
-        val notification =
-            notificationManager.buildNotification(
-                meditation = meditation,
-                isPlaying = isPlaying,
-                mediaSession = mediaSession
-            )
+    private fun buildMeditationNotification(isPlaying: Boolean): Notification? {
+        val meditation = audioPlayerService.currentMeditation ?: return null
+        val mediaSession = mediaSessionManager.mediaSession ?: return null
+        return notificationManager.buildNotification(
+            meditation = meditation,
+            isPlaying = isPlaying,
+            mediaSession = mediaSession
+        )
+    }
 
+    private fun startForegroundCompat(notification: Notification) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ServiceCompat.startForeground(
                 this,
@@ -126,65 +157,29 @@ class MeditationPlayerForegroundService : Service() {
         }
     }
 
-    private fun updateNotification() {
-        val meditation = audioPlayerService.currentMeditation ?: return
-        val mediaSession = mediaSessionManager.mediaSession ?: return
-        val isPlaying = audioPlayerService.playbackState.value.isPlaying
-
-        val notification =
-            notificationManager.buildNotification(
-                meditation = meditation,
-                isPlaying = isPlaying,
-                mediaSession = mediaSession
-            )
-
-        notificationManager.showNotification(notification)
-    }
-
     private fun stopForegroundAndService() {
+        // A stale null (meditation closed, next one started right away) must not end the
+        // notification of the meditation that is playing now.
+        if (audioPlayerService.nowPlaying.value != null) {
+            return
+        }
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        // Only stops if no newer start is pending (a new meditation started meanwhile).
+        stopSelf(lastStartId)
     }
 
     companion object {
         private const val TAG = "MeditationPlayerService"
-        const val ACTION_START = "com.stillmoment.MEDITATION_START"
-        const val ACTION_UPDATE = "com.stillmoment.MEDITATION_UPDATE"
-        const val ACTION_STOP = "com.stillmoment.MEDITATION_STOP"
-        const val EXTRA_MEDITATION = "meditation"
 
         /**
-         * Starts the foreground service for meditation playback.
+         * Starts the foreground service. Use [MeditationPlayerServiceLauncher], which handles
+         * Android refusing the start from the background.
          */
-        fun start(context: Context, meditationJson: String) {
-            val intent =
-                Intent(context, MeditationPlayerForegroundService::class.java).apply {
-                    action = ACTION_START
-                    putExtra(EXTRA_MEDITATION, meditationJson)
-                }
-            ContextCompat.startForegroundService(context, intent)
-        }
-
-        /**
-         * Updates the notification (e.g., when play/pause state changes).
-         */
-        fun update(context: Context) {
-            val intent =
-                Intent(context, MeditationPlayerForegroundService::class.java).apply {
-                    action = ACTION_UPDATE
-                }
-            context.startService(intent)
-        }
-
-        /**
-         * Stops the foreground service.
-         */
-        fun stop(context: Context) {
-            val intent =
-                Intent(context, MeditationPlayerForegroundService::class.java).apply {
-                    action = ACTION_STOP
-                }
-            context.startService(intent)
+        fun start(context: Context) {
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, MeditationPlayerForegroundService::class.java)
+            )
         }
     }
 }

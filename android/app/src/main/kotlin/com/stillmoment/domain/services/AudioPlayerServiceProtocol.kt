@@ -1,6 +1,6 @@
 package com.stillmoment.domain.services
 
-import android.net.Uri
+import com.stillmoment.domain.models.GuidedMeditation
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -30,20 +30,37 @@ interface AudioPlayerServiceProtocol {
     val playbackState: StateFlow<PlaybackState>
 
     /**
-     * Plays audio from the given URI.
-     *
-     * Trim points (shared-105) make playback non-destructive: playback starts at
-     * [trimStartMs] (after prepare) and ends at [trimEndMs] via the progress loop,
-     * triggering the same completion path as the natural file end. Positions reported
-     * in [playbackState] stay in absolute file time; range-relative display is the
-     * caller's concern.
-     *
-     * @param uri Content URI of the audio file
-     * @param duration Full file duration in milliseconds (for progress calculation)
-     * @param trimStartMs Playback start offset in ms, or null to start at the file start
-     * @param trimEndMs Playback end offset in ms, or null to play to the file end
+     * The meditation shown on the lock screen and in the media notification, or null.
+     * Becomes null when the meditation stops — also when stopped from outside the app
+     * (lock screen, notification, headset or Bluetooth button) — or fails to load.
      */
-    fun play(uri: Uri, duration: Long, trimStartMs: Long? = null, trimEndMs: Long? = null)
+    val nowPlaying: StateFlow<GuidedMeditation?>
+
+    /**
+     * Plays a guided meditation and shows it on the lock screen and in the media
+     * notification until it stops or ends.
+     *
+     * Trim points (shared-105) make playback non-destructive: playback starts at the
+     * meditation's trim start and ends at its trim end, triggering the same completion
+     * path as the natural file end. Positions reported in [playbackState] stay in absolute
+     * file time; range-relative display is the caller's concern. The lock screen shows the
+     * trimmed range.
+     *
+     * @param meditation The meditation to play
+     */
+    fun play(meditation: GuidedMeditation)
+
+    /**
+     * Shows the meditation on the lock screen and in the media notification before its
+     * audio begins — while the preparation time runs or the start gong rings.
+     *
+     * Must be called while the app is in the foreground (the user's tap): it starts the
+     * foreground service, without which Android 15+ refuses audio focus once the screen is
+     * locked. A following [play] of the same meditation keeps this presence; [stop] ends it.
+     *
+     * @param meditation The meditation about to play
+     */
+    fun announce(meditation: GuidedMeditation)
 
     /**
      * Pauses the current playback.
@@ -66,6 +83,15 @@ interface AudioPlayerServiceProtocol {
      * Stops playback and releases resources.
      */
     fun stop()
+
+    /**
+     * Removes the meditation from the lock screen and the media notification (ending the
+     * foreground service) after it has completed, keeping the completed playback state.
+     *
+     * Reaching the end alone keeps the meditation shown, so the end gong can ring out with
+     * the screen locked; call this once it has (or right away without an end gong).
+     */
+    fun endLockScreenPresence()
 
     /**
      * Registers a callback for playback completion.

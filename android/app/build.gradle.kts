@@ -133,13 +133,8 @@ dependencies {
     // Immutable Collections (for Compose stability)
     implementation(libs.kotlinx.collections.immutable)
 
-    // Media3 (ExoPlayer) - for audio playback
-    implementation(libs.media3.exoplayer)
+    // Media3 - media3-session drives lock screen controls and the media notification
     implementation(libs.media3.session)
-    implementation(libs.media3.ui)
-
-    // AndroidX Media Compat (for MediaSessionCompat)
-    implementation(libs.androidx.media)
 
     // Testing - JUnit 5
     testImplementation(libs.junit5.api)

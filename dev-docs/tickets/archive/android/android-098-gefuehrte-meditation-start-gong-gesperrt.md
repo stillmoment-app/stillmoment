@@ -1,7 +1,7 @@
 ---
 id: android-098
 title: "Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird"
-status: todo
+status: done
 phase: 1-Quick Fix
 priority: kritisch
 depends_on: [android-094]
@@ -23,13 +23,13 @@ Das ist der Kern-Anwendungsfall: Meditation starten, Telefon weglegen. Wer den S
 
 ## Akzeptanzkriterien
 
-- [ ] Geführte Meditation mit Start-Gong starten und sofort sperren: Nach Gong und Atempause spielt die Meditation
-- [ ] Dasselbe mit Vorbereitungszeit (mit und ohne Start-Gong)
-- [ ] Dasselbe, wenn statt zu sperren zum Startbildschirm gewechselt wird
-- [ ] Während Vorbereitung und Start-Gong ist die Wiedergabe auf dem Sperrbildschirm bzw. in der Benachrichtigung bereits sichtbar
-- [ ] Bricht man während Vorbereitung oder Start-Gong ab (Player schließen), verschwinden Benachrichtigung und Sperrbildschirm-Steuerung, und es spielt nichts nach
-- [ ] Ohne Start-Gong und ohne Vorbereitung verhält sich der Start wie bisher
-- [ ] Timer, Gongs und Hintergrundklang des Timers bleiben unverändert
+- [x] Geführte Meditation mit Start-Gong starten und sofort sperren: Nach Gong und Atempause spielt die Meditation
+- [x] Dasselbe mit Vorbereitungszeit (mit und ohne Start-Gong)
+- [x] Dasselbe, wenn statt zu sperren zum Startbildschirm gewechselt wird
+- [x] Während Vorbereitung und Start-Gong ist die Wiedergabe auf dem Sperrbildschirm bzw. in der Benachrichtigung bereits sichtbar
+- [x] Bricht man während Vorbereitung oder Start-Gong ab (Player schließen), verschwinden Benachrichtigung und Sperrbildschirm-Steuerung, und es spielt nichts nach
+- [x] Ohne Start-Gong und ohne Vorbereitung verhält sich der Start wie bisher
+- [x] Timer, Gongs und Hintergrundklang des Timers bleiben unverändert
 
 ---
 
@@ -49,6 +49,10 @@ Das ist der Kern-Anwendungsfall: Meditation starten, Telefon weglegen. Wer den S
 - iOS aktiviert die Audio-Session bereits zu Beginn der Gong- bzw. Vorbereitungsphase; der Timer auf Android startet seinen Vordergrund-Dienst beim Tipp. Beides ist das Vorbild.
 - Baut auf android-094 auf (Vordergrund-Dienst und Sperrbildschirm-Steuerung für geführte Meditationen sind dort erstmals angeschlossen).
 - Gefunden 2026-10-10 bei der Emulator-Prüfung von android-094.
+- Bekannte Grenze (Umsetzung): Während Vorbereitung und Start-Gong zeigt die Benachrichtigung einen Play-Knopf, der nichts bewirkt – es gibt noch nichts fortzusetzen. Pausieren der Vorbereitung ist nicht vorgesehen.
+- Emulator-Prüfung 2026-10-11 (API 36, Bildschirm per `KEYCODE_SLEEP` direkt nach dem Start-Tipp aus): Audiofokus und Vordergrund-Dienst kommen beim Tipp (`uidState: TOP`), der zweite Fokus-Request nach Countdown/Gong wird bei ausgeschaltetem Bildschirm gewährt, kein `HardeningEnforcer`, kein Absturz. Gong, Vorbereitung, beides, Startbildschirm statt Sperre, End-Gong bei Sperre (Dienst endet erst nach Ausklingen), Abbruch und externer Stopp während Vorbereitung/Gong geprüft. Externen Stopp bei ausgeschaltetem Bildschirm mit `cmd media_session dispatch stop` auslösen – `input keyevent 86` bleibt dann im InputDispatcher hängen und erreicht die Session nicht.
+- Nach einem externen Stopp steht der Player auf Anfang; ein Tipp auf Play startet die Meditation dann direkt, ohne Vorbereitung und Start-Gong (der Play-Knopf ruft `togglePlayPause`, wie auf iOS im Zustand idle).
+- Gerätetest 2026-10-11 auf Fairphone 4 (Android 15) bestanden.
 
 ---
 

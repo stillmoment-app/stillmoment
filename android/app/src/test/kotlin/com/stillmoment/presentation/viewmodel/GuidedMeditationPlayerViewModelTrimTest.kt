@@ -223,7 +223,13 @@ private class FakeAudioPlayerService : AudioPlayerServiceProtocol {
         completionCallback?.invoke()
     }
 
-    override fun play(uri: Uri, duration: Long, trimStartMs: Long?, trimEndMs: Long?) {}
+    override val nowPlaying: StateFlow<GuidedMeditation?> = MutableStateFlow(null)
+
+    override fun announce(meditation: GuidedMeditation) {}
+
+    override fun endLockScreenPresence() {}
+
+    override fun play(meditation: GuidedMeditation) {}
 
     override fun pause() {}
 

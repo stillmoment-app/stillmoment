@@ -41,8 +41,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
 | [android-090](android/android-090-r8-agp9-defaults.md) | Release-Build auf die R8-Standards von AGP 9 umstellen | 2-Architektur | [ ] | - |
-| [android-094](android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [ ] | - |
-| [android-098](android/android-098-gefuehrte-meditation-start-gong-gesperrt.md) | Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird | 1-Quick Fix | [ ] | [android-094](android/android-094-media3-session-statt-compat.md) |
 
 ## Archiv
 
@@ -328,7 +326,9 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) | Veraltete AndroidX-/Compose-APIs nach dem Dependabot-Update ersetzen | 5-QA | [x] | - |
 | [android-092](archive/android/android-092-ci-gradle-cache-version-catalog.md) | CI-Gradle-Cache erneuert sich bei Änderungen am Version-Catalog | 5-QA | [x] | - |
 | [android-093](archive/android/android-093-wischgesten-ohne-veraltete-api.md) | Wischgesten in Bibliothek und Suche ohne veraltete Compose-API | 5-QA | [x] | [android-091](archive/android/android-091-veraltete-apis-nach-androidx-update.md) |
+| [android-094](archive/android/android-094-media3-session-statt-compat.md) | Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek | 2-Architektur | [x] | - |
 | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) | Neun veraltete Android-UI-Tests reparieren | 5-QA | [x] | - |
 | [android-096](archive/android/android-096-ui-tests-in-ci.md) | Android-UI-Tests in der CI ausführen | 5-QA | [x] | [android-095](archive/android/android-095-veraltete-ui-tests-reparieren.md) |
 | [android-097](archive/android/android-097-bearbeiten-blatt-tab-wechsel-verwirft-eingaben.md) | Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage | 4-Polish | [-] | - |
+| [android-098](archive/android/android-098-gefuehrte-meditation-start-gong-gesperrt.md) | Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird | 1-Quick Fix | [x] | [android-094](archive/android/android-094-media3-session-statt-compat.md) |
 | [android-099](archive/android/android-099-wiedergabebereich-beim-import-verloren.md) | Beim Import gewählter Wiedergabe-Bereich geht verloren | 1-Quick Fix | [x] | - |

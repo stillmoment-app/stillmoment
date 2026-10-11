@@ -1,0 +1,369 @@
+package com.stillmoment.infrastructure.audio
+
+import android.content.Context
+import android.net.Uri
+import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.domain.services.LoggerProtocol
+import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
+import com.stillmoment.domain.services.MediaPlayerProtocol
+import com.stillmoment.domain.services.ProgressSchedulerProtocol
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.MockedStatic
+import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+
+/**
+ * Lock screen, media notification and headset controls for a guided meditation.
+ *
+ * The lock screen shows the trimmed range (shared-105): its position starts at 0 at the
+ * trim start and its length is the effective (trimmed) length, not the whole file.
+ */
+class AudioPlayerServiceLockScreenTest {
+    private lateinit var sut: AudioPlayerService
+    private lateinit var mockMediaSessionManager: MediaSessionManager
+    private lateinit var mockMediaPlayer: MediaPlayerProtocol
+    private lateinit var mockProgressScheduler: ProgressSchedulerProtocol
+    private lateinit var mockServiceLauncher: MeditationPlayerServiceLauncher
+    private lateinit var uriStatic: MockedStatic<Uri>
+
+    /** 10-minute file, trimmed to play 1:00 – 9:00 (8 minutes audible). */
+    private val trimmedMeditation =
+        GuidedMeditation(
+            fileUri = "file:///test/meditation.mp3",
+            fileName = "meditation.mp3",
+            duration = 600_000L,
+            teacher = "Tara Brach",
+            name = "Body Scan",
+            trimStartMs = 60_000L,
+            trimEndMs = 540_000L
+        )
+
+    @BeforeEach
+    fun setUp() {
+        mockMediaSessionManager = mock()
+        mockMediaPlayer = mock()
+        mockProgressScheduler = mock()
+        mockServiceLauncher = mock()
+        val mockFactory: MediaPlayerFactoryProtocol = mock()
+        whenever(mockFactory.create()).thenReturn(mockMediaPlayer)
+        val mockCoordinator: AudioSessionCoordinatorProtocol = mock()
+        whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
+
+        // Uri.parse is an Android stub; return a file URI so play(meditation) can run on the JVM.
+        val fileUri: Uri = mock()
+        whenever(fileUri.scheme).thenReturn("file")
+        whenever(fileUri.path).thenReturn("/test/meditation.mp3")
+        uriStatic = Mockito.mockStatic(Uri::class.java)
+        uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(fileUri)
+
+        val mockContext: Context = mock()
+        sut =
+            AudioPlayerService(
+                mockContext,
+                mockMediaSessionManager,
+                mockServiceLauncher,
+                mockCoordinator,
+                mockFactory,
+                mockProgressScheduler,
+                mock<LoggerProtocol>()
+            )
+    }
+
+    @AfterEach
+    fun tearDown() {
+        uriStatic.close()
+    }
+
+    /** Starts the trimmed meditation and lets the player reach the trim start. */
+    private fun startPlaying() {
+        sut.play(trimmedMeditation)
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+        preparedCaptor.firstValue.invoke()
+        val seekCompleteCaptor = argumentCaptor<() -> Unit>()
+        verify(mockMediaPlayer).setOnSeekCompleteListener(seekCompleteCaptor.capture())
+        seekCompleteCaptor.firstValue.invoke()
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+    }
+
+    private fun lockScreenControls(): MediaSessionManager.MediaSessionCallback {
+        val callbackCaptor = argumentCaptor<MediaSessionManager.MediaSessionCallback>()
+        verify(mockMediaSessionManager).createSession(callbackCaptor.capture())
+        return callbackCaptor.firstValue
+    }
+
+    @Nested
+    inner class NowPlaying {
+        @Test
+        fun `playing a meditation shows its title and teacher on the lock screen`() {
+            sut.play(trimmedMeditation)
+
+            verify(mockMediaSessionManager).createSession(any())
+            verify(mockMediaSessionManager).updateMetadata(trimmedMeditation)
+        }
+
+        @Test
+        fun `lock screen starts at zero and shows the trimmed length`() {
+            startPlaying()
+
+            verify(mockMediaSessionManager).updatePlaybackState(
+                isPlaying = true,
+                position = 0L,
+                duration = 480_000L
+            )
+        }
+
+        @Test
+        fun `lock screen progress counts from the trim start`() {
+            startPlaying()
+            val progressCaptor = argumentCaptor<() -> Unit>()
+            verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
+
+            // 2:00 into the file = 1:00 into the trimmed meditation
+            whenever(mockMediaPlayer.currentPosition).thenReturn(120_000)
+            progressCaptor.firstValue.invoke()
+
+            verify(mockMediaSessionManager).updatePlaybackState(
+                isPlaying = true,
+                position = 60_000L,
+                duration = 480_000L
+            )
+        }
+    }
+
+    @Nested
+    inner class Controls {
+        @Test
+        fun `pause on the lock screen pauses the meditation`() {
+            startPlaying()
+
+            lockScreenControls().onPause()
+
+            verify(mockMediaPlayer).pause()
+        }
+
+        @Test
+        fun `play on the lock screen resumes the paused meditation`() {
+            startPlaying()
+            lockScreenControls().onPause()
+            whenever(mockMediaPlayer.isPlaying).thenReturn(false)
+
+            lockScreenControls().onPlay()
+
+            // once for the initial start, once for the resume
+            verify(mockMediaPlayer, Mockito.times(2)).start()
+        }
+
+        @Test
+        fun `seeking on the lock screen jumps to the chosen point of the trimmed meditation`() {
+            startPlaying()
+
+            // 0:30 on the lock screen = 1:30 in the file
+            lockScreenControls().onSeekTo(30_000L)
+
+            verify(mockMediaPlayer).seekTo(90_000)
+        }
+
+        @Test
+        fun `stop on the lock screen stops the meditation`() {
+            startPlaying()
+
+            lockScreenControls().onStop()
+
+            verify(mockMediaPlayer).release()
+            verify(mockMediaSessionManager).release()
+        }
+    }
+
+    @Nested
+    inner class Notification {
+        @Test
+        fun `starting a meditation brings up the playback notification right away`() {
+            // The user just tapped play, so the app is in the foreground. The notification
+            // service starts now, not only once the audio file is loaded.
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `stopping right after the start ends the notification`() {
+            sut.play(trimmedMeditation)
+
+            sut.stop()
+
+            verify(mockServiceLauncher).start()
+            assertNull(sut.nowPlaying.value)
+            verify(mockMediaSessionManager).release()
+        }
+
+        @Test
+        fun `a file that cannot be loaded shows no lock screen controls`() {
+            val errorCaptor = argumentCaptor<(Int, Int) -> Boolean>()
+            sut.play(trimmedMeditation)
+            verify(mockMediaPlayer).setOnErrorListener(errorCaptor.capture())
+
+            errorCaptor.firstValue.invoke(1, -1004)
+
+            verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `an unreadable file never starts the notification`() {
+            val unsupported: Uri = mock()
+            whenever(unsupported.scheme).thenReturn("http")
+            uriStatic.`when`<Uri> { Uri.parse(any()) }.thenReturn(unsupported)
+
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher, never()).start()
+            verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `pausing keeps the notification`() {
+            startPlaying()
+
+            sut.pause()
+
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+    }
+
+    /**
+     * Start gong and preparation time (android-098): the meditation is announced at the
+     * user's tap, so notification and foreground service exist before the app goes to the
+     * background. Android 15+ only grants audio focus in the background with a foreground
+     * service.
+     */
+    @Nested
+    inner class AnnouncedBeforeAudio {
+        @Test
+        fun `announcing shows the meditation and starts the notification without playing audio`() {
+            sut.announce(trimmedMeditation)
+
+            verify(mockMediaSessionManager).createSession(any())
+            verify(mockMediaSessionManager).updateMetadata(trimmedMeditation)
+            verify(mockServiceLauncher).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+            verify(mockMediaPlayer, never()).start()
+            assertFalse(sut.playbackState.value.isPlaying)
+        }
+
+        @Test
+        fun `the lock screen shows the announced meditation as not yet playing`() {
+            sut.announce(trimmedMeditation)
+
+            verify(mockMediaSessionManager).updatePlaybackState(
+                isPlaying = false,
+                position = 0L,
+                duration = 480_000L
+            )
+        }
+
+        @Test
+        fun `playing the announced meditation keeps its session and does not start the service again`() {
+            sut.announce(trimmedMeditation)
+
+            startPlaying()
+
+            // Starting the service again from the background could be refused (Android 12+)
+            verify(mockServiceLauncher, Mockito.times(1)).start()
+            verify(mockMediaSessionManager, Mockito.times(1)).createSession(any())
+            verify(mockMediaPlayer).start()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `stopping during the announcement ends notification and lock screen controls`() {
+            sut.announce(trimmedMeditation)
+
+            sut.stop()
+
+            assertNull(sut.nowPlaying.value)
+            verify(mockMediaSessionManager).release()
+        }
+
+        @Test
+        fun `a new start after stopping announces the meditation again`() {
+            sut.announce(trimmedMeditation)
+            sut.stop()
+
+            sut.play(trimmedMeditation)
+
+            verify(mockServiceLauncher, Mockito.times(2)).start()
+            verify(mockMediaSessionManager, Mockito.times(2)).createSession(any())
+        }
+    }
+
+    @Nested
+    inner class Ending {
+        // The end gong rings after the audio end (shared-106). The foreground service must
+        // keep running until it has rung out, so the end alone keeps the meditation shown.
+        @Test
+        fun `reaching the trim end keeps the meditation shown, paused at the end`() {
+            startPlaying()
+            val progressCaptor = argumentCaptor<() -> Unit>()
+            verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
+
+            whenever(mockMediaPlayer.currentPosition).thenReturn(540_100)
+            progressCaptor.firstValue.invoke()
+
+            verify(mockMediaSessionManager, never()).release()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+            assertFalse(sut.playbackState.value.isPlaying)
+        }
+
+        @Test
+        fun `reaching the file end keeps the meditation shown`() {
+            startPlaying()
+            val completionCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnCompletionListener(completionCaptor.capture())
+
+            completionCaptor.firstValue.invoke()
+
+            verify(mockMediaSessionManager, never()).release()
+            assertEquals(trimmedMeditation, sut.nowPlaying.value)
+        }
+
+        @Test
+        fun `ending the presence after the end removes the lock screen controls but keeps the end position`() {
+            startPlaying()
+            val completionCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnCompletionListener(completionCaptor.capture())
+            completionCaptor.firstValue.invoke()
+
+            sut.endLockScreenPresence()
+
+            verify(mockMediaSessionManager).release()
+            assertNull(sut.nowPlaying.value)
+            // Unlike stop(), the completion screen keeps showing the end
+            assertEquals(540_000L, sut.playbackState.value.currentPosition)
+        }
+
+        @Test
+        fun `pausing keeps the lock screen controls`() {
+            startPlaying()
+
+            sut.pause()
+
+            verify(mockMediaSessionManager, never()).release()
+        }
+    }
+}

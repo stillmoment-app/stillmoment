@@ -341,7 +341,7 @@ class ScreengrabScreenshotTests {
         // bare Thread.sleep would freeze the NavHost crossfade mid-transition. Instead we interleave
         // clock advancement (drives the nav transition + the waveform's per-frame animation) with
         // real-time sleeps (lets the off-clock work — sampled waveform generation on background
-        // threads and ExoPlayer playback progress — actually happen) before capturing.
+        // threads and MediaPlayer playback progress — actually happen) before capturing.
         composeRule.mainClock.autoAdvance = false
         playButton.click()
         repeat(PLAYER_SETTLE_STEPS) {
