@@ -4,9 +4,14 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import com.stillmoment.data.local.APP_SETTINGS_FILE_NAME
+import com.stillmoment.data.local.CUSTOM_AUDIO_FILE_NAME
 import com.stillmoment.data.local.CustomAudioDataStore
+import com.stillmoment.data.local.GUIDED_MEDITATIONS_FILE_NAME
+import com.stillmoment.data.local.GUIDED_MEDITATION_SETTINGS_FILE_NAME
 import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.data.local.GuidedMeditationSettingsDataStore
+import com.stillmoment.data.local.PRAXIS_FILE_NAME
 import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.data.migration.AttunementCleanupMigration
@@ -53,8 +58,8 @@ class DataSnapshotReader(private val snapshotDir: File) : AutoCloseable {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val logger: LoggerProtocol = mock()
 
-    private val settingsStore by lazy { open("settings") }
-    private val customAudioStore by lazy { open("custom_audio") }
+    private val settingsStore by lazy { open(APP_SETTINGS_FILE_NAME) }
+    private val customAudioStore by lazy { open(CUSTOM_AUDIO_FILE_NAME) }
 
     fun read(): SnapshotContent = runBlocking {
         AttunementCleanupMigration(settingsStore, customAudioStore, filesDir, logger).runIfNeeded()
@@ -63,18 +68,18 @@ class DataSnapshotReader(private val snapshotDir: File) : AutoCloseable {
         val library =
             GuidedMeditationRepositoryImpl(
                 context = mock<Context>(),
-                dataStore = GuidedMeditationDataStore(open("guided_meditations")),
+                dataStore = GuidedMeditationDataStore(open(GUIDED_MEDITATIONS_FILE_NAME)),
                 settingsDataStore = settings,
                 audioMetadataService = mock<AudioMetadataService>()
             )
 
         SnapshotContent(
             meditations = library.meditationsFlow.first(),
-            praxis = PraxisDataStore(open("praxis"), logger).load(),
+            praxis = PraxisDataStore(open(PRAXIS_FILE_NAME), logger).load(),
             ownSounds = CustomAudioDataStore(customAudioStore).loadAll(CustomAudioType.SOUNDSCAPE),
             appearanceMode = settings.getAppearanceMode(),
             guidedMeditationSettings =
-            GuidedMeditationSettingsDataStore(open("guided_meditation_settings")).getSettings()
+            GuidedMeditationSettingsDataStore(open(GUIDED_MEDITATION_SETTINGS_FILE_NAME)).getSettings()
         )
     }
 

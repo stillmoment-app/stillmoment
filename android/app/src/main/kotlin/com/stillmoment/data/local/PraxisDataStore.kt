@@ -23,8 +23,11 @@ import kotlinx.serialization.json.Json
  * Extension property for the Praxis DataStore.
  * Uses a separate "praxis" file, distinct from the "settings" DataStore.
  */
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val PRAXIS_FILE_NAME = "praxis"
+
 private val Context.praxisDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "praxis"
+    name = PRAXIS_FILE_NAME
 )
 
 /**

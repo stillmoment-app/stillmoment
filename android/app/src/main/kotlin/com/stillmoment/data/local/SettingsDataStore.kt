@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+// It names a file only — never pass it to a second `preferencesDataStore(...)` (see below).
+internal const val APP_SETTINGS_FILE_NAME = "settings"
+
 // Extension property for the app-level "settings" DataStore.
 //
 // Visibility is `internal` (not `private`) so [com.stillmoment.data.migration.AttunementCleanupMigration]
@@ -24,7 +28,7 @@ import kotlinx.coroutines.flow.map
 // `DataStoreImpl` pointing at the same `settings.preferences_pb` file and crash with
 // `IllegalStateException: There are multiple DataStores active for the same file` on first read.
 internal val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "settings"
+    name = APP_SETTINGS_FILE_NAME
 )
 
 /**

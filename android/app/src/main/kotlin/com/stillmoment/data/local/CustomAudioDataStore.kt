@@ -22,8 +22,11 @@ import kotlinx.serialization.json.Json
 // Extension property for the "custom_audio" DataStore. Shared with
 // [com.stillmoment.data.migration.AttunementCleanupMigration]; see the
 // `appSettingsDataStore` doc comment for the multi-instance crash this prevents.
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val CUSTOM_AUDIO_FILE_NAME = "custom_audio"
+
 internal val Context.customAudioDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "custom_audio"
+    name = CUSTOM_AUDIO_FILE_NAME
 )
 
 /**

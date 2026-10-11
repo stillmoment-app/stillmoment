@@ -19,8 +19,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 // Extension property for DataStore - uses different name than settings
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val GUIDED_MEDITATIONS_FILE_NAME = "guided_meditations"
+
 private val Context.meditationsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "guided_meditations"
+    name = GUIDED_MEDITATIONS_FILE_NAME
 )
 
 /**

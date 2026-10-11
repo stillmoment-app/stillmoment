@@ -17,8 +17,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 // Extension property for DataStore (separate from timer settings)
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val GUIDED_MEDITATION_SETTINGS_FILE_NAME = "guided_meditation_settings"
+
 private val Context.guidedMeditationSettingsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "guided_meditation_settings"
+    name = GUIDED_MEDITATION_SETTINGS_FILE_NAME
 )
 
 /**
