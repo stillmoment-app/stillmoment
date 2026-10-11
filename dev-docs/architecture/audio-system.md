@@ -179,6 +179,18 @@ Die Aktivierung der `AVAudioSession` wird bis zu dreimal versucht; scheitert sie
 weiter. Beim Timer loggt `TimerViewModel` ihn und setzt `errorMessage`; die folgenden Effects laufen
 trotzdem weiter (Timer ohne Audio, siehe „Integration mit TimerEffect“).
 
+**Meldung an den Nutzer (Timer):** Kann ein Timer-Klang nicht spielen (Audio-Session,
+Hintergrundklang, Start-, Intervall-, End-Gong), zeigt der Timer zusaetzlich eine ruhige,
+lokalisierte Meldung („Ein Klang konnte nicht abgespielt werden"); Details nur im Log.
+Hoerproben melden nichts.
+- **iOS:** `TimerViewModel` faengt die Throws von `AudioServiceProtocol` und setzt `errorMessage`.
+- **Android:** Timer-Klaenge laufen ueber den `TimerForegroundService` direkt in `AudioService`,
+  der Fehler weiterhin nur loggt und weiterlaeuft. Er meldet sie zusaetzlich ueber
+  `AudioServiceProtocol.timerSoundFailedFlow`; `TimerViewModel` sammelt den Flow und setzt
+  `TimerUiState.error = TimerError.SoundFailed`. Der Intervall-Gong des Timers laeuft ueber
+  `playTimerIntervalGong` (meldet), die Hoerprobe ueber `playIntervalGong` (meldet nicht).
+  Die Meldung aendert nie Wiedergabe, Fokus oder Foreground-Service.
+
 ### Lock Screen Controls (AudioPlayerService)
 
 **Kritische Anforderungen:**

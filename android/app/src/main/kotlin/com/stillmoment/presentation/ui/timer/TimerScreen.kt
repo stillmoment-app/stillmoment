@@ -181,14 +181,8 @@ private fun TimerScreenLayout(
 
             StartButton(onClick = onStartClick)
 
-            uiState.errorMessage?.let { error ->
-                Text(
-                    text = error,
-                    style = TextStyle.caption.toComposeTextStyle(),
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+            uiState.error?.let { error ->
+                TimerErrorText(error = error, modifier = Modifier.padding(top = 8.dp))
             }
 
             FlexibleGap(minHeight = metrics.minGap)

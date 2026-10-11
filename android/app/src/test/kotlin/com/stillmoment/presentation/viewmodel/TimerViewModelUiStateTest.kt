@@ -26,7 +26,7 @@ class TimerViewModelUiStateTest {
         assertEquals(10, state.selectedMinutes)
         assertEquals(0, state.remainingSeconds)
         assertEquals(0f, state.progress)
-        assertNull(state.errorMessage)
+        assertNull(state.error)
         assertFalse(state.showSettings)
     }
 

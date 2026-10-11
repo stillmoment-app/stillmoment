@@ -83,6 +83,12 @@ constructor(
                 onGongCompleted()
             }
         }
+        // A timer sound could not be played: one calm message (details stay in the log)
+        viewModelScope.launch {
+            audioService.timerSoundFailedFlow.collect {
+                _uiState.update { it.copy(error = TimerError.SoundFailed) }
+            }
+        }
     }
 
     // MARK: - Action Dispatch (Unidirectional Data Flow)
@@ -266,7 +272,7 @@ constructor(
     }
 
     fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        _uiState.update { it.copy(error = null) }
     }
 
     // MARK: - Timer Loop

@@ -21,8 +21,8 @@ data class TimerUiState(
     val selectedMinutes: Int = MeditationSettings.DEFAULT_DURATION_MINUTES,
     /** Meditation settings */
     val settings: MeditationSettings = MeditationSettings.Default,
-    /** Error message to show */
-    val errorMessage: String? = null,
+    /** Error to show; the UI resolves it to a localized message */
+    val error: TimerError? = null,
     /** Whether settings sheet is visible */
     val showSettings: Boolean = false,
     /** Current Praxis for configuration pills display */

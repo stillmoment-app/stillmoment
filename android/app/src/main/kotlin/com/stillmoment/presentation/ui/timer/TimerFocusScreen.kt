@@ -190,14 +190,26 @@ private fun FocusScreenLayout(
                 }
             )
 
-            FocusTimerDisplay(
-                uiState = uiState,
-                reduceMotion = reduceMotion,
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = TopAppBarHeight)
-                    .padding(horizontal = 24.dp)
-            )
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FocusTimerDisplay(
+                    uiState = uiState,
+                    reduceMotion = reduceMotion,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+
+                // Wie iOS TimerView: Meldung unter dem Sitzungs-Layout, ohne Fehler kein Platzbedarf
+                uiState.error?.let { error ->
+                    TimerErrorText(error = error, modifier = Modifier.padding(bottom = 8.dp))
+                }
+            }
         }
     }
 }

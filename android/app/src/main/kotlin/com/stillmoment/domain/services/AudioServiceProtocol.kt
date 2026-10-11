@@ -14,12 +14,22 @@ import kotlinx.coroutines.flow.StateFlow
  * Foreground service audio (gongs during timer, background audio) flows
  * through TimerForegroundServiceProtocol instead.
  *
- * Completion flows are shared between the foreground service and ViewModel
+ * Completion and failure flows are shared between the foreground service and ViewModel
  * (AudioService is a singleton injected into both).
  */
 interface AudioServiceProtocol {
     /** Emits when a start/completion gong finishes playing */
     val gongCompletionFlow: SharedFlow<Unit>
+
+    /**
+     * Emits when a sound of a running timer session could not be played: audio session,
+     * background sound, start gong, interval gong or end gong.
+     *
+     * Report only: playback, audio focus and the foreground service behave exactly as
+     * without it (log and carry on). Previews never emit here. Technical details stay in
+     * the log; the ViewModel shows one calm, localized message.
+     */
+    val timerSoundFailedFlow: SharedFlow<Unit>
 
     /**
      * Current playback position of the active meditation preview in milliseconds.

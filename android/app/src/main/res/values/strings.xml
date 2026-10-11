@@ -275,6 +275,9 @@
     <string name="error_already_imported">This meditation is already in your library.</string>
     <string name="error_import_failed">The file could not be imported. Please try again.</string>
 
+    <!-- Timer Errors -->
+    <string name="error_timer_sound_failed">A sound could not be played</string>
+
     <!-- Settings Tab -->
     <string name="tab_settings">Settings</string>
     <string name="accessibility_tab_settings">Navigate to settings</string>
