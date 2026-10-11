@@ -97,10 +97,12 @@ Der Root-Aufruf führt erst iOS komplett aus (inkl. Commit + Tag), dann Android.
 8. **`make test`** (iOS: Unit + UI mit Coverage; Android: `./gradlew test`).
 9. **`make build-release`** — Release-Konfiguration bauen (iOS ohne Signing, Android `bundleRelease`).
 10. **Screenshots** (`make screenshots`), überspringbar mit `SKIP_SCREENSHOTS=1`.
+    Danach, nur iOS: **Datenstand** der neuen Version erzeugen und alle Datenstände mit ihr lesen
+    (siehe „Upgrade-Test“ unten). Scheitert eins davon, bricht prepare mit Meldung ab.
 11. **Version erhöhen** (`bump-version.sh`): iOS `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION +1`,
     Android `versionName` + `versionCode +1`.
 12. **Commit** nur der eigenen Pfade — iOS: `project.pbxproj`, `ios/fastlane/metadata`,
-    `docs/images/screenshots`; Android: `app/build.gradle.kts`, `android/fastlane/metadata`.
+    `docs/images/screenshots`, der neue Datenstand; Android: `app/build.gradle.kts`, `android/fastlane/metadata`.
     Message `chore(<plattform>): Prepare release v2.6.0`.
 13. **Tag** `<plattform>-v2.6.0` (annotiert). Bleiben danach Änderungen übrig, warnt das Skript.
 
@@ -108,6 +110,41 @@ Mit `DRY_RUN=1` laufen nur die Prüfungen 1–5 wirklich; Schritte 6–13 werden
 
 **Logs:** Ausgabe von Schritt 7–10 in `ios/release-prepare.log` bzw. `android/release-prepare.log`
 (gitignored, live mitlesen mit `tail -f`).
+
+## Upgrade-Test: Datenstand je Release
+
+Belegt automatisch, dass eine neue Version die gespeicherten Daten **jeder** veröffentlichten
+Version vollständig übernimmt — Bibliothek, Praxis, eigene Klänge, Einstellungen (shared-144).
+Nutzer überspringen Updates, deshalb zählt jeder aufbewahrte Datenstand, nicht nur der letzte.
+
+**iOS.** Ein Datenstand ist der rohe Inhalt der UserDefaults (Schlüssel und Format unverändert),
+den eine Version über ihre echten Speicherwege hinterlässt. Andere Dateien gehören nicht dazu:
+Die App speichert außerhalb der UserDefaults nur Audiodateien und neu erzeugbare Wellenformen,
+der Datenstand enthält nur die Verweise auf die Audiodateien.
+
+- Datenstände: `ios/StillMomentTests/UpgradeData/DataSnapshot-<version>.plist`, einer je Release,
+  sie sammeln sich an und werden nie geändert.
+- Was drinsteht, ist nur an einer Stelle festgelegt: `UpgradeTestData` (Meditation mit Lehrer, Titel,
+  Wiedergabe-Bereich und beiden Gongs; Praxis; ein eigener Klang; Darstellung Hell; Vorbereitungszeit
+  für geführte Meditationen).
+- **Erzeuger** `UpgradeDataSnapshotWriterTests`: schreibt diese Werte über die Repositories der App in
+  eigene UserDefaults und sichert deren Inhalt. Im normalen Testlauf übersprungen; läuft nur über
+  `make -C ios data-snapshot VERSION=x.y.z` (`ios/scripts/generate-data-snapshot.sh`), das Ordner und
+  Version per `TEST_RUNNER_`-Umgebungsvariablen an den Testprozess gibt.
+- **Leser** `UpgradeDataSnapshotReaderTests` (Teil von `make test-unit`): lädt jeden Datenstand in
+  frische UserDefaults, liest über die aktuellen Repositories und meldet jeden verlorenen oder
+  veränderten Wert mit Version und Wertnamen.
+- `release-prepare` erzeugt den Datenstand der neuen Version selbst, lässt danach den Leser laufen
+  und nimmt die Datei in den Release-Commit auf.
+
+**Datenstand nachträglich erzeugen** (z. B. wenn er für eine Version fehlt): Nie von Hand bauen —
+er muss vom Code der Version stammen. Temporären Worktree auf den Tag anlegen
+(`git worktree add --detach <pfad> ios-v<version>`), `ios/Config/Local.xcconfig` hineinkopieren,
+`UpgradeTestData.swift`, `UpgradeDataSnapshotWriterTests.swift` und
+`scripts/generate-data-snapshot.sh` hineinkopieren, den Erzeuger an die APIs dieser Version anpassen
+(nur die Konstruktion der Repositories, nicht die Werte), dort `scripts/generate-data-snapshot.sh
+<version> <ordner>` ausführen, die Datei nach `ios/StillMomentTests/UpgradeData/` übernehmen und den
+Worktree wieder entfernen. So ist der Datenstand von 2.6.0 entstanden.
 
 ## Was `make release` vor dem Upload prüft
 

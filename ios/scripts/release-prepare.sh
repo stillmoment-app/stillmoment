@@ -271,6 +271,29 @@ else
 fi
 
 # ============================================================================
+# DATA SNAPSHOT (upgrade test, shared-144)
+# ============================================================================
+
+# Freeze what this version stores on a device, so every later version has to read it.
+# Done last before the bump, so a failing earlier step never leaves the new file behind.
+SNAPSHOT_FILE="StillMomentTests/UpgradeData/DataSnapshot-$VERSION.plist"
+
+if ! run_logged "Writing data snapshot $VERSION (upgrade test)" \
+    make -C "$PROJECT_DIR" data-snapshot VERSION="$VERSION"; then
+    print_error "Could not write the data snapshot for $VERSION — release aborted"
+    echo "The upgrade test needs it; fix the cause and run release-prepare again."
+    exit 1
+fi
+
+if ! run_logged "Reading every data snapshot with this version" \
+    make -C "$PROJECT_DIR" test-single-agent TEST=UpgradeDataSnapshotReaderTests; then
+    run_cmd rm -f "$SNAPSHOT_FILE"
+    print_error "This version does not read its own or an older data snapshot — release aborted"
+    echo "Removed $SNAPSHOT_FILE again. Details in $LOG_FILE"
+    exit 1
+fi
+
+# ============================================================================
 # BUMP VERSION
 # ============================================================================
 
@@ -283,9 +306,11 @@ run_cmd "$SCRIPT_DIR/bump-version.sh" "$VERSION"
 
 print_step "Creating git commit..."
 # Stage only what this script changes: version (bump-version.sh), release notes +
-# changelogs (fastlane/metadata), website screenshots (process-screenshots.sh).
+# changelogs (fastlane/metadata), website screenshots (process-screenshots.sh),
+# the new data snapshot (generate-data-snapshot.sh).
 # Store screenshots in ios/fastlane/screenshots/ are gitignored.
-run_cmd git add -- StillMoment.xcodeproj/project.pbxproj fastlane/metadata ../docs/images/screenshots
+run_cmd git add -- StillMoment.xcodeproj/project.pbxproj fastlane/metadata ../docs/images/screenshots \
+    "$SNAPSHOT_FILE"
 run_cmd git commit -m "chore(ios): Prepare release v$VERSION"
 
 print_step "Creating git tag..."
