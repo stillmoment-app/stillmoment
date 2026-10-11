@@ -29,4 +29,8 @@ final class SystemClock: ClockProtocol {
     func now() -> Date {
         Date()
     }
+
+    func monotonicNow() -> ContinuousClock.Instant {
+        ContinuousClock.now
+    }
 }

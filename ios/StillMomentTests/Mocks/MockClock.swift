@@ -25,6 +25,9 @@ final class MockClock: ClockProtocol {
     /// Simulated current time (can be advanced for background simulation)
     private(set) var currentTime: Date = .init()
 
+    /// Simulated monotonic time; advances together with `currentTime` unless the wall clock jumps
+    private(set) var currentInstant: ContinuousClock.Instant = .now
+
     /// Identifies the currently scheduled action, so cancelling an older schedule
     /// never removes a newer one.
     private var scheduleID = UUID()
@@ -48,9 +51,13 @@ final class MockClock: ClockProtocol {
         self.currentTime
     }
 
+    func monotonicNow() -> ContinuousClock.Instant {
+        self.currentInstant
+    }
+
     /// Simulates one tick (one interval passing)
     func tick() {
-        self.currentTime = self.currentTime.addingTimeInterval(self.requestedInterval ?? 1.0)
+        self.advanceTime(by: self.requestedInterval ?? 1.0)
         self.action?()
     }
 
@@ -68,6 +75,14 @@ final class MockClock: ClockProtocol {
     /// - Parameter seconds: Seconds to advance the clock
     func advanceTime(by seconds: TimeInterval) {
         self.currentTime = self.currentTime.addingTimeInterval(seconds)
+        self.currentInstant = self.currentInstant.advanced(by: .seconds(seconds))
+    }
+
+    /// Simulates the device time being changed (by the user or network time) — no time passes
+    ///
+    /// - Parameter seconds: Seconds the wall clock jumps
+    func changeWallClock(by seconds: TimeInterval) {
+        self.currentTime = self.currentTime.addingTimeInterval(seconds)
     }
 
     /// Resets the mock state
@@ -76,5 +91,6 @@ final class MockClock: ClockProtocol {
         self.requestedInterval = nil
         self.action = nil
         self.currentTime = Date()
+        self.currentInstant = .now
     }
 }

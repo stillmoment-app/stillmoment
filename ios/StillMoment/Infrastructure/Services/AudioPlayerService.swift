@@ -46,11 +46,13 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     let currentTime = CurrentValueSubject<TimeInterval, Never>(0)
     let duration = CurrentValueSubject<TimeInterval, Never>(0)
     let interruptionBegan = PassthroughSubject<Void, Never>()
+    let interruptionEnded = PassthroughSubject<Void, Never>()
 
     // MARK: - AudioPlayerServiceProtocol
 
     func load(url: URL, meditation: GuidedMeditation) async throws {
         self.state.send(.loading)
+        self.resumesAfterInterruption = false
 
         // Clean up previous player
         self.cleanup()
@@ -139,17 +141,20 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
 
         player.play()
+        self.resumesAfterInterruption = false
         self.state.send(.playing)
         self.updateNowPlayingPlaybackInfo()
     }
 
     func pause() {
+        self.resumesAfterInterruption = false
         self.player?.pause()
         self.state.send(.paused)
         self.updateNowPlayingPlaybackInfo()
     }
 
     func stop() {
+        self.resumesAfterInterruption = false
         self.player?.pause()
         let start = self.currentMeditation?.effectiveStart ?? 0
         self.player?.seek(to: CMTime(seconds: start, preferredTimescale: 600))
@@ -280,6 +285,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         // Stop a ringing end gong and reset its configuration (shared-106)
         self.gongPlayer.stop()
         self.endGongConfiguration = nil
+        self.resumesAfterInterruption = false
 
         // Stop silent background audio
         self.stopSilentBackgroundAudio()
@@ -340,6 +346,10 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     private var timeObserverToken: Any?
     private var trimEndObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Set when an interruption paused running playback; it resumes when the system gives the
+    /// sound back. Any play, pause, stop or new meditation clears it (shared-146).
+    private var resumesAfterInterruption = false
 
     /// Lives as long as the service — kept apart from `cancellables`, which `cleanup()`
     /// clears on every `load()` (ios-065)
@@ -420,21 +430,60 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             }
     }
 
-    /// The system has already silenced the audio when an interruption begins. Only running
-    /// playback is marked paused — a finished meditation stays finished. Nothing resumes when
-    /// the interruption ends, not even with `.shouldResume`: going on is the user's choice (ios-065).
     private func handleAudioInterruption(_ notification: Notification) {
-        guard let typeValue = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
-              AVAudioSession.InterruptionType(rawValue: typeValue) == .began
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue)
         else {
             return
         }
 
+        switch type {
+        case .began:
+            // Only a late report that the app was suspended, not a real interruption
+            guard userInfo[AVAudioSessionInterruptionWasSuspendedKey] as? Bool != true else {
+                return
+            }
+            self.handleInterruptionBegan()
+        case .ended:
+            let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            self.handleInterruptionEnded(soundGivenBack: options.contains(.shouldResume))
+        @unknown default:
+            return
+        }
+    }
+
+    /// The system has already silenced the audio when an interruption begins. Only running
+    /// playback is marked paused — a finished meditation stays finished (ios-065).
+    private func handleInterruptionBegan() {
         Logger.audio.info("Guided meditation interrupted")
         if self.state.value == .playing {
             self.pause()
+            self.resumesAfterInterruption = true
         }
         self.interruptionBegan.send()
+    }
+
+    /// When the system gives the sound back, playback the interruption paused goes on at the
+    /// same position; without it, the meditation stays paused until the user taps Play (shared-146).
+    private func handleInterruptionEnded(soundGivenBack: Bool) {
+        let resumes = self.resumesAfterInterruption
+        self.resumesAfterInterruption = false
+        guard soundGivenBack else {
+            Logger.audio.info("Interruption ended without the sound given back")
+            return
+        }
+
+        if resumes {
+            do {
+                try self.play()
+                Logger.audio.info("Guided meditation resumed after interruption")
+            } catch {
+                Logger.audio.error("Failed to resume after interruption", error: error)
+            }
+        }
+        self.interruptionEnded.send()
     }
 
     /// Handles audio session conflict by pausing playback and clearing lock screen info

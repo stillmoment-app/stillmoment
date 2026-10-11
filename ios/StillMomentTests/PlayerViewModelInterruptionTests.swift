@@ -206,6 +206,221 @@ final class PlayerViewModelInterruptionTests: XCTestCase {
         XCTAssertEqual(self.mockPlayerService.playCallCount, 0)
     }
 
+    // MARK: - After the interruption (shared-146)
+
+    func testInterruptionEnded_withResume_continuesAtSamePositionWithoutPreRoll() async {
+        // Given: the call paused the meditation at 5:00
+        self.sut = self.createViewModel(startGongEnabled: true)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        self.mockGongPlayer.finishPlaying()
+        self.mockClock.tick()
+        self.mockPlayerService.currentTime.send(300)
+        await self.interrupt()
+
+        // When: the call ends and the system gives the sound back
+        await self.endInterruption(withResume: true)
+
+        // Then: it goes on at 5:00 by itself — no jump, no second start gong
+        XCTAssertTrue(self.sut.isPlaying)
+        XCTAssertEqual(self.mockPlayerService.playCallCount, 1)
+        XCTAssertNil(self.mockPlayerService.seekTime)
+        XCTAssertEqual(self.mockGongPlayer.playCallCount, 1)
+    }
+
+    func testInterruptionEnded_withoutResume_staysPaused() async {
+        // Given
+        await self.startMeditation()
+        await self.interrupt()
+
+        // When: another app keeps the sound
+        await self.endInterruption(withResume: false)
+
+        // Then
+        XCTAssertFalse(self.sut.isPlaying)
+        XCTAssertEqual(self.sut.remainingLineState, .paused)
+    }
+
+    func testInterruptionEnded_whenPausedByUser_staysPaused() async {
+        // Given: the user had paused before the call
+        await self.startMeditation()
+        self.sut.togglePlayPause()
+        let playsBefore = self.mockPlayerService.playCallCount
+
+        // When
+        await self.interrupt()
+        await self.endInterruption(withResume: true)
+
+        // Then
+        XCTAssertEqual(self.mockPlayerService.state.value, .paused)
+        XCTAssertEqual(self.mockPlayerService.playCallCount, playsBefore)
+    }
+
+    func testInterruptionEnded_whileScrubbing_releaseDoesNotResume() async {
+        // Given: the user holds the waveform of a playing meditation
+        await self.startMeditation()
+        self.sut.beginScrub()
+        let playsBefore = self.mockPlayerService.playCallCount
+
+        // When: a call comes and goes, then the finger lets go
+        await self.interrupt()
+        await self.endInterruption(withResume: true)
+        self.sut.endScrub()
+
+        // Then
+        XCTAssertEqual(self.mockPlayerService.playCallCount, playsBefore)
+        XCTAssertEqual(self.mockPlayerService.state.value, .paused)
+    }
+
+    func testInterruptionEnded_withResume_restartsPreparationAndStartsOnce() async {
+        // Given: the call aborted the preparation countdown
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        self.mockClock.tick()
+        await self.interrupt()
+
+        // When: the call ends with the sound given back, then the countdown runs out
+        await self.endInterruption(withResume: true)
+        XCTAssertEqual(self.sut.remainingCountdownSeconds, 3)
+        self.mockClock.advance(ticks: 3)
+
+        // Then: the full countdown ran again, the meditation began exactly once
+        XCTAssertEqual(self.mockPlayerService.transitionFromSilentToPlaybackCallCount, 1)
+        XCTAssertEqual(self.mockPlayerService.playCallCount, 0)
+    }
+
+    func testInterruptionEnded_withResume_restartsStartGongAndStartsOnce() async {
+        // Given: the call aborted the pre-roll during the start gong
+        self.sut = self.createViewModel(startGongEnabled: true)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        self.mockGongPlayer.finishPlaying()
+        await self.interrupt()
+
+        // When: the call ends with the sound given back, then gong and breath pause run out
+        await self.endInterruption(withResume: true)
+        XCTAssertEqual(self.sut.phase, .preRoll)
+        self.mockGongPlayer.finishPlaying()
+        self.mockClock.tick()
+
+        // Then: the start gong rang again and the meditation began exactly once, at the start
+        XCTAssertEqual(self.mockGongPlayer.playCallCount, 2)
+        XCTAssertEqual(self.mockPlayerService.transitionFromSilentToPlaybackCallCount, 1)
+        XCTAssertEqual(self.mockPlayerService.playCallCount, 0)
+        XCTAssertNil(self.mockPlayerService.seekTime)
+    }
+
+    func testInterruptionEnded_withoutResume_preRollWaitsForTap() async {
+        // Given: the call aborted the preparation countdown
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        await self.interrupt()
+
+        // When: the call ends without the sound given back
+        await self.endInterruption(withResume: false)
+        self.mockClock.advance(ticks: 3)
+
+        // Then: nothing starts; the player waits paused at the beginning
+        self.assertMeditationNotStarted()
+        XCTAssertTrue(self.sut.isPaused)
+    }
+
+    func testInterruptionEnded_afterTapRestartedPreRoll_doesNotStartItTwice() async {
+        // Given: the call aborted the countdown, the user tapped Play during the call
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        await self.interrupt()
+        self.sut.togglePlayPause()
+        self.mockClock.tick()
+
+        // When: the call ends with the sound given back, then the countdown runs out
+        await self.endInterruption(withResume: true)
+        XCTAssertEqual(self.sut.remainingCountdownSeconds, 2)
+        self.mockClock.advance(ticks: 2)
+
+        // Then: no second pre-roll, the meditation began exactly once
+        XCTAssertEqual(self.mockPlayerService.transitionFromSilentToPlaybackCallCount, 1)
+    }
+
+    func testTapOnPlay_whileCallStillHoldsSound_startsNoPreRollAndShowsNoError() async {
+        // Given: the call aborted the countdown and still holds the sound
+        self.sut = self.createViewModel(startGongEnabled: true, preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        await self.interrupt()
+        self.mockPlayerService.startSilentBackgroundAudioShouldThrow = true
+
+        // When: the user taps Play during the call, and time passes
+        self.sut.togglePlayPause()
+        self.mockClock.advance(ticks: 3)
+
+        // Then: no countdown, no gong, no error; the player waits paused at the beginning
+        XCTAssertEqual(self.sut.remainingCountdownSeconds, 0)
+        XCTAssertEqual(self.mockGongPlayer.playCallCount, 0)
+        self.assertMeditationNotStarted()
+        XCTAssertNil(self.sut.errorMessage)
+        XCTAssertTrue(self.sut.isPaused)
+        XCTAssertEqual(self.sut.phase, .playing)
+    }
+
+    func testInterruptionEnded_afterTapFailedDuringCall_startsPreRollOnce() async {
+        // Given: the call aborted the start gong; a tap during the call could not get the sound
+        self.sut = self.createViewModel(startGongEnabled: true)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        self.mockGongPlayer.finishPlaying()
+        await self.interrupt()
+        self.mockPlayerService.startSilentBackgroundAudioShouldThrow = true
+        self.sut.togglePlayPause()
+        XCTAssertEqual(self.mockGongPlayer.playCallCount, 1)
+
+        // When: the call ends with the sound given back, then gong and breath pause run out
+        self.mockPlayerService.startSilentBackgroundAudioShouldThrow = false
+        await self.endInterruption(withResume: true)
+        XCTAssertEqual(self.sut.phase, .preRoll)
+        self.mockGongPlayer.finishPlaying()
+        self.mockClock.tick()
+
+        // Then: the pre-roll started once more, the meditation began exactly once
+        XCTAssertEqual(self.mockGongPlayer.playCallCount, 2)
+        XCTAssertEqual(self.mockPlayerService.transitionFromSilentToPlaybackCallCount, 1)
+        XCTAssertNil(self.sut.errorMessage)
+    }
+
+    func testPreRoll_whenKeepAliveFailsWithoutInterruption_runsAsBefore() async {
+        // Given: no interruption, but the silent keep-alive audio cannot start
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.mockPlayerService.startSilentBackgroundAudioShouldThrow = true
+
+        // When
+        self.sut.startPlayback()
+        self.mockClock.advance(ticks: 3)
+
+        // Then: the countdown still runs and starts the meditation (unchanged behavior)
+        XCTAssertEqual(self.mockPlayerService.transitionFromSilentToPlaybackCallCount, 1)
+    }
+
+    func testInterruptionEnded_afterPlayerWasClosed_startsNothing() async {
+        // Given: the call aborted the countdown, then the user closed the player
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+        await self.interrupt()
+        self.sut.cleanup()
+
+        // When
+        await self.endInterruption(withResume: true)
+        self.mockClock.advance(ticks: 3)
+
+        // Then
+        self.assertMeditationNotStarted()
+        XCTAssertFalse(self.mockPlayerService.silentBackgroundAudioStarted)
+    }
+
     // MARK: Private
 
     private func createViewModel(
@@ -235,6 +450,12 @@ final class PlayerViewModelInterruptionTests: XCTestCase {
     /// A phone call begins; the ViewModel learns about it on the main queue.
     private func interrupt() async {
         self.mockPlayerService.simulateInterruption()
+        await self.drainMainQueue()
+    }
+
+    /// The phone call ends, with or without the system giving the sound back.
+    private func endInterruption(withResume: Bool) async {
+        self.mockPlayerService.simulateInterruptionEnded(withResume: withResume)
         await self.drainMainQueue()
     }
 

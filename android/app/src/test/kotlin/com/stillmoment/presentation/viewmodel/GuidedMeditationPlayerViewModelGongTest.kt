@@ -14,8 +14,11 @@ import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import com.stillmoment.domain.services.PlaybackState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -695,14 +698,31 @@ class GuidedMeditationPlayerViewModelGongTest {
 }
 
 /**
- * Fake AudioPlayerService that records play/stop and drives the completion path.
+ * Fake AudioPlayerService that records play/stop and drives the completion path and
+ * interruptions (shared-146).
  */
-private class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
+internal class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
     private val _state = MutableStateFlow(PlaybackState())
     override val playbackState: StateFlow<PlaybackState> = _state.asStateFlow()
 
     private val _nowPlaying = MutableStateFlow<GuidedMeditation?>(null)
     override val nowPlaying: StateFlow<GuidedMeditation?> = _nowPlaying.asStateFlow()
+
+    private val _interruptionBegan = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val interruptionBegan: SharedFlow<Unit> = _interruptionBegan.asSharedFlow()
+
+    private val _interruptionEnded = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val interruptionEnded: SharedFlow<Unit> = _interruptionEnded.asSharedFlow()
+
+    /** A phone call, voice assistant or alarm takes the sound. */
+    fun beginInterruption() {
+        _interruptionBegan.tryEmit(Unit)
+    }
+
+    /** The system gives the sound back after the interruption. */
+    fun endInterruption() {
+        _interruptionEnded.tryEmit(Unit)
+    }
 
     var playCalled = false
         private set
@@ -774,7 +794,7 @@ private class FakeGongAudioPlayerService : AudioPlayerServiceProtocol {
 /**
  * Fake gong player that records calls and lets the test drive completion.
  */
-private class FakeMeditationGongPlayer : MeditationGongPlayerProtocol {
+internal class FakeMeditationGongPlayer : MeditationGongPlayerProtocol {
     var played = false
         private set
     var playCount = 0
@@ -785,6 +805,10 @@ private class FakeMeditationGongPlayer : MeditationGongPlayerProtocol {
         private set
 
     private var pendingComplete: (() -> Unit)? = null
+
+    /** True while a gong rings (played, neither finished nor stopped). */
+    val isRinging: Boolean
+        get() = pendingComplete != null
 
     override fun play(soundId: String, volume: Float, onComplete: () -> Unit) {
         played = true
