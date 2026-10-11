@@ -2,14 +2,17 @@
 id: shared-147
 title: "Timer läuft nach einer Unterbrechung vollständig weiter"
 status:
-  ios: todo
-  android: todo
+  ios: in-progress
+  android: in-progress
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []
 ---
 
 # Ticket shared-147: Timer läuft nach einer Unterbrechung vollständig weiter
+
+**Plan iOS**: `dev-docs/tickets/plans/shared-147-ios.md`
+**Plan Android**: `dev-docs/tickets/plans/shared-147-android.md`
 
 ## Was
 
