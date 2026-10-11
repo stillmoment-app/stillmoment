@@ -81,7 +81,12 @@ data class PlayerUiState(
      * Live position during a drag (range-relative ms, 0 = trim start, clamped to the
      * effective duration). Drives the window center and the live-position readout (shared-109).
      */
-    val dragPositionMs: Long = 0L
+    val dragPositionMs: Long = 0L,
+    /**
+     * True while the start gong rings and during the following breath pause — the
+     * meditation audio has not begun yet (shared-106, shared-143).
+     */
+    val isStartGongSequenceActive: Boolean = false
 ) {
     /** Whether preparation countdown is currently active (not finished) */
     val isPreparing: Boolean
@@ -96,14 +101,22 @@ data class PlayerUiState(
         get() = preparationCountdown?.progress ?: 0.0
 
     /**
+     * True while the meditation audio has not begun yet: preparation countdown, start gong
+     * or breath pause. Play and scrub do nothing then (shared-143).
+     */
+    val isBeforeAudio: Boolean
+        get() = isPreparing || isStartGongSequenceActive
+
+    /**
      * Visuelle Phase des Players.
      *
-     * - [MeditationPhase.PreRoll] solange die Vorbereitung laeuft.
+     * - [MeditationPhase.PreRoll] bis der Ton der Meditation beginnt: Vorbereitung,
+     *   Start-Gong und Atempause (shared-143) — ruhige Ansicht ohne Play-Knopf und Wellenform.
      * - [MeditationPhase.Playing] ansonsten (auch bei Pause, Loading, Idle, Finished —
      *   der Atemkreis sieht in all diesen Zustaenden gleich aus).
      */
     val phase: MeditationPhase
-        get() = if (isPreparing) MeditationPhase.PreRoll else MeditationPhase.Playing
+        get() = if (isBeforeAudio) MeditationPhase.PreRoll else MeditationPhase.Playing
 
     /** Formatted current position (MM:SS or HH:MM:SS) */
     val formattedPosition: String
@@ -228,12 +241,6 @@ constructor(
      */
     private var dragStartMs = 0L
 
-    /**
-     * True while the start gong rings and during the following breath pause —
-     * blocks further startPlayback taps until the meditation audio runs (shared-106).
-     */
-    private var isStartGongSequenceActive = false
-
     init {
         observePlaybackState()
         observeStopFromOutside()
@@ -259,7 +266,7 @@ constructor(
     }
 
     /** True while preparation, start gong or breath pause run and the audio has not begun. */
-    private fun isBeforeAudio(): Boolean = _uiState.value.isPreparing || isStartGongSequenceActive
+    private fun isBeforeAudio(): Boolean = _uiState.value.isBeforeAudio
 
     /**
      * Observes playback state changes from the audio service.
@@ -340,7 +347,6 @@ constructor(
         startGongJob?.cancel()
         startGongJob = null
         gongPlayer.stop()
-        isStartGongSequenceActive = false
 
         // Reset session state
         hasSessionStarted = false
@@ -358,7 +364,8 @@ constructor(
                 waveform = null,
                 waveformLoadFailed = false,
                 isDragging = false,
-                dragPositionMs = 0L
+                dragPositionMs = 0L,
+                isStartGongSequenceActive = false
             )
         }
 
@@ -379,7 +386,7 @@ constructor(
      */
     fun startPlayback() {
         // Don't start while counting down or while the start-gong sequence runs
-        if (_uiState.value.isPreparing || isStartGongSequenceActive) {
+        if (isBeforeAudio()) {
             return
         }
 
@@ -445,13 +452,21 @@ constructor(
         val currentCountdown = _uiState.value.preparationCountdown ?: return
 
         val ticked = currentCountdown.tick()
-        _uiState.update { it.copy(preparationCountdown = ticked) }
+        val gongFollows = ticked.isFinished && _uiState.value.meditation?.startGongEnabled == true
+        // Hand over to the start gong in the same update, so the player never shows the
+        // playing view between preparation and gong (shared-143).
+        _uiState.update {
+            it.copy(
+                preparationCountdown = ticked,
+                isStartGongSequenceActive = it.isStartGongSequenceActive || gongFollows
+            )
+        }
 
         if (ticked.isFinished) {
             countdownJob?.cancel()
             countdownJob = null
             // After the countdown: ring the start gong (if any), then play (shared-106)
-            if (_uiState.value.meditation?.startGongEnabled == true) {
+            if (gongFollows) {
                 startGongSequence()
             } else {
                 play()
@@ -468,11 +483,11 @@ constructor(
      * not ring it again (only the first [startPlayback] reaches here).
      */
     private fun startGongSequence() {
-        isStartGongSequenceActive = true
         val meditation = _uiState.value.meditation ?: run {
-            isStartGongSequenceActive = false
+            _uiState.update { it.copy(isStartGongSequenceActive = false) }
             return
         }
+        _uiState.update { it.copy(isStartGongSequenceActive = true) }
         gongPlayer.play(meditation.gongSoundId, gongVolume) {
             startBreathPause()
         }
@@ -482,15 +497,21 @@ constructor(
         startGongJob?.cancel()
         startGongJob = viewModelScope.launch {
             delay(BREATH_PAUSE_MS)
-            isStartGongSequenceActive = false
+            _uiState.update { it.copy(isStartGongSequenceActive = false) }
             play()
         }
     }
 
     /**
      * Starts or resumes playback.
+     *
+     * Does nothing before the meditation audio begins (preparation, start gong, breath
+     * pause): the sequence starts it exactly once itself (shared-143).
      */
     fun play() {
+        if (isBeforeAudio()) {
+            return
+        }
         val meditation = _uiState.value.meditation ?: return
 
         // Request audio session (may stop timer audio)
@@ -529,13 +550,22 @@ constructor(
      * Resumes paused playback.
      */
     fun resume() {
+        if (isBeforeAudio()) {
+            return
+        }
         audioPlayerService.resume()
     }
 
     /**
      * Toggles between play and pause.
+     *
+     * Ignored before the meditation audio begins — a tap during preparation, start gong or
+     * breath pause must not start the meditation early or twice (shared-143).
      */
     fun togglePlayPause() {
+        if (isBeforeAudio()) {
+            return
+        }
         if (_uiState.value.isPlaying) {
             pause()
         } else if (_uiState.value.isCompleted) {
@@ -556,6 +586,10 @@ constructor(
      * @param position Range-relative position in milliseconds (0 = trim start)
      */
     fun seekTo(position: Long) {
+        // Nothing is loaded before the meditation audio begins (shared-143)
+        if (isBeforeAudio()) {
+            return
+        }
         val effectiveDuration = _uiState.value.duration
         val relativePosition = position.coerceIn(0L, effectiveDuration)
 
@@ -616,6 +650,10 @@ constructor(
      */
     fun beginScrub() {
         val current = _uiState.value
+        // No scrubbing before the meditation audio begins (shared-143)
+        if (current.isBeforeAudio) {
+            return
+        }
         val anchored = current.currentPosition.coerceIn(current.scrubBoundsMs)
         dragWasPlaying = current.isPlaying
         dragStartMs = anchored
@@ -697,7 +735,6 @@ constructor(
         startGongJob?.cancel()
         startGongJob = null
         gongPlayer.stop()
-        isStartGongSequenceActive = false
 
         waveformJob?.cancel()
         waveformJob = null
@@ -709,7 +746,8 @@ constructor(
                 isPlaying = false,
                 currentPosition = 0L,
                 progress = 0f,
-                preparationCountdown = null
+                preparationCountdown = null,
+                isStartGongSequenceActive = false
             )
         }
         audioPlayerService.stop()

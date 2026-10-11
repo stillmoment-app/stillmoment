@@ -1,14 +1,19 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.stillmoment.LocalizedTestContent
 import com.stillmoment.LocalizedTestResources
 import com.stillmoment.R
 import com.stillmoment.SUPPORTED_TEST_LANGUAGES
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 import org.junit.Rule
@@ -108,6 +113,38 @@ class PlayerScreenTest(languageTag: String) {
         renderPlayerScreen(uiState = testUiState.copy(isPlaying = true))
         composeRule.onNodeWithContentDescription(strings.string(R.string.accessibility_pause_button_player))
             .assertIsDisplayed()
+    }
+
+    // MARK: - Calm view until the meditation begins (shared-143)
+
+    private val beforeAudioState =
+        testUiState.copy(currentPosition = 0L, progress = 0f, isPlaying = false)
+
+    @Test
+    fun playerScreen_duringStartGong_showsCalmViewWithoutPlayButtonOrWaveform() {
+        renderPlayerScreen(uiState = beforeAudioState.copy(isStartGongSequenceActive = true))
+
+        composeRule.onNodeWithTag("player.startGong").assertIsDisplayed()
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_player_preroll_hint))
+            .assertIsDisplayed()
+        composeRule.onAllNodesWithContentDescription(strings.string(R.string.accessibility_play_button))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.waveform").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.miniOverview").assertCountEquals(0)
+    }
+
+    @Test
+    fun playerScreen_duringPreparation_showsCountdownWithoutPlayButtonOrWaveform() {
+        renderPlayerScreen(
+            uiState = beforeAudioState.copy(
+                preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
+            )
+        )
+
+        composeRule.onNodeWithTag("player.countdown").assertIsDisplayed()
+        composeRule.onAllNodesWithContentDescription(strings.string(R.string.accessibility_play_button))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.waveform").assertCountEquals(0)
     }
 
     // MARK: - Navigation Tests
