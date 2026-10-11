@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -514,8 +515,9 @@ private fun CircleContent(
     circleSize: androidx.compose.ui.unit.Dp,
     onTogglePlayPause: () -> Unit
 ) {
-    val countdownDescription = stringResource(
-        R.string.accessibility_countdown_seconds,
+    val countdownDescription = pluralStringResource(
+        R.plurals.accessibility_countdown_seconds,
+        countdownSeconds,
         countdownSeconds
     )
 

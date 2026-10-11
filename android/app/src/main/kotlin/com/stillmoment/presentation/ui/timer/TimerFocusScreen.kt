@@ -361,8 +361,9 @@ private fun RunningTimeBlock(
 @Composable
 private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, circleSize: Dp, reduceMotion: Boolean) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
-    val countdownDescription = stringResource(
-        R.string.accessibility_countdown_seconds,
+    val countdownDescription = pluralStringResource(
+        R.plurals.accessibility_countdown_seconds,
+        countdownSeconds,
         countdownSeconds
     )
 
