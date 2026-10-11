@@ -1,7 +1,7 @@
 ---
 id: android-094
 title: "Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung ohne veraltete MediaSession-Kompatibilitätsbibliothek"
-status: in-progress
+status: done
 phase: 2-Architektur
 priority: niedrig
 depends_on: []
@@ -21,12 +21,12 @@ Die Kompatibilitätsbibliothek wird nicht mehr weiterentwickelt. Fällt sie weg 
 
 ## Akzeptanzkriterien
 
-- [ ] Der Build meldet für Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung keine Veraltungswarnungen mehr
-- [ ] Bei gesperrtem Bildschirm zeigt eine laufende geführte Meditation weiterhin Titel, Lehrer, Fortschritt und Play/Pause. Als Länge erscheint die gekürzte Länge, nicht die der ganzen Datei (shared-105)
-- [ ] Play/Pause auf dem Sperrbildschirm, in der Benachrichtigung und über die Taste eines kabelgebundenen Kopfhörers pausiert die Meditation und setzt sie fort
-- [ ] Spulen über den Fortschrittsbalken auf dem Sperrbildschirm springt an die gewählte Stelle
-- [ ] Endet oder stoppt die Meditation, verschwinden Benachrichtigung und Sperrbildschirm-Steuerung
-- [ ] Gongs und Hintergrundklang des Timers spielen weiterhin bei gesperrtem Bildschirm
+- [x] Der Build meldet für Sperrbildschirm-Steuerung und Wiedergabe-Benachrichtigung keine Veraltungswarnungen mehr
+- [x] Bei gesperrtem Bildschirm zeigt eine laufende geführte Meditation weiterhin Titel, Lehrer, Fortschritt und Play/Pause. Als Länge erscheint die gekürzte Länge, nicht die der ganzen Datei (shared-105)
+- [x] Play/Pause auf dem Sperrbildschirm, in der Benachrichtigung und über die Taste eines kabelgebundenen Kopfhörers pausiert die Meditation und setzt sie fort
+- [x] Spulen über den Fortschrittsbalken auf dem Sperrbildschirm springt an die gewählte Stelle
+- [x] Endet oder stoppt die Meditation, verschwinden Benachrichtigung und Sperrbildschirm-Steuerung
+- [x] Gongs und Hintergrundklang des Timers spielen weiterhin bei gesperrtem Bildschirm
 
 ---
 
@@ -60,6 +60,8 @@ Die Kompatibilitätsbibliothek wird nicht mehr weiterentwickelt. Fällt sie weg 
 - Ungenutzte Abhängigkeiten `media3-exoplayer` und `media3-ui` entfernt.
 - `MediaSessionService` verworfen, weil er einen exportierten Service, eine eigene Lebenszyklus-Logik (Start durch Controller, 10-Minuten-Regel) und eine automatische Benachrichtigung mitbringt. Das ist mehr Umbau, und es gibt mehr Stellen, an denen sich das Verhalten unbemerkt ändert. Der Timer-Foreground-Service bleibt unberührt.
 - `androidx.media` ist danach unbenutzt und entfällt als Abhängigkeit.
+
+**Gerätetest 2026-10-11:** Auf Fairphone 4 (Android 15) bestanden.
 
 ---
 
