@@ -21,15 +21,14 @@ final class AudioService: AudioServiceProtocol {
         coordinator: AudioSessionCoordinatorProtocol,
         soundRepository: BackgroundSoundRepositoryProtocol,
         soundscapeResolver: SoundscapeResolverProtocol,
-        fadeOutDuration: TimeInterval = 0.5
+        fadeOutDuration: TimeInterval = 0.5,
+        notificationCenter: NotificationCenter = .default
     ) {
         self.coordinator = coordinator
         self.soundRepository = soundRepository
         self.soundscapeResolver = soundscapeResolver
         self.fadeOutDuration = fadeOutDuration
-        self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
-            gongCompletionSubject.send()
-        }
+        self.notificationCenter = notificationCenter
         self.setupAudioInterruptionHandling()
         self.registerConflictHandler()
     }
@@ -37,7 +36,7 @@ final class AudioService: AudioServiceProtocol {
     // MARK: - Constants
 
     /// Duration for fade in effect (10 seconds for smooth meditation experience after start gong)
-    private static let fadeInDuration: TimeInterval = 10.0
+    static let fadeInDuration: TimeInterval = 10.0
 
     // MARK: - Deinit
 
@@ -101,6 +100,7 @@ final class AudioService: AudioServiceProtocol {
     /// This is the ONLY place where keep-alive is stopped during a timer lifecycle.
     func deactivateTimerSession() {
         self.timerSessionActive = false
+        self.clearInterruption()
         self.stopKeepAliveAudio()
         self.coordinator.releaseAudioSession(for: .timer)
         Logger.audio.info("Timer session deactivated")
@@ -114,13 +114,17 @@ final class AudioService: AudioServiceProtocol {
             return
         }
         // Audio session is already active via activateTimerSession()
-        try self.playGongSound(soundId: soundId, volume: volume)
+        try self.playStartOrEndGong(soundId: soundId, volume: volume)
     }
 
     func playIntervalGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing interval gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
         if soundId == GongSound.vibrationId {
             AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            return
+        }
+        guard !self.timerInterrupted else {
+            Logger.audio.info("Interval gong dropped during interruption")
             return
         }
         // Audio session is already active via activateTimerSession()
@@ -213,6 +217,12 @@ final class AudioService: AudioServiceProtocol {
     func startBackgroundAudio(soundId: String, volume: Float) throws {
         Logger.audio.info("Starting background audio", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
+        guard !self.timerInterrupted else {
+            Logger.audio.info("Background audio deferred until the interruption ends")
+            self.pendingBackgroundAudio = (soundId, volume)
+            return
+        }
+
         // Keep-alive runs in parallel — no need to stop it. The silent audio at very low volume
         // (see AudioService+KeepAlive.swift) does not interfere with background audio. See shared-059.
 
@@ -221,6 +231,7 @@ final class AudioService: AudioServiceProtocol {
     }
 
     func stopBackgroundAudio() {
+        self.pendingBackgroundAudio = nil
         guard self.backgroundAudioPlayer != nil else {
             return
         }
@@ -238,11 +249,14 @@ final class AudioService: AudioServiceProtocol {
             return
         }
         // Audio session is still active — deactivateTimerSession() is called after completion
-        try self.playGongSound(soundId: soundId, volume: volume)
+        try self.playStartOrEndGong(soundId: soundId, volume: volume)
     }
 
     func stop() {
         Logger.audio.debug("Stopping all audio playback")
+        // A stopped gong reports no end — the timer is being reset or torn down
+        self.timerGongRinging = false
+        self.clearInterruption()
         self.audioPlayer?.stop()
         self.audioPlayer = nil
         self.stopBackgroundAudio()
@@ -264,10 +278,14 @@ final class AudioService: AudioServiceProtocol {
     private let soundRepository: BackgroundSoundRepositoryProtocol
     let soundscapeResolver: SoundscapeResolverProtocol
     let fadeOutDuration: TimeInterval
-    private let gongCompletionSubject = PassthroughSubject<Void, Never>()
-    let gongPlayerDelegate: GongPlayerDelegate
-    private var audioPlayer: AVAudioPlayer?
-    private var backgroundAudioPlayer: AVAudioPlayer?
+    let notificationCenter: NotificationCenter
+    let gongCompletionSubject = PassthroughSubject<Void, Never>()
+    lazy var gongPlayerDelegate = GongPlayerDelegate { [weak self] in
+        self?.finishTimerGong()
+    }
+
+    var audioPlayer: AVAudioPlayer?
+    var backgroundAudioPlayer: AVAudioPlayer?
     var keepAlivePlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
@@ -277,7 +295,7 @@ final class AudioService: AudioServiceProtocol {
     let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewCompletionSubject = PassthroughSubject<Void, Never>()
-    private var cancellables = Set<AnyCancellable>()
+    var cancellables = Set<AnyCancellable>()
 
     /// Whether a looping background preview is currently playing (shared-121).
     var isBackgroundPreviewPlaying: Bool {
@@ -290,10 +308,19 @@ final class AudioService: AudioServiceProtocol {
     }
 
     /// Target volume for background audio (stored for fade resume)
-    private var targetVolume: Float = 0.15
+    var targetVolume: Float = 0.15
 
     /// Whether a timer session is currently active (for interruption recovery)
     var timerSessionActive = false
+
+    /// Whether a start, interval or end gong of the timer is ringing and has not reported its end yet
+    var timerGongRinging = false
+
+    /// Whether an interruption (phone call, Siri, alarm) silences the timer right now
+    var timerInterrupted = false
+
+    /// Background sound that became due during an interruption; starts when the sound is given back
+    var pendingBackgroundAudio: (soundId: String, volume: Float)?
 
     // MARK: - Private Methods
 
@@ -346,55 +373,9 @@ private extension AudioService {
     }
 }
 
-// MARK: - Audio Interruption Handling
-
-private extension AudioService {
-    func setupAudioInterruptionHandling() {
-        NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
-            .sink { [weak self] notification in
-                self?.handleAudioInterruption(notification)
-            }
-            .store(in: &self.cancellables)
-
-        Logger.audio.debug("Audio interruption handling configured")
-    }
-
-    func handleAudioInterruption(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-              let type = AVAudioSession.InterruptionType(rawValue: typeValue)
-        else {
-            return
-        }
-
-        switch type {
-        case .began:
-            Logger.audio.info("Audio interruption began")
-
-        case .ended:
-            // Note: AVAudioSessionInterruptionOptionKey may be absent on older iOS versions.
-            // We always attempt keep-alive recovery when a timer session is active —
-            // timerSessionActive is set to false by cleanupTimerPlayers() on full audio-focus loss
-            // (e.g., phone call), so the guard prevents spurious restarts after real takeovers.
-            let optionsValue = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
-            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-            Logger.audio.info(
-                "Audio interruption ended",
-                metadata: ["shouldResume": "\(options.contains(.shouldResume))"]
-            )
-            if self.timerSessionActive {
-                self.restartKeepAliveAfterInterruption()
-            }
-
-        @unknown default:
-            Logger.audio.warning("Unknown audio interruption type")
-        }
-    }
-}
-
 // MARK: - Gong Playback
 
-private extension AudioService {
+extension AudioService {
     func playGongSound(soundId: String, volume: Float, isPreview: Bool = false) throws {
         let gongSound = GongSound.findOrDefault(byId: soundId)
         let (name, ext) = self.parseFilename(gongSound.filename)
@@ -417,25 +398,33 @@ private extension AudioService {
         do {
             let player = try AVAudioPlayer(contentsOf: soundURL)
             player.volume = volume
-            if !isPreview {
-                player.delegate = self.gongPlayerDelegate
-            }
             player.prepareToPlay()
-            player.play()
-
-            if isPreview {
-                self.previewPlayer = player
-            } else {
-                self.audioPlayer = player
-            }
-
             Logger.audio.info(
                 "Gong playing",
                 metadata: ["soundId": soundId, "volume": "\(volume)", "isPreview": "\(isPreview)"]
             )
+
+            if isPreview {
+                player.play()
+                self.previewPlayer = player
+            } else {
+                self.startTimerGong(player)
+            }
         } catch {
             Logger.audio.error("Failed to play gong", error: error, metadata: ["soundId": soundId])
             throw AudioServiceError.playbackFailed
+        }
+    }
+
+    /// A timer gong that cannot start (e.g. no audio session during a phone call) counts as
+    /// over at once, so the timer goes on without it (shared-147).
+    func startTimerGong(_ player: AVAudioPlayer) {
+        player.delegate = self.gongPlayerDelegate
+        self.audioPlayer = player
+        self.timerGongRinging = true
+        if !player.play() {
+            Logger.audio.warning("Gong could not start, counts as finished")
+            self.finishTimerGong()
         }
     }
 }
@@ -458,6 +447,8 @@ private extension AudioService {
     /// Used by conflict handler when another source takes over.
     func cleanupTimerPlayers() {
         self.timerSessionActive = false
+        self.timerGongRinging = false
+        self.clearInterruption()
         self.audioPlayer?.stop()
         self.audioPlayer = nil
         self.backgroundAudioPlayer?.stop()

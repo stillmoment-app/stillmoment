@@ -16,7 +16,8 @@ extension AudioService {
     /// several audio sources meet must pass the same coordinator to each of them.
     static func makeForTesting(
         coordinator: AudioSessionCoordinatorProtocol = AudioSessionCoordinator(),
-        fadeOutDuration: TimeInterval = 0.5
+        fadeOutDuration: TimeInterval = 0.5,
+        notificationCenter: NotificationCenter = .default
     ) -> AudioService {
         let soundRepository = BackgroundSoundRepository()
         return AudioService(
@@ -26,7 +27,18 @@ extension AudioService {
                 soundRepository: soundRepository,
                 customAudioRepository: MockCustomAudioRepository()
             ),
-            fadeOutDuration: fadeOutDuration
+            fadeOutDuration: fadeOutDuration,
+            notificationCenter: notificationCenter
         )
+    }
+
+    /// Whether the timer's background sound is currently playing
+    var isBackgroundAudioPlaying: Bool {
+        self.backgroundAudioPlayer?.isPlaying ?? false
+    }
+
+    /// Whether a start, interval or end gong of the timer is currently playing
+    var isTimerGongPlaying: Bool {
+        self.audioPlayer?.isPlaying ?? false
     }
 }
