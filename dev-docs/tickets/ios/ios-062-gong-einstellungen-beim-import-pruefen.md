@@ -1,31 +1,32 @@
 ---
 id: ios-062
-title: "Prüfen: Gehen Gong-Einstellungen beim Import verloren?"
+title: "Gong-Einstellungen gehen beim Import verloren"
 status: todo
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []
 ---
 
-# Ticket ios-062: Prüfen: Gehen Gong-Einstellungen beim Import verloren?
+# Ticket ios-062: Gong-Einstellungen gehen beim Import verloren
 
 ## Was
 
-**Beobachtet (nur im Code, nicht am Gerät):** Das Bearbeiten-Blatt beim Import zeigt die Schalter für Start-/End-Gong. Beim Speichern des Imports werden laut Code aber nur Lehrer:in und Name übergeben, nicht die Gong-Einstellungen.
+**Beobachtet (im Code bestätigt, 2026-10-11):** Das Bearbeiten-Blatt zeigt beim Import die Schalter für Start-/End-Gong und die Klangauswahl. Beim Speichern des Imports werden aber nur Lehrer:in und Name übernommen; die Gong-Einstellungen gehen still verloren, die Meditation wird ohne Gong angelegt.
 **Erwartet:** Beim Import eingeschaltete Gongs sind nach dem Speichern eingeschaltet, mit dem gewählten Klang.
-**Umstände:** Fund aus einem Code-Vergleich während android-099 (2026-10-10). Auf Android werden die Gong-Einstellungen beim Import gespeichert.
+**Umstände:** Fund aus einem Code-Vergleich während android-099 (2026-10-10). Auf Android werden die Gong-Einstellungen beim Import gespeichert (shared-106) — die Plattformen verhalten sich unterschiedlich.
 
 ## Warum
 
-Wer beim Import den Start-Gong einschaltet, erwartet ihn beim ersten Abspielen. Fehlt er, wirkt die Einstellung kaputt.
+Wer beim Import den Start-Gong einschaltet, erwartet ihn beim ersten Abspielen. Fehlt er, wirkt die Einstellung kaputt — und das ohne jeden Hinweis, beim ersten Kontakt mit einer neuen Meditation in der Bibliothek.
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Am Simulator geprüft, ob der Fehler besteht; wenn nicht, Ticket mit Befund als wontfix schließen
-- [ ] Falls ja: Beim Import eingeschaltete Start-/End-Gongs und der gewählte Klang sind nach dem Speichern vorhanden
+- [ ] Beim Import eingeschaltete Start-/End-Gongs und der gewählte Klang sind nach dem Speichern vorhanden
 - [ ] Ohne eingeschaltete Gongs bleibt alles wie bisher
+- [ ] Ein Test belegt: Import mit eingeschaltetem Start-Gong und gewähltem Klang ergibt eine gespeicherte Meditation mit genau diesen Einstellungen
+- [ ] Verhalten entspricht Android
 
 ---
 
