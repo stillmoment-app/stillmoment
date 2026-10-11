@@ -421,10 +421,10 @@ private fun IntervalModeHelpText(mode: IntervalMode, minutes: Int, modifier: Mod
 // region Interval Stepper
 
 @Composable
-private fun IntervalStepperRow(minutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+internal fun IntervalStepperRow(minutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val haptic = LocalHapticFeedback.current
-    val stepperDescription = stringResource(R.string.accessibility_interval_stepper, minutes)
+    val stepperDescription = pluralStringResource(R.plurals.accessibility_interval_stepper, minutes, minutes)
 
     Row(
         modifier = modifier

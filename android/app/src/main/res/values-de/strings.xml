@@ -5,14 +5,20 @@
 
     <!-- Timer Idle Screen (shared-086 / shared-089) -->
     <string name="timer_idle_headline">Wie viel Zeit schenkst du dir?</string>
-    <string name="timer_dial_unit">Minuten</string>
+    <plurals name="timer_dial_unit">
+        <item quantity="one">Minute</item>
+        <item quantity="other">Minuten</item>
+    </plurals>
     <string name="settings_card_label_preparation">Vorbereitung</string>
     <string name="settings_card_label_gong">Gong</string>
     <string name="settings_card_label_interval">Intervall</string>
     <string name="settings_card_label_background">Hintergrund</string>
     <string name="settings_preparation_time_title">Vorbereitungszeit</string>
     <string name="accessibility_dial_label">Meditationsdauer</string>
-    <string name="accessibility_dial_value">%d Minuten</string>
+    <plurals name="accessibility_dial_value">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
     <string name="accessibility_idle_settings_row">%1$s, %2$s, doppelt tippen zum Ändern</string>
 
     <!-- Common -->
@@ -241,7 +247,10 @@
     <string name="accessibility_gong_volume">Gong-Lautstärke: %d Prozent</string>
     <string name="accessibility_interval_gongs_toggle">Intervallklänge Schalter</string>
     <string name="accessibility_interval_mode_selector">Intervallmodus</string>
-    <string name="accessibility_interval_stepper">Intervall: %d Minuten</string>
+    <plurals name="accessibility_interval_stepper">
+        <item quantity="one">Intervall: %d Minute</item>
+        <item quantity="other">Intervall: %d Minuten</item>
+    </plurals>
     <string name="accessibility_interval_decrease">Intervall verringern</string>
     <string name="accessibility_interval_increase">Intervall erhöhen</string>
 

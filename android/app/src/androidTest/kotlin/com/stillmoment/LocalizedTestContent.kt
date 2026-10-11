@@ -2,6 +2,7 @@ package com.stillmoment
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -32,6 +33,10 @@ class LocalizedTestResources(languageTag: String) {
     }
 
     fun string(@StringRes id: Int): String = context.getString(id)
+
+    /** Plural form of [id] chosen for [quantity], with [formatArgs] inserted. */
+    fun plural(@PluralsRes id: Int, quantity: Int, vararg formatArgs: Any): String =
+        context.resources.getQuantityString(id, quantity, *formatArgs)
 }
 
 /**
