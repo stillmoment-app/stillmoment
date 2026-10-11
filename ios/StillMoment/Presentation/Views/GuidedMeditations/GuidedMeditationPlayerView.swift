@@ -256,13 +256,13 @@ struct GuidedMeditationPlayerView: View {
     }
 
     /// Start gong and breath pause: the ring stays empty — no number, no text (shared-143).
-    /// The invisible area tells VoiceOver that the start gong rings and lets UI tests find
-    /// the phase.
+    /// The invisible area tells VoiceOver that the meditation is still being prepared (same
+    /// word as during the countdown) and lets UI tests find the phase.
     private var startGongRingContent: some View {
         Color.clear
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityElement()
-            .accessibilityLabel("guided_meditations.edit.startGong")
+            .accessibilityLabel("guided_meditations.player.preroll.label")
             .accessibilityIdentifier("player.startGong")
     }
 

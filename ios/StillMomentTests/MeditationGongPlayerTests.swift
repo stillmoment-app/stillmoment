@@ -31,14 +31,25 @@ final class MeditationGongPlayerTests: XCTestCase {
     }
 
     func testInterruption_whileGongRings_completesOnce() async {
-        // Given: the gong rings
-        let completed = self.expectation(description: "gong completion")
+        // Given: the gong rings — proven by no completion arriving on its own. A missing
+        // file or a player that does not start would complete right away (on the next
+        // main-queue turn); the real gong lasts several seconds.
+        var interrupted = false
+        let completedEarly = self.expectation(description: "completion before the interruption")
+        completedEarly.isInverted = true
+        let completed = self.expectation(description: "completion after the interruption")
         completed.assertForOverFulfill = true
         self.sut.play(soundId: GongSound.defaultSoundId, volume: 0.5) {
-            completed.fulfill()
+            if interrupted {
+                completed.fulfill()
+            } else {
+                completedEarly.fulfill()
+            }
         }
+        await fulfillment(of: [completedEarly], timeout: 0.3)
 
         // When: a phone call interrupts the gong (twice, to prove "exactly once")
+        interrupted = true
         self.postInterruptionBegan()
         self.postInterruptionBegan()
 
