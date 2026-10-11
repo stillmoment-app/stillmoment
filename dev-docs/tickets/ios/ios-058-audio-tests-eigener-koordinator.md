@@ -31,17 +31,17 @@ Heute teilen sich alle Unit-Tests denselben Koordinator samt Zustand (aktive Que
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Der App-Pfad ist unverändert: `AppDependencies.live()` verwendet weiterhin `AudioSessionCoordinator.shared`, und der Koordinator selbst ändert sich höchstens in der Sichtbarkeit seines Initializers.
-- [ ] Im App-Code kann weiterhin kein zweiter Koordinator entstehen (die Lint-Regel `service_created_outside_composition_root` fängt das ab).
+- [x] Der App-Pfad ist unverändert: `AppDependencies.live()` verwendet weiterhin `AudioSessionCoordinator.shared`, und der Koordinator selbst ändert sich höchstens in der Sichtbarkeit seines Initializers.
+- [x] Im App-Code kann weiterhin kein zweiter Koordinator entstehen (die Lint-Regel `service_created_outside_composition_root` fängt das ab).
 
 ### Tests
-- [ ] Ein Test belegt, dass Timer-Audio und Player in der App-Verdrahtung denselben Koordinator verwenden.
-- [ ] Kein Unit-Test greift mehr auf `AudioSessionCoordinator.shared` zu, außer wenn er ausdrücklich die App-Verdrahtung prüft.
-- [ ] Tests, die das Zusammenspiel mehrerer Audio-Quellen prüfen (z.B. Vorschau gegen Timer), geben beiden Seiten ausdrücklich denselben Koordinator.
-- [ ] Alle bestehenden Unit-Tests sind grün.
+- [x] Ein Test belegt, dass Timer-Audio und Player in der App-Verdrahtung denselben Koordinator verwenden.
+- [x] Kein Unit-Test greift mehr auf `AudioSessionCoordinator.shared` zu, außer wenn er ausdrücklich die App-Verdrahtung prüft.
+- [x] Tests, die das Zusammenspiel mehrerer Audio-Quellen prüfen (z.B. Vorschau gegen Timer), geben beiden Seiten ausdrücklich denselben Koordinator.
+- [x] Alle bestehenden Unit-Tests sind grün.
 
 ### Dokumentation
-- [ ] DI-Regel (`.claude/rules/ios-dependency-injection.md`), `ios/CLAUDE.md` und `dev-docs/architecture/audio-system.md`: Der Singleton ist als bewusste Ausnahme mit Begründung beschrieben, und Tests erzeugen ihren eigenen Koordinator.
+- [x] DI-Regel (`.claude/rules/ios-dependency-injection.md`), `ios/CLAUDE.md` und `dev-docs/architecture/audio-system.md`: Der Singleton ist als bewusste Ausnahme mit Begründung beschrieben, und Tests erzeugen ihren eigenen Koordinator.
 
 ---
 
