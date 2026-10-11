@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -125,8 +126,6 @@ class PlayerScreenTest(languageTag: String) {
         renderPlayerScreen(uiState = beforeAudioState.copy(isStartGongSequenceActive = true))
 
         composeRule.onNodeWithTag("player.startGong").assertIsDisplayed()
-        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_player_preroll_hint))
-            .assertIsDisplayed()
         composeRule.onAllNodesWithContentDescription(strings.string(R.string.accessibility_play_button))
             .assertCountEquals(0)
         composeRule.onAllNodesWithTag("player.waveform").assertCountEquals(0)
@@ -134,18 +133,43 @@ class PlayerScreenTest(languageTag: String) {
     }
 
     @Test
+    fun playerScreen_duringStartGong_showsEmptyRingWithoutAnyText() {
+        renderPlayerScreen(uiState = beforeAudioState.copy(isStartGongSequenceActive = true))
+
+        composeRule.onNodeWithTag("player.startGong").assertIsDisplayed()
+        composeRule.onAllNodesWithText(strings.string(R.string.guided_meditations_player_preroll_hint))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithText(strings.string(R.string.guided_meditations_player_preroll_label))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.countdown").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.text.preRollHint").assertCountEquals(0)
+    }
+
+    @Test
     fun playerScreen_duringPreparation_showsCountdownWithoutPlayButtonOrWaveform() {
-        renderPlayerScreen(
-            uiState = beforeAudioState.copy(
-                preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
-            )
-        )
+        renderPlayerScreen(uiState = preparationState)
 
         composeRule.onNodeWithTag("player.countdown").assertIsDisplayed()
         composeRule.onAllNodesWithContentDescription(strings.string(R.string.accessibility_play_button))
             .assertCountEquals(0)
         composeRule.onAllNodesWithTag("player.waveform").assertCountEquals(0)
     }
+
+    @Test
+    fun playerScreen_duringPreparation_showsPreparationLabelInsideRingWithoutHintBelow() {
+        renderPlayerScreen(uiState = preparationState)
+
+        composeRule.onNodeWithText(strings.string(R.string.guided_meditations_player_preroll_label))
+            .assertIsDisplayed()
+        composeRule.onAllNodesWithText(strings.string(R.string.guided_meditations_player_preroll_hint))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithTag("player.text.preRollHint").assertCountEquals(0)
+    }
+
+    private val preparationState
+        get() = beforeAudioState.copy(
+            preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
+        )
 
     // MARK: - Navigation Tests
 
