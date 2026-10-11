@@ -14,5 +14,10 @@ then `simctl shutdown` + `simctl delete`.
 **Why:** Worked cleanly in shared-136 (2026-10-09); no interference with other agents and no state
 left on shared simulators (Dynamic Type, appearance changes stay local).
 
+**Also for unit tests (ios-061, 2026-10-11):** `make test-unit-agent` on the shared "iPhone 17" reported
+323 tests with 8 failures from a test that did not exist in my worktree — another agent's bundle ran on
+the same simulator. Telltale: TOTAL far below the normal ~1500. Fix: `simctl create "SM <ticket>" "iPhone 17" <runtime>`
+and run `TEST_DEVICE="SM <ticket>" make -C ios test-unit-agent` (test-config.sh honours `TEST_DEVICE`); delete after.
+
 **How to apply:** Pass `--udid <new UDID>` to every `scripts/screenshot-ios/*` call. Related:
 [[shared-emulator-parallel-agents]] (Android equivalent problem).
