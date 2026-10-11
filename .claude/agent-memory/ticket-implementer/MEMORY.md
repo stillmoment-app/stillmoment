@@ -50,6 +50,7 @@
 
 - [BUILD_FAILED ohne error: = Runner-Bootstrap-Crash](feedback_ios_test_runner_bootstrap_crash.md) — Simulator-Flake bei parallelen Sims; einmal neu laufen lassen.
 - [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen. Android: `FAIL` mit alten Zahlen = Compile-Fehler.
+- [SwiftLint --strict: max. 5 Parameter](feedback_ios_swiftlint_strict_param_count.md) — `make check` macht Warnungen zu Fehlern; mehr als 5 Parameter scheitert, Domain-Modell/Value Object übergeben statt Android-Signatur 1:1 portieren.
 - [SwiftLint trailing_closure bei Closure als letztem Parameter](feedback_trailing_closure_last_param.md) — benannte Konstante oder Methodenreferenz statt Closure-Literal.
 - [View in Type+Topic.swift aufteilen](feedback_view_extension_file_split.md) — verschachtelter `ViewModifier` mit Bindings, statt `private` zu lockern.
 - [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
