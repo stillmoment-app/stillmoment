@@ -224,27 +224,45 @@ platform :ios do
       UI.message("Build #{build_number} processed successfully")
     end
 
-    UI.message("Uploading metadata and screenshots for version #{app_version}...")
-    deliver(
-      skip_binary_upload: true,  # Build already uploaded via TestFlight
-      skip_screenshots: false,
-      skip_metadata: false,
-      build_number: build_number,
-      force: true,
-      run_precheck_before_submit: false,
-      submit_for_review: false,
-      automatic_release: true,
-      phased_release: false,
-      app_version: app_version
-    )
-
-    UI.success("Release #{app_version} uploaded to App Store Connect!")
     if include_build
-      # deliver only attaches the build to the version when submitting for review,
-      # which this lane does not do (deliver/submit_for_review.rb#select_build).
-      UI.message("Next in App Store Connect: select build #{build_number} for version #{app_version}, then submit for review.")
+      UI.message("Uploading metadata and screenshots, then submitting version #{app_version} (build #{build_number}) for review...")
     else
-      UI.message("Metadata + screenshots uploaded (no build).")
+      UI.message("Uploading metadata and screenshots for version #{app_version} (no build, no submission)...")
+    end
+
+    begin
+      deliver(
+        skip_binary_upload: true,  # Build already uploaded via TestFlight
+        skip_screenshots: false,
+        skip_metadata: false,
+        # Submitting selects this build for the version (deliver/submit_for_review.rb#select_build)
+        build_number: build_number,
+        force: true,
+        run_precheck_before_submit: false,
+        submit_for_review: include_build,
+        automatic_release: true,  # Start release right after Apple's approval
+        phased_release: true,     # ... spread over 7 days (can be paused in App Store Connect)
+        app_version: app_version
+      )
+    rescue StandardError => e
+      raise unless include_build
+
+      UI.user_error!(
+        "Submitting version #{app_version} for review failed: #{e.message}\n\n" \
+        "Build #{build_number} is uploaded. Next step depends on the cause:\n" \
+        "  - 403 / \"Unable to find Apple ID for Bundle ID\": accept the pending agreement in App Store Connect\n" \
+        "  - A review submission is already open: finish or remove it in App Store Connect\n" \
+        "  - Build not processed yet: wait until it shows up in TestFlight\n" \
+        "Then submit in App Store Connect: version #{app_version} -> select build #{build_number} -> \"Add for Review\".\n" \
+        "Do not rerun 'make release' without SKIP_BUILD=1 - it would build and upload again."
+      )
+    end
+
+    if include_build
+      UI.success("Version #{app_version} (build #{build_number}) submitted for review!")
+      UI.message("After approval it is released automatically as a phased release over 7 days.")
+    else
+      UI.success("Metadata + screenshots for version #{app_version} uploaded (not submitted).")
     end
   end
 

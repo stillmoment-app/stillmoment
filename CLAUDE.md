@@ -114,7 +114,7 @@ make test-ui            # UI tests (iOS: simulator; Android: running emulator) â
 /release-notes                                   # then commit notes + CHANGELOG.md in ONE commit
 make release-prepare VERSION=x.y.z [DRY_RUN=1]   # checks, tests, release build, screenshots, bump, commit, tag
 git push origin main --tags
-make release VERSION=x.y.z                       # release guard + store upload
+make release VERSION=x.y.z                       # release guard + store upload (iOS: submits for review, phased release)
 ```
 On "Release x.y.z" Claude runs all of this itself. The **only approval is the release notes**: show them, wait,
 then run through without further questions. Stop only for a due device test (audio/lock-screen code changed

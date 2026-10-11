@@ -17,8 +17,8 @@ Claude führt den [Ablauf](#ablauf) unten selbst aus. **Einzige Freigabe sind di
    - die CI auf `main` für den Release-Stand rot ist: nicht hochladen, berichten;
    - ein Schritt scheitert: Ursache berichten, Wiederanlauf nach [Wenn etwas schiefgeht](#wenn-etwas-schiefgeht)
      vorschlagen. Gepushte Historie auf `main` wird nie umgeschrieben.
-4. Zum Schluss berichtet Claude je Plattform: Version, Tag, Upload-Status und was noch aussteht
-   (bis ios-063 umgesetzt ist: Build in App Store Connect auswählen und einreichen, siehe [Nach dem Upload](#nach-dem-upload)).
+4. Zum Schluss berichtet Claude je Plattform: Version, Tag und Upload-Status (iOS: zur Prüfung
+   eingereicht). Im Browser ist nichts zu tun, siehe [Nach dem Upload](#nach-dem-upload).
 
 `release-prepare` dauert lange (Tests, Release-Build, Screenshots) — im Hintergrund laufen lassen,
 nicht mit Bash-Timeout abbrechen.
@@ -127,9 +127,12 @@ Mit `DRY_RUN=1` laufen nur die Prüfungen 1–5 wirklich; Schritte 6–13 werden
 Was danach passiert:
 
 - **iOS** (`make -C ios release`): baut die App, lädt den Build nach TestFlight (wartet auf die
-  Verarbeitung), lädt Metadaten, Release Notes und Screenshots für die Version hoch.
-  **Nicht** zur Prüfung eingereicht. Konfiguriert: nach Apples Freigabe automatisch veröffentlichen,
-  keine gestaffelte Veröffentlichung. `SKIP_BUILD=1` lädt nur Metadaten + Screenshots.
+  Verarbeitung), lädt Metadaten, Release Notes und Screenshots für die Version hoch und reicht
+  sie mit diesem Build zur Prüfung ein. Nach Apples Freigabe startet automatisch die gestaffelte
+  Veröffentlichung (7 Tage; betrifft nur automatische Updates, wer im App Store selbst aktualisiert,
+  bekommt die Version sofort). Scheitert das Einreichen, endet der Befehl mit Fehler; die Meldung
+  nennt Ursache und nächsten Schritt (Build ist dann schon hochgeladen — `make release` ohne
+  `SKIP_BUILD=1` nicht wiederholen). `SKIP_BUILD=1` lädt nur Metadaten + Screenshots und reicht nichts ein.
 - **Android** (`make -C android release`): baut das App-Bundle und lädt es mit Metadaten,
   Release Notes und Screenshots in den Production-Track. Ohne `release_status` gilt bei fastlane
   `completed`: das Release geht direkt in Googles Prüfung und nach Freigabe an alle Nutzer —
@@ -140,11 +143,10 @@ Was danach passiert:
 
 ### iOS
 
-Bis ios-063 umgesetzt ist, bleiben zwei Schritte im Browser:
+Nichts zu tun: Die Version ist eingereicht und wird nach Apples Freigabe gestaffelt veröffentlicht.
 
-1. App Store Connect → Version 2.6.0: den neuen Build auswählen. `deliver` ordnet ihn nur beim
-   Einreichen zu (`deliver/submit_for_review.rb#select_build`), und das macht die Lane nicht.
-2. „Zur Prüfung einreichen“. Nach Apples Freigabe geht die Version automatisch an alle.
+Im Notfall (Fehler fällt während der Verteilung auf): App Store Connect → App → Version →
+„Gestaffelte Veröffentlichung“ → anhalten. Danach Hotfix (siehe unten).
 
 ### Android
 

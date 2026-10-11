@@ -1,7 +1,7 @@
 ---
 id: ios-063
 title: "iOS-Release ohne App Store Connect: automatisch einreichen, gestaffelt veröffentlichen"
-status: todo
+status: in-progress
 phase: 2-Architektur
 priority: mittel
 depends_on: []
@@ -29,12 +29,15 @@ sich in App Store Connect anhalten.
 ## Akzeptanzkriterien
 
 - [ ] Nach `make -C ios release VERSION=x.y.z` ist die Version in App Store Connect mit dem neuen Build „Zur Prüfung eingereicht“, ohne Schritt im Browser
-- [ ] Release Notes, Metadaten und Screenshots werden weiterhin mit der Version hochgeladen
+- [x] Release Notes, Metadaten und Screenshots werden weiterhin mit der Version hochgeladen
 - [ ] Die Version ist für die gestaffelte Veröffentlichung eingestellt und wird nach Apples Freigabe automatisch gestartet
-- [ ] Scheitert das Einreichen (z. B. Build noch nicht verarbeitet, offene Apple-Vereinbarung), endet der Befehl mit Fehler und einer Meldung, die den nächsten Schritt nennt
-- [ ] Erhalt: `SKIP_BUILD=1` lädt weiterhin nur Metadaten und Screenshots hoch und reicht nichts ein
-- [ ] Erhalt: Der Release-Guard läuft weiterhin vor jedem Upload und verhindert ihn bei fehlgeschlagener Prüfung
-- [ ] Release Guide beschreibt den neuen Ablauf; der Abschnitt „Nach dem Upload → iOS“ mit Build-Auswahl und Einreichen entfällt bzw. beschreibt nur noch das Anhalten der gestaffelten Veröffentlichung im Notfall
+- [x] Scheitert das Einreichen (z. B. Build noch nicht verarbeitet, offene Apple-Vereinbarung), endet der Befehl mit Fehler und einer Meldung, die den nächsten Schritt nennt
+- [x] Erhalt: `SKIP_BUILD=1` lädt weiterhin nur Metadaten und Screenshots hoch und reicht nichts ein
+- [x] Erhalt: Der Release-Guard läuft weiterhin vor jedem Upload und verhindert ihn bei fehlgeschlagener Prüfung
+- [x] Release Guide beschreibt den neuen Ablauf; der Abschnitt „Nach dem Upload → iOS“ mit Build-Auswahl und Einreichen entfällt bzw. beschreibt nur noch das Anhalten der gestaffelten Veröffentlichung im Notfall
+
+Kriterien 1 und 3 sind im Code umgesetzt (Lane `release`: `submit_for_review` mit Build, `phased_release: true`,
+`automatic_release: true`), lassen sich aber erst beim nächsten echten iOS-Release prüfen (siehe Manueller Test).
 
 ---
 
