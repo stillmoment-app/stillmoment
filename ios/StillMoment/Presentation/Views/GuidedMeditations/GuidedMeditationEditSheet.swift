@@ -240,24 +240,8 @@ struct GuidedMeditationEditSheet: View {
     }
 
     private var fileInfoFooter: some View {
-        HStack(alignment: .top, spacing: 6) {
-            Image(systemName: "doc")
-                .font(.system(size: 11))
-                .foregroundColor(self.theme.textSecondary)
-                .padding(.top, 2)
-            (
-                Text(self.meditation.fileName)
-                    + Text(verbatim: "  ·  ")
-                    + Text(self.meditation.formattedFileDuration)
-            )
-            .textStyle(.caption, color: \.textSecondary)
-            .lineLimit(2)
-            .multilineTextAlignment(.leading)
-            .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-        }
-        .padding(.top, 8)
-        .accessibilityElement(children: .combine)
+        MeditationFileInfoLine(info: MeditationFileInfo(meditation: self.meditation))
+            .padding(.top, 8)
     }
 
     // MARK: - Playback Range Subviews (shared-107)
