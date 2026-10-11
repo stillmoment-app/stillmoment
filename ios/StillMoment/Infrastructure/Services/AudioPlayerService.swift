@@ -27,12 +27,14 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         coordinator: AudioSessionCoordinatorProtocol,
         nowPlayingProvider: NowPlayingInfoProvider,
         soundRepository: BackgroundSoundRepositoryProtocol,
-        gongPlayer: MeditationGongPlayerProtocol
+        gongPlayer: MeditationGongPlayerProtocol,
+        notificationCenter: NotificationCenter = .default
     ) {
         self.coordinator = coordinator
         self.nowPlayingProvider = nowPlayingProvider
         self.soundRepository = soundRepository
         self.gongPlayer = gongPlayer
+        self.notificationCenter = notificationCenter
         super.init()
         self.setupNotifications()
         self.registerConflictHandler()
@@ -43,6 +45,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     let state = CurrentValueSubject<PlaybackState, Never>(.idle)
     let currentTime = CurrentValueSubject<TimeInterval, Never>(0)
     let duration = CurrentValueSubject<TimeInterval, Never>(0)
+    let interruptionBegan = PassthroughSubject<Void, Never>()
 
     // MARK: - AudioPlayerServiceProtocol
 
@@ -99,7 +102,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
 
         // Observe playback end
-        NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+        self.notificationCenter.publisher(for: .AVPlayerItemDidPlayToEndTime, object: playerItem)
             .sink { [weak self] _ in
                 self?.handlePlaybackFinished()
             }
@@ -332,10 +335,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     var endGongConfiguration: (soundId: String, volume: Float)?
 
     private let soundRepository: BackgroundSoundRepositoryProtocol
+    private let notificationCenter: NotificationCenter
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var trimEndObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Lives as long as the service — kept apart from `cancellables`, which `cleanup()`
+    /// clears on every `load()` (ios-065)
+    private var interruptionObserver: AnyCancellable?
 
     /// Silent background audio player for keeping audio session active during countdown
     private var silentBackgroundPlayer: AVAudioPlayer?
@@ -404,37 +412,29 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     private func setupNotifications() {
         // Handle audio session interruptions (e.g., phone call)
-        NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
+        self.interruptionObserver = self.notificationCenter
+            .publisher(for: AVAudioSession.interruptionNotification)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
                 self?.handleAudioInterruption(notification)
             }
-            .store(in: &self.cancellables)
     }
 
+    /// The system has already silenced the audio when an interruption begins. Only running
+    /// playback is marked paused — a finished meditation stays finished. Nothing resumes when
+    /// the interruption ends, not even with `.shouldResume`: going on is the user's choice (ios-065).
     private func handleAudioInterruption(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-              let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+        guard let typeValue = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              AVAudioSession.InterruptionType(rawValue: typeValue) == .began
         else {
             return
         }
 
-        switch type {
-        case .began:
-            // Interruption began, pause playback
+        Logger.audio.info("Guided meditation interrupted")
+        if self.state.value == .playing {
             self.pause()
-        case .ended:
-            // Interruption ended, optionally resume playback
-            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
-                return
-            }
-            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-            if options.contains(.shouldResume) {
-                try? self.play()
-            }
-        @unknown default:
-            break
         }
+        self.interruptionBegan.send()
     }
 
     /// Handles audio session conflict by pausing playback and clearing lock screen info

@@ -187,9 +187,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     ///
     /// Ignored before the meditation audio begins — a tap during preparation, start gong or
     /// breath pause must not start the meditation early (shared-143). The sequence starts
-    /// it exactly once itself.
+    /// it exactly once itself. After an interruption aborted that sequence, the tap starts
+    /// it over (ios-065).
     func togglePlayPause() {
         guard !self.isBeforeAudio else {
+            return
+        }
+        guard self.hasSessionStarted else {
+            self.startPlayback()
             return
         }
         do {
@@ -354,6 +359,13 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playerService.duration
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$duration)
+
+        self.playerService.interruptionBegan
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.abortPreRollForInterruption()
+            }
+            .store(in: &self.cancellables)
     }
 
     private func formatTime(_ time: TimeInterval) -> String {
@@ -445,7 +457,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             soundId: self.meditation.gongSoundId,
             volume: self.praxisRepository.load().gongVolume
         ) { [weak self] in
-            self?.startBreathPause()
+            // An interruption may have aborted the sequence before this completion arrived
+            guard let self, self.isStartGongSequenceActive else {
+                return
+            }
+            self.startBreathPause()
         }
     }
 
@@ -460,6 +476,28 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.breathPauseTimer = nil
         self.isStartGongSequenceActive = false
         self.transitionToPlayback()
+    }
+
+    // MARK: - Interruption (ios-065)
+
+    /// A phone call (or Siri, an alarm) before the meditation audio begins aborts the
+    /// pre-roll: preparation, start gong and breath pause stop, the player waits paused at
+    /// the beginning, and the next tap on Play starts the pre-roll over. During playback
+    /// the service has already paused; nothing to do here.
+    private func abortPreRollForInterruption() {
+        guard self.isBeforeAudio else {
+            return
+        }
+        self.countdownTimer?.cancel()
+        self.countdownTimer = nil
+        self.breathPauseTimer?.cancel()
+        self.breathPauseTimer = nil
+        self.gongPlayer.stop()
+        self.playerService.stopSilentBackgroundAudio()
+        self.countdownState = .idle
+        self.isStartGongSequenceActive = false
+        self.hasSessionStarted = false
+        Logger.audioPlayer.info("Pre-roll aborted by interruption")
     }
 }
 

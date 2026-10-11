@@ -26,7 +26,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [ios-065](ios/ios-065-anruf-waehrend-wiedergabe.md) | Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“ | 1-Quick Fix | [ ] | - |
+| [ios-065](ios/ios-065-anruf-waehrend-wiedergabe.md) | Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“ | 1-Quick Fix | [~] | - |
 
 ### Android
 

@@ -15,12 +15,14 @@ final class MockMeditationGongPlayer: MeditationGongPlayerProtocol {
     private(set) var stopCalled = false
 
     private var pendingCompletion: (() -> Void)?
+    private var lastCompletion: (() -> Void)?
 
     func play(soundId: String, volume: Float, completion: @escaping () -> Void) {
         self.playCallCount += 1
         self.playedSoundId = soundId
         self.playedVolume = volume
         self.pendingCompletion = completion
+        self.lastCompletion = completion
     }
 
     func stop() {
@@ -33,5 +35,11 @@ final class MockMeditationGongPlayer: MeditationGongPlayerProtocol {
         let completion = self.pendingCompletion
         self.pendingCompletion = nil
         completion?()
+    }
+
+    /// Simulates a completion the real player had already dispatched before `stop()` reached
+    /// it — on an interruption the gong finishes itself (shared-143).
+    func deliverLateCompletion() {
+        self.lastCompletion?()
     }
 }
