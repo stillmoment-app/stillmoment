@@ -22,8 +22,11 @@ import kotlinx.serialization.json.Json
 // Extension property for the "custom_audio" DataStore. Shared with
 // [com.stillmoment.data.migration.AttunementCleanupMigration]; see the
 // `appSettingsDataStore` doc comment for the multi-instance crash this prevents.
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val CUSTOM_AUDIO_FILE_NAME = "custom_audio"
+
 internal val Context.customAudioDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "custom_audio"
+    name = CUSTOM_AUDIO_FILE_NAME
 )
 
 /**
@@ -32,13 +35,18 @@ internal val Context.customAudioDataStore: DataStore<Preferences> by preferences
  * Stores a single JSON list of all CustomAudioFile objects. Filtering by type happens
  * at query time, which keeps the data model flat and leaves room for future custom-audio
  * kinds without a schema change.
+ *
+ * The primary constructor takes the underlying [DataStore] so the data-snapshot upgrade
+ * test (shared-144) can read a stored release file through this exact class; the app
+ * always goes through the injected constructor and the shared `custom_audio` file.
  */
 @Singleton
-class CustomAudioDataStore
-@Inject
-constructor(
-    @ApplicationContext private val context: Context
+class CustomAudioDataStore internal constructor(
+    private val dataStore: DataStore<Preferences>
 ) {
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context.customAudioDataStore)
+
     private val json =
         Json {
             ignoreUnknownKeys = true
@@ -53,12 +61,11 @@ constructor(
      * Flow of custom audio files filtered by type, sorted by dateAdded descending.
      * Emits updates whenever the stored list changes.
      */
-    fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> =
-        context.customAudioDataStore.data.map { preferences ->
-            getAllFiles(preferences)
-                .filter { it.type == type }
-                .sortedByDescending { it.dateAdded }
-        }
+    fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> = dataStore.data.map { preferences ->
+        getAllFiles(preferences)
+            .filter { it.type == type }
+            .sortedByDescending { it.dateAdded }
+    }
 
     /**
      * Returns all stored custom audio files of the given type, sorted by dateAdded descending.
@@ -71,7 +78,7 @@ constructor(
      * @param file The custom audio file to add
      */
     suspend fun addFile(file: CustomAudioFile) {
-        context.customAudioDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getAllFiles(preferences)
             val updated = current + file
             preferences[Keys.FILES] = json.encodeToString(updated)
@@ -84,7 +91,7 @@ constructor(
      * @param id The ID of the file to remove
      */
     suspend fun deleteFile(id: String) {
-        context.customAudioDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getAllFiles(preferences)
             val updated = current.filter { it.id != id }
             preferences[Keys.FILES] = json.encodeToString(updated)
@@ -97,7 +104,7 @@ constructor(
      * @param id The ID of the file
      * @return The file if found, null otherwise
      */
-    suspend fun findFile(id: String): CustomAudioFile? = context.customAudioDataStore.data.first().let { preferences ->
+    suspend fun findFile(id: String): CustomAudioFile? = dataStore.data.first().let { preferences ->
         getAllFiles(preferences).find { it.id == id }
     }
 
@@ -108,7 +115,7 @@ constructor(
      * @param newName The new display name
      */
     suspend fun renameFile(id: String, newName: String) {
-        context.customAudioDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getAllFiles(preferences)
             val updated = current.map { file ->
                 if (file.id == id) file.copy(name = newName) else file
@@ -125,7 +132,7 @@ constructor(
      * @param durationMs The detected play length in milliseconds
      */
     suspend fun updateDuration(id: String, durationMs: Long) {
-        context.customAudioDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val updated = getAllFiles(preferences).withDetectedDuration(id, durationMs)
             preferences[Keys.FILES] = json.encodeToString(updated)
         }

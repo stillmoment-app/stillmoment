@@ -1,6 +1,10 @@
 # Pre-commit hooks configuration for Still Moment
 # See https://pre-commit.com for more information
 
+# Upgrade-test data snapshots (shared-144) are raw files a release wrote on the device:
+# no hook may touch them, even when a small file happens to look like text.
+exclude: ^android/app/src/test/resources/data-snapshots/
+
 repos:
   # Swift formatting
   - repo: https://github.com/nicklockwood/SwiftFormat

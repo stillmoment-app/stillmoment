@@ -1,0 +1,2 @@
+# Raw DataStore files of the upgrade-test data snapshots (shared-144): never convert or diff as text
+*.preferences_pb binary

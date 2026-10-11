@@ -19,8 +19,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 // Extension property for DataStore - uses different name than settings
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val GUIDED_MEDITATIONS_FILE_NAME = "guided_meditations"
+
 private val Context.meditationsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "guided_meditations"
+    name = GUIDED_MEDITATIONS_FILE_NAME
 )
 
 /**
@@ -28,13 +31,18 @@ private val Context.meditationsDataStore: DataStore<Preferences> by preferencesD
  *
  * Stores a list of GuidedMeditation objects as JSON in Preferences DataStore.
  * This approach is suitable for the expected data size (dozens of meditations).
+ *
+ * The primary constructor takes the underlying [DataStore] so the data-snapshot upgrade
+ * test (shared-144) can read a stored release file through this exact class; the app
+ * always goes through the injected constructor and the `guided_meditations` file.
  */
 @Singleton
-class GuidedMeditationDataStore
-@Inject
-constructor(
-    @ApplicationContext private val context: Context
+class GuidedMeditationDataStore internal constructor(
+    private val dataStore: DataStore<Preferences>
 ) {
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context.meditationsDataStore)
+
     private val json =
         Json {
             ignoreUnknownKeys = true
@@ -50,7 +58,7 @@ constructor(
      * Emits an empty list if no meditations are stored.
      */
     val meditationsFlow: Flow<List<GuidedMeditation>> =
-        context.meditationsDataStore.data
+        dataStore.data
             .map { preferences ->
                 val jsonString = preferences[Keys.MEDITATIONS] ?: "[]"
                 try {
@@ -67,7 +75,7 @@ constructor(
      * @param meditation The meditation to add
      */
     suspend fun addMeditation(meditation: GuidedMeditation) {
-        context.meditationsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getMeditations(preferences)
             val updated = current + meditation
             preferences[Keys.MEDITATIONS] = json.encodeToString(updated)
@@ -80,7 +88,7 @@ constructor(
      * @param id The ID of the meditation to remove
      */
     suspend fun deleteMeditation(id: String) {
-        context.meditationsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getMeditations(preferences)
             val updated = current.filter { it.id != id }
             preferences[Keys.MEDITATIONS] = json.encodeToString(updated)
@@ -93,7 +101,7 @@ constructor(
      * @param meditation The updated meditation (matched by ID)
      */
     suspend fun updateMeditation(meditation: GuidedMeditation) {
-        context.meditationsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = getMeditations(preferences)
             val updated =
                 current.map {
@@ -118,7 +126,7 @@ constructor(
      * Useful for testing or data reset.
      */
     suspend fun clearAll() {
-        context.meditationsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences.clear()
         }
     }
@@ -130,7 +138,7 @@ constructor(
      * legacy schema before the regular decode runs.
      */
     suspend fun readRawJson(): String? {
-        return context.meditationsDataStore.data
+        return dataStore.data
             .first()[Keys.MEDITATIONS]
     }
 
@@ -141,7 +149,7 @@ constructor(
      * prefer the typed `addMeditation` / `updateMeditation` paths.
      */
     suspend fun writeRawJson(jsonString: String) {
-        context.meditationsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[Keys.MEDITATIONS] = jsonString
         }
     }

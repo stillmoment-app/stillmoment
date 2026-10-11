@@ -6,6 +6,7 @@
 
 ## Android/Kotlin Tests
 
+- [assumeTrue = Failure in connected-Tests](feedback_android_connected_assume_is_failure.md) — Opt-in-androidTests per `notClass`-Runner-Argument ausschließen; DataStore läuft im JVM-Test.
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
 - [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*.

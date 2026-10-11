@@ -168,6 +168,30 @@ fi
 print_success "Tag '$TAG_NAME' is available"
 
 # ============================================================================
+# CHECK DATA SNAPSHOT CAN BE CAPTURED (shared-144)
+# ============================================================================
+
+print_step "Checking data snapshot prerequisites..."
+
+SNAPSHOT_DIR="app/src/test/resources/data-snapshots/$VERSION"
+if [ -e "$SNAPSHOT_DIR" ]; then
+    # Never regenerated: the capture step keeps it and only reads all snapshots.
+    print_warning "Data snapshot for $VERSION already exists — kept unchanged"
+elif [ -n "$SKIP_SCREENSHOTS" ]; then
+    # The snapshot is written by the app on an emulator. 'make screenshots' starts one if
+    # none is running; without screenshots one must already be running.
+    if ! "$SCRIPT_DIR/capture-data-snapshot.sh" --check-device; then
+        print_error "release-prepare captures the data snapshot of v$VERSION on an emulator (see above)"
+        echo "Needs exactly one running emulator (or ANDROID_SERIAL). Without SKIP_SCREENSHOTS=1 the"
+        echo "screenshot step starts one if none is running."
+        exit 1
+    fi
+    print_success "Data snapshot for v$VERSION can be captured"
+else
+    print_success "Data snapshot for v$VERSION will be captured after the screenshots"
+fi
+
+# ============================================================================
 # PREFLIGHT CHECKS (fail fast, before the long test/screenshot steps)
 # ============================================================================
 
@@ -244,6 +268,10 @@ else
     run_logged "Generating screenshots" make -C "$PROJECT_DIR" screenshots
 fi
 
+# shared-144: freeze what this release stores on the device; later releases must read it.
+# Also reads all stored snapshots back with this code.
+run_logged "Capturing data snapshot" "$SCRIPT_DIR/capture-data-snapshot.sh" "$VERSION"
+
 # ============================================================================
 # BUMP VERSION
 # ============================================================================
@@ -256,9 +284,10 @@ run_cmd "$SCRIPT_DIR/bump-version.sh" "$VERSION"
 # ============================================================================
 
 print_step "Creating git commit..."
-# Stage only what this script changes: version (bump-version.sh) and changelogs
-# (fastlane/metadata). Store screenshots in .../images/phoneScreenshots/ are gitignored.
-run_cmd git add -- app/build.gradle.kts fastlane/metadata
+# Stage only what this script changes: version (bump-version.sh), changelogs
+# (fastlane/metadata) and the data snapshot. Store screenshots in
+# .../images/phoneScreenshots/ are gitignored.
+run_cmd git add -- app/build.gradle.kts fastlane/metadata "$SNAPSHOT_DIR"
 run_cmd git commit -m "chore(android): Prepare release v$VERSION"
 
 print_step "Creating git tag..."
