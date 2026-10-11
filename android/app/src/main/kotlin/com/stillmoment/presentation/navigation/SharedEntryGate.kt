@@ -22,11 +22,14 @@ sealed interface SharedEntry {
     /**
      * A shared audio file. Apps may hand the same file over under a new content
      * address each time, so name and size identify it — like the library's own
-     * duplicate check.
+     * duplicate check. Without a known size only the address counts: two files
+     * of unknown size and name are not taken for the same one.
      */
     data class File(val uri: Uri, val fileName: String, val sizeBytes: Long?) : SharedEntry {
         override fun isSameAs(other: SharedEntry): Boolean =
-            other is File && (other.uri == uri || (other.fileName == fileName && other.sizeBytes == sizeBytes))
+            other is File && (other.uri == uri || (sizeBytes != null && other.hasNameAndSize(fileName, sizeBytes)))
+
+        private fun hasNameAndSize(name: String, size: Long): Boolean = fileName == name && sizeBytes == size
     }
 }
 

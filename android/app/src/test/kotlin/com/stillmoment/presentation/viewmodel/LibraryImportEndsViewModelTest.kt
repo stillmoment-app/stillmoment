@@ -18,6 +18,7 @@ import com.stillmoment.domain.services.WaveformProviderProtocol
 import com.stillmoment.presentation.navigation.SharedEntry
 import com.stillmoment.presentation.navigation.SharedEntryGate
 import com.stillmoment.testutil.FakeImportDownloads
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +33,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -50,6 +52,7 @@ class LibraryImportEndsViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val fakeRepository = FakeGuidedMeditationRepository()
     private val fileOpenHandler = mock<FileOpenHandler>()
+    private val importDownloads = FakeImportDownloads()
     private val gate = SharedEntryGate(logger = mock())
     private val waitingLink = SharedEntry.Link("https://www.audiodharma.org/talks/25402/download")
     private val talk25401 = PendingImport(
@@ -94,7 +97,7 @@ class LibraryImportEndsViewModelTest {
             fileOpenHandler = fileOpenHandler,
             praxisRepository = praxisRepository,
             waveformProvider = mock<WaveformProviderProtocol>(),
-            importDownloads = FakeImportDownloads(),
+            importDownloads = importDownloads,
             sharedEntryGate = gate,
             logger = mock()
         )
@@ -166,6 +169,84 @@ class LibraryImportEndsViewModelTest {
 
             assertTrue(waitingEntryStarted)
         }
+    }
+
+    @Nested
+    inner class WhileSaving {
+        private val bodyScan = PendingImport(
+            uri = "file:///data/user/0/cache/body-scan.mp3",
+            fileName = "body-scan.mp3",
+            metadata = AudioMetadata(duration = 600_000L, artist = "Tara Brach", title = "Body Scan"),
+            prefill = ImportPrefill(teacher = "Tara Brach", name = "Body Scan")
+        )
+
+        @Test
+        fun `cancelling while saving lets the waiting entry start only afterwards and its sheet stays open`() =
+            runTest(testDispatcher) {
+                val saving = CompletableDeferred<Unit>()
+                fakeRepository.saveInProgress = saving
+                libraryTakesOverSharedEntry(Result.success(talk25401))
+                advanceUntilIdle()
+                shareMeanwhile()
+                viewModel.saveImportedMeditation(openSheetDraft())
+                advanceUntilIdle()
+
+                viewModel.cancelImport()
+                advanceUntilIdle()
+                assertFalse(waitingEntryStarted, "Saving still runs")
+                assertTrue(importDownloads.discarded.isEmpty(), "The file is still being copied")
+
+                saving.complete(Unit)
+                advanceUntilIdle()
+                assertTrue(waitingEntryStarted)
+                assertEquals(1, fakeRepository.addedMeditations.size, "Saved once and completely")
+                assertEquals(listOf(talk25401.uri), importDownloads.discarded)
+
+                gate.started()
+                pickFileViaImportButton(Result.success(bodyScan))
+                advanceUntilIdle()
+                assertTrue(viewModel.uiState.value.showEditSheet)
+                assertEquals(bodyScan, viewModel.uiState.value.pendingImport)
+            }
+
+        @Test
+        fun `tapping save twice saves once and lets the waiting entry start once`() = runTest(testDispatcher) {
+            val saving = CompletableDeferred<Unit>()
+            fakeRepository.saveInProgress = saving
+            libraryTakesOverSharedEntry(Result.success(talk25401))
+            advanceUntilIdle()
+            shareMeanwhile()
+
+            viewModel.saveImportedMeditation(openSheetDraft())
+            viewModel.saveImportedMeditation(openSheetDraft())
+            saving.complete(Unit)
+            advanceUntilIdle()
+
+            assertEquals(1, fakeRepository.addedMeditations.size)
+            assertTrue(waitingEntryStarted)
+            gate.started()
+            gate.share(SharedEntry.Link("https://www.audiodharma.org/talks/25403/download"))
+            assertNull(gate.toStart.value, "The started entry is not ended by a second save")
+        }
+
+        @Test
+        fun `closing a library meditation's edit sheet while saving lets the waiting entry start afterwards`() =
+            runTest(testDispatcher) {
+                val saving = CompletableDeferred<Unit>()
+                fakeRepository.saveInProgress = saving
+                viewModel.showEditSheet(libraryMeditation)
+                shareMeanwhile()
+                viewModel.updateMeditation(libraryMeditation.copy(teacher = "Tara"))
+                advanceUntilIdle()
+
+                viewModel.hideEditSheet()
+                assertFalse(waitingEntryStarted, "Saving still runs")
+
+                saving.complete(Unit)
+                advanceUntilIdle()
+                assertTrue(waitingEntryStarted)
+                assertFalse(viewModel.uiState.value.showEditSheet)
+            }
     }
 
     @Nested

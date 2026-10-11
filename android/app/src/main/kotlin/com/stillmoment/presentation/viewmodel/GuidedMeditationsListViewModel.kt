@@ -219,6 +219,13 @@ constructor(
     /** A file is being read for the edit sheet — its sheet or message is about to appear. */
     private var isPreparingImport = false
 
+    /**
+     * The edit sheet is being saved. Saving runs to its end and then closes the
+     * sheet; until then a second save, "Cancel" and closing are ignored, so the
+     * entry is never saved twice or half, and no waiting share starts too early.
+     */
+    private var isSaving = false
+
     init {
         observeMeditations()
         observeSearchHistory()
@@ -343,6 +350,10 @@ constructor(
      */
     fun saveImportedMeditation(edited: GuidedMeditation) {
         val pending = _uiState.value.pendingImport ?: return
+        if (isSaving) {
+            return
+        }
+        isSaving = true
         viewModelScope.launch {
             // Persist the entry complete with its gong settings (shared-106) and the
             // playback range chosen in the import sheet (android-099) in a single
@@ -371,6 +382,7 @@ constructor(
             // The library holds its own copy now (or the save failed for good) —
             // the downloaded original is not needed any more (android-087).
             importDownloads.discard(pending.uri)
+            isSaving = false
             _uiState.update {
                 it.copy(
                     pendingImport = null,
@@ -390,6 +402,10 @@ constructor(
      * link import downloaded for it is removed (android-087).
      */
     fun cancelImport() {
+        if (isSaving) {
+            // Saving already runs and closes the sheet when done.
+            return
+        }
         val discarded = _uiState.value.pendingImport
         if (discarded != null) {
             viewModelScope.launch { importDownloads.discard(discarded.uri) }
@@ -484,6 +500,10 @@ constructor(
      * Hides the edit sheet (Edit mode — does not affect [pendingImport]).
      */
     fun hideEditSheet() {
+        if (isSaving) {
+            // Saving already runs and closes the sheet when done.
+            return
+        }
         _uiState.update {
             it.copy(
                 selectedMeditation = null,
@@ -498,8 +518,13 @@ constructor(
      * Updates a meditation's metadata (Edit mode).
      */
     fun updateMeditation(meditation: GuidedMeditation) {
+        if (isSaving) {
+            return
+        }
+        isSaving = true
         viewModelScope.launch {
             repository.updateMeditation(meditation)
+            isSaving = false
             hideEditSheet()
         }
     }

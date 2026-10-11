@@ -22,6 +22,7 @@ import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
 import com.stillmoment.presentation.navigation.SharedEntryGate
 import com.stillmoment.testutil.FakeImportDownloads
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -1039,6 +1040,9 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     /** When set, [addMeditation] fails with it (e.g. copying into the library failed). */
     var addFailure: Throwable? = null
 
+    /** When set, saving waits until the test completes it — like copying a long recording. */
+    var saveInProgress: CompletableDeferred<Unit>? = null
+
     override val meditationsFlow: Flow<List<GuidedMeditation>>
         get() = _meditations
 
@@ -1058,6 +1062,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         trimStartMs: Long?,
         trimEndMs: Long?
     ): Result<GuidedMeditation> {
+        saveInProgress?.await()
         addFailure?.let { return Result.failure(it) }
         val item = GuidedMeditation(
             fileUri = sourceUri,
@@ -1083,6 +1088,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     }
 
     override suspend fun updateMeditation(meditation: GuidedMeditation) {
+        saveInProgress?.await()
         updateWasCalled = true
         lastUpdatedMeditation = meditation
         _meditations.value = _meditations.value.map {

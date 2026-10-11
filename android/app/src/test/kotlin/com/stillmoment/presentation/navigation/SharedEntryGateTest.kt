@@ -160,6 +160,19 @@ class SharedEntryGateTest {
         }
 
         @Test
+        fun `two files of unknown size with the same name are different entries`() {
+            val unknownFirst = SharedEntry.File(uri = mock<Uri>(), fileName = "Unknown", sizeBytes = null)
+            val unknownSecond = SharedEntry.File(uri = mock<Uri>(), fileName = "Unknown", sizeBytes = null)
+            sut.share(unknownFirst)
+            takeOverStartingEntry()
+
+            sut.share(unknownSecond)
+            sut.importEnded()
+
+            assertEquals(unknownSecond, takeOverStartingEntry())
+        }
+
+        @Test
         fun `an entry shared again only after its import ended starts again`() {
             sut.share(talk25401)
             takeOverStartingEntry()
