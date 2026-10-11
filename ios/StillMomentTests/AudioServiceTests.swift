@@ -12,17 +12,22 @@ import XCTest
 final class AudioServiceTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var coordinator: AudioSessionCoordinator!
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService.makeForTesting(fadeOutDuration: 0.05)
+        self.coordinator = AudioSessionCoordinator()
+        self.sut = AudioService.makeForTesting(coordinator: self.coordinator, fadeOutDuration: 0.05)
     }
 
     override func tearDown() {
         self.sut.stop()
-        // Release audio session to prevent conflicts with parallel tests
-        AudioSessionCoordinator.shared.releaseAudioSession(for: .timer)
+        // configureAudioSession() takes the session without stop() giving it back:
+        // hand the real AVAudioSession back so the next test starts with it inactive
+        self.coordinator.releaseAudioSession(for: .timer)
         self.sut = nil
+        self.coordinator = nil
         super.tearDown()
     }
 
@@ -92,8 +97,8 @@ final class AudioServiceTests: XCTestCase {
         self.sut = nil
 
         // Then - Should not crash (deinit calls stop())
-        // Create new instance to continue testing
-        self.sut = AudioService.makeForTesting()
+        // Create new instance to continue testing (same coordinator, so tearDown cleans up after it)
+        self.sut = AudioService.makeForTesting(coordinator: self.coordinator)
     }
 
     func testAudioSessionOptionsForBackgroundPlayback() throws {
@@ -432,13 +437,13 @@ final class AudioServiceTests: XCTestCase {
 
     func testAudioService_WithCustomCoordinator_UsesProvidedCoordinator() {
         // Given - Create test coordinator
-        let testCoordinator = AudioSessionCoordinator.shared
+        let testCoordinator = AudioSessionCoordinator()
 
         // When - Create service with custom coordinator
         let service = AudioService.makeForTesting(coordinator: testCoordinator)
 
-        // Then - Should initialize successfully
-        XCTAssertNotNil(service)
+        // Then - The service hands its audio session through exactly that coordinator
+        XCTAssertTrue(service.coordinator === testCoordinator)
 
         // Clean up
         service.stop()

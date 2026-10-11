@@ -12,22 +12,28 @@ import XCTest
 final class AudioServiceIntegrationTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var coordinator: AudioSessionCoordinator!
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService.makeForTesting()
+        self.coordinator = AudioSessionCoordinator()
+        self.sut = AudioService.makeForTesting(coordinator: self.coordinator)
     }
 
     override func tearDown() {
         self.sut.stop()
-        AudioSessionCoordinator.shared.releaseAudioSession(for: .timer)
+        // The fresh services below share this coordinator, so this also hands back
+        // the real AVAudioSession that configureAudioSession() took in a test
+        self.coordinator.releaseAudioSession(for: .timer)
         self.sut = nil
+        self.coordinator = nil
         super.tearDown()
     }
 
     func testFullAudioFlow() async {
         // Given - Fresh service
-        let service = AudioService.makeForTesting()
+        let service = AudioService.makeForTesting(coordinator: self.coordinator)
 
         // When - Complete flow: configure -> play -> stop
         XCTAssertNoThrow(try service.configureAudioSession())
@@ -50,7 +56,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
 
     func testFullMeditationFlow() async throws {
         // Given - Fresh service
-        let service = AudioService.makeForTesting()
+        let service = AudioService.makeForTesting(coordinator: self.coordinator)
 
         // When - Simulate full meditation cycle with always-on keep-alive
         try service.activateTimerSession()

@@ -13,15 +13,19 @@ import XCTest
 final class AudioServiceKeepAliveTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var coordinator: AudioSessionCoordinator!
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService.makeForTesting()
+        self.coordinator = AudioSessionCoordinator()
+        self.sut = AudioService.makeForTesting(coordinator: self.coordinator)
     }
 
     override func tearDown() {
         self.sut.deactivateTimerSession()
         self.sut = nil
+        self.coordinator = nil
         super.tearDown()
     }
 
@@ -167,6 +171,6 @@ final class AudioServiceKeepAliveTests: XCTestCase {
         // Clean up
         self.sut.stopGongPreview()
         self.sut.stop()
-        AudioSessionCoordinator.shared.releaseAudioSession(for: .timer)
+        self.coordinator.releaseAudioSession(for: .timer)
     }
 }
