@@ -1,13 +1,15 @@
 ---
 id: android-100
 title: "Anruf während Vorbereitung oder Start-Gong startet die geführte Meditation von selbst"
-status: todo
+status: wontfix
 phase: 1-Quick Fix
 priority: hoch
 depends_on: [ios-065]
 ---
 
 # Ticket android-100: Anruf während Vorbereitung oder Start-Gong startet die geführte Meditation von selbst
+
+> **Wontfix (2026-10-11):** Aufgegangen in shared-146. Die Produktentscheidung hat sich geändert: Nach einer Unterbrechung läuft die Meditation von selbst weiter, ein abgebrochener Vorlauf beginnt von selbst neu.
 
 ## Was
 

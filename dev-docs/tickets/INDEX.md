@@ -20,6 +20,8 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-138](shared/shared-138-teilen-waehrend-laufendem-import.md) | Teilen während eines laufenden Imports: erst den laufenden Import abschließen, dann den neu geteilten Eintrag übernehmen | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [~] | [~] |
+| [shared-146](shared/shared-146-gefuehrte-meditation-nach-unterbrechung-weiter.md) | Geführte Meditation läuft nach einer Unterbrechung von selbst weiter | 1-Quick Fix | [ ] | [ ] |
+| [shared-147](shared/shared-147-timer-nach-unterbrechung-weiter.md) | Timer läuft nach einer Unterbrechung vollständig weiter | 1-Quick Fix | [ ] | [ ] |
 
 ### iOS
 
@@ -27,9 +29,7 @@ _Keine Tickets._
 
 ### Android
 
-| Nr | Ticket | Phase | Status | Abhaengigkeit |
-|----|--------|-------|--------|---------------|
-| [android-100](android/android-100-anruf-im-vorlauf.md) | Anruf während Vorbereitung oder Start-Gong startet die geführte Meditation von selbst | 1-Quick Fix | [ ] | [ios-065](archive/ios/ios-065-anruf-waehrend-wiedergabe.md) |
+_Keine Tickets._
 
 ## Archiv
 
@@ -339,3 +339,4 @@ _Keine Tickets._
 | [android-097](archive/android/android-097-bearbeiten-blatt-tab-wechsel-verwirft-eingaben.md) | Bearbeiten-Blatt: Tab-Wechsel verwirft ungespeicherte Eingaben ohne Rückfrage | 4-Polish | [-] | - |
 | [android-098](archive/android/android-098-gefuehrte-meditation-start-gong-gesperrt.md) | Geführte Meditation mit Start-Gong oder Vorbereitung startet nicht, wenn sofort gesperrt wird | 1-Quick Fix | [x] | [android-094](archive/android/android-094-media3-session-statt-compat.md) |
 | [android-099](archive/android/android-099-wiedergabebereich-beim-import-verloren.md) | Beim Import gewählter Wiedergabe-Bereich geht verloren | 1-Quick Fix | [x] | - |
+| [android-100](archive/android/android-100-anruf-im-vorlauf.md) | Anruf während Vorbereitung oder Start-Gong startet die geführte Meditation von selbst | 1-Quick Fix | [-] | [ios-065](archive/ios/ios-065-anruf-waehrend-wiedergabe.md) |
