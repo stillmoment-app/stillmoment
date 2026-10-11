@@ -43,7 +43,3 @@ Positiv, Negativ, Mitigationen
 | [ADR-002](adr-002-immutable-domain-models.md) | Immutable Domain Models mit Reducer Pattern | Akzeptiert |
 | [ADR-003](adr-003-combine-over-async-await.md) | Combine statt async/await fuer Reactive Streams | Akzeptiert |
 | [ADR-004](adr-004-timer-keep-alive-audio.md) | Timer Keep-Alive Audio als Infrastructure-Concern | Akzeptiert |
-
----
-
-**Last Updated**: 2026-10-11

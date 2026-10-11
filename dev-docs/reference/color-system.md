@@ -273,7 +273,3 @@ var body: some View {
 - **`@AppStorage` in ThemeManager**: `@AppStorage` triggert `objectWillChange` bei `ObservableObject` — funktioniert, ist aber kein offiziell dokumentiertes Verhalten.
 - **`.navigationTitle()` ist eine UIKit-Bridge**: Nutzt NICHT `@Environment(\.themeColors)`, folgt `UITraitCollection`. Fix: `.screenTitleBar(_:)` (`View+ScreenTitleBar.swift`, setzt `.toolbar(.principal)` mit `.textStyle(.screenTitle, color: \.textPrimary)`) statt `.navigationTitle()`.
 - **Picker `.menu`-Style**: Options im Menu-Dropdown werden von UIKit gerendert und koennen nicht mit `.textStyle()` gestylt werden.
-
----
-
-**Last Updated**: 2026-10-09

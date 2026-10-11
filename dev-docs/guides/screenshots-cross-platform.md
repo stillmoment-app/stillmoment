@@ -176,5 +176,3 @@ ls android/fastlane/metadata/android/*/images/phoneScreenshots/*.png | wc -l  # 
 **Related Guides**:
 - [iOS Screenshots](screenshots-ios.md)
 - [Android Screenshots](screenshots-android.md)
-
-**Last Updated**: 2026-01-17

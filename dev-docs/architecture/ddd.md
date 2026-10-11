@@ -413,7 +413,3 @@ Bei jedem neuen Feature prüfen:
 | Architektur-Übersicht | `overview.md` |
 | Testing-Praktiken | `../guides/tdd.md` |
 | Audio-Architektur | `audio-system.md` |
-
----
-
-**Last Updated**: 2026-02-21

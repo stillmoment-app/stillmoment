@@ -281,7 +281,3 @@ Vollstaendige Uebersicht: [`dev-docs/README.md`](../README.md)
 | SwiftLint | `guides/swiftlint.md` |
 | Screenshots | `guides/screenshots-ios.md`, `guides/screenshots-android.md` |
 | Release | `release/` |
-
----
-
-**Last Updated**: 2026-02-23

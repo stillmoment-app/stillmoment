@@ -235,8 +235,3 @@ stillmoment/
 - [Fastlane Snapshot Documentation](https://docs.fastlane.tools/actions/snapshot/)
 - [rbenv GitHub](https://github.com/rbenv/rbenv)
 - [Apple Screenshot Specifications](https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications)
-
----
-
-**Last Updated**: 2026-01-14
-**Version**: 3.2 (Added cross-platform guide reference)

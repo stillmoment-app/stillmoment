@@ -513,5 +513,3 @@ Before starting ANY feature:
 
 **See also:**
 - [CLAUDE.md](../CLAUDE.md): Testing Philosophy
-
-**Last Updated**: 2026-01-10

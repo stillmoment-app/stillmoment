@@ -194,8 +194,3 @@ override fun attachBaseContext(newBase: Context) {
 
 - [Cross-Platform Screenshot Consistency](screenshots-cross-platform.md) - Best practices for iOS/Android parity
 - [Fastlane Screengrab Documentation](https://docs.fastlane.tools/actions/screengrab/)
-
----
-
-**Last Updated**: 2026-01-17
-**Version**: 4.0 (Direct Supply-compatible output via PlayStoreScreenshotCallback)

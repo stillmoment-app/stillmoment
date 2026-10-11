@@ -5,8 +5,6 @@ CLAUDE-OPTIMIZED: Strukturiert für schnelles AI-Nachschlagen
 - Quick Reference für Übersicht
 - Detailsektionen nach Domäne gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
-
-Last Updated: 2026-10-09
 -->
 
 ## Quick Reference
@@ -1250,7 +1248,6 @@ Liste der Werte die fachliche Aussage.
 5. Querverweise prüfen — „Siehe auch", Muster-Verweise
 6. Heißen die Plattformen unterschiedlich? Dann in die Tabelle der
    Cross-Platform-Namensabweichungen eintragen und den kanonischen Namen festlegen
-7. „Last Updated" im Kopf anpassen
 
 ### Zuordnung zur Domäne
 

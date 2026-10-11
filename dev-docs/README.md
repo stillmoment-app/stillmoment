@@ -103,4 +103,3 @@ dev-docs/
 Bei neuen Dokumenten:
 1. Passende Kategorie oben waehlen
 2. In diese README.md eintragen
-3. `Last Updated` Datum am Ende des Dokuments pflegen
