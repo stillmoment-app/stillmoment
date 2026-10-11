@@ -11,6 +11,8 @@
 #   OUTPUT_DIR defaults to StillMomentTests/UpgradeData
 #   TEST_DEVICE selects the simulator (default: see test-config.sh)
 #
+# An existing DataSnapshot-<VERSION>.plist is never overwritten (exit 0, file unchanged).
+#
 # Exit code is non-zero, with a message, if no valid snapshot was written.
 #
 
@@ -34,6 +36,13 @@ fi
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 SNAPSHOT_NAME="DataSnapshot-$VERSION.plist"
+
+# Frozen snapshots never change: an existing one (e.g. release-prepare run again for the
+# same version) is kept as it is.
+if [ -e "$OUTPUT_DIR/$SNAPSHOT_NAME" ]; then
+    echo "Data snapshot for $VERSION already exists — kept unchanged: $OUTPUT_DIR/$SNAPSHOT_NAME"
+    exit 0
+fi
 
 DEVICE_ID=$(auto_detect_device "$TEST_DEVICE") || {
     echo "Error: simulator '$TEST_DEVICE' not found — cannot write the data snapshot" >&2

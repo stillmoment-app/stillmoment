@@ -123,7 +123,9 @@ Die App speichert außerhalb der UserDefaults nur Audiodateien und neu erzeugbar
 der Datenstand enthält nur die Verweise auf die Audiodateien.
 
 - Datenstände: `ios/StillMomentTests/UpgradeData/DataSnapshot-<version>.plist`, einer je Release,
-  sie sammeln sich an und werden nie geändert.
+  sie sammeln sich an und werden nie geändert. Gibt es die Datei für die Version schon (etwa beim
+  erneuten `release-prepare` derselben Version), erzeugt das Skript nichts neu und lässt sie
+  unverändert; schlägt danach das Lesen fehl, wird nur eine in diesem Lauf neu erzeugte Datei gelöscht.
 - Was drinsteht, ist nur an einer Stelle festgelegt: `UpgradeTestData` (Meditation mit Lehrer, Titel,
   Wiedergabe-Bereich und beiden Gongs; Praxis; ein eigener Klang; Darstellung Hell; Vorbereitungszeit
   für geführte Meditationen).
