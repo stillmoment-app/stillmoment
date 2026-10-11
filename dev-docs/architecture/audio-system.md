@@ -223,7 +223,8 @@ hat das System den Ton bereits angehalten. Timer und gefuehrte Meditation reagie
 
 **Gefuehrte Meditation (ios-065):** Kein automatisches Fortsetzen ist eine Produktentscheidung (wie Android
 bei Fokusverlust): Wer telefoniert hat, entscheidet selbst, ob es weitergeht; ein Tipp auf Play setzt an
-derselben Stelle fort. Der Observer lebt so lange wie der Dienst und bleibt ueber `load()`/`cleanup()`
+derselben Stelle fort. Haelt der Finger beim Anruf gerade die Wellenform, setzt auch das Loslassen nicht
+fort. Der Observer lebt so lange wie der Dienst und bleibt ueber `load()`/`cleanup()`
 hinweg angemeldet.
 
 **Unterbrechung im Vorlauf:** Waehrend Vorbereitungszeit, Start-Gong oder Atempause bricht

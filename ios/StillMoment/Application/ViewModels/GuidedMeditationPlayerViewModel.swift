@@ -363,7 +363,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playerService.interruptionBegan
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.abortPreRollForInterruption()
+                self?.handleInterruption()
             }
             .store(in: &self.cancellables)
     }
@@ -480,14 +480,19 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     // MARK: - Interruption (ios-065)
 
-    /// A phone call (or Siri, an alarm) before the meditation audio begins aborts the
-    /// pre-roll: preparation, start gong and breath pause stop, the player waits paused at
-    /// the beginning, and the next tap on Play starts the pre-roll over. During playback
-    /// the service has already paused; nothing to do here.
-    private func abortPreRollForInterruption() {
-        guard self.isBeforeAudio else {
-            return
+    /// A phone call (or Siri, an alarm) never leads to an automatic resume. During playback
+    /// the service has already paused; a scrub in progress must not resume on release either.
+    /// Before the meditation audio begins, the pre-roll is aborted.
+    private func handleInterruption() {
+        self.dragWasPlaying = false
+        if self.isBeforeAudio {
+            self.abortPreRoll()
         }
+    }
+
+    /// Preparation, start gong and breath pause stop, the player waits paused at the
+    /// beginning, and the next tap on Play starts the pre-roll over.
+    private func abortPreRoll() {
         self.countdownTimer?.cancel()
         self.countdownTimer = nil
         self.breathPauseTimer?.cancel()

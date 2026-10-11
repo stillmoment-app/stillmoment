@@ -86,6 +86,21 @@ final class PlayerViewModelInterruptionTests: XCTestCase {
         XCTAssertEqual(self.mockPlayerService.playCallCount, playsBefore)
     }
 
+    func testInterruption_whileScrubbing_releaseDoesNotResume() async {
+        // Given: the user holds the waveform of a playing meditation
+        await self.startMeditation()
+        self.sut.beginScrub()
+        let playsBefore = self.mockPlayerService.playCallCount
+
+        // When: a call comes in, then the finger lets go
+        await self.interrupt()
+        self.sut.endScrub()
+
+        // Then: the meditation stays paused
+        XCTAssertEqual(self.mockPlayerService.playCallCount, playsBefore)
+        XCTAssertEqual(self.mockPlayerService.state.value, .paused)
+    }
+
     // MARK: - During the pre-roll
 
     func testInterruption_duringPreparation_meditationDoesNotStart() async {
