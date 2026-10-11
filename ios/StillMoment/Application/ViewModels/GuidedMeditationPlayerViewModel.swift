@@ -258,11 +258,17 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         guard !self.isBeforeAudio else {
             return
         }
+        let isRestartAfterInterruption = self.restartsPreRollAfterInterruption
         self.restartsPreRollAfterInterruption = false
 
         // If session already started, just toggle play/pause (no countdown on resume)
         guard !self.hasSessionStarted else {
             self.togglePlayPause()
+            return
+        }
+
+        let hasPreRoll = self.preparationTimeSeconds != nil || self.meditation.startGongEnabled
+        if hasPreRoll, !self.startPreRollKeepAlive(isRestartAfterInterruption: isRestartAfterInterruption) {
             return
         }
 
@@ -355,16 +361,30 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     // MARK: - Countdown Methods
 
+    /// Starts the silent background audio that keeps the app active during the pre-roll.
+    ///
+    /// If that fails right after an interruption aborted the pre-roll, the call still holds
+    /// the sound: the pre-roll does not start, and it starts once the system gives the sound
+    /// back (shared-146). Otherwise the pre-roll runs anyway, as before.
+    ///
+    /// - Returns: Whether the pre-roll may start
+    private func startPreRollKeepAlive(isRestartAfterInterruption: Bool) -> Bool {
+        do {
+            try self.playerService.startSilentBackgroundAudio()
+            return true
+        } catch {
+            Logger.audioPlayer.error("Failed to start silent background audio", error: error)
+            guard isRestartAfterInterruption else {
+                return true
+            }
+            self.restartsPreRollAfterInterruption = true
+            return false
+        }
+    }
+
     private func startCountdown(seconds: Int) {
         let countdown = PreparationCountdown(totalSeconds: seconds)
         self.countdownState = .active(countdown)
-
-        // Start silent background audio to keep app active during countdown
-        do {
-            try self.playerService.startSilentBackgroundAudio()
-        } catch {
-            Logger.audioPlayer.error("Failed to start silent background audio", error: error)
-        }
 
         self.countdownTimer = self.clock.schedule(interval: 1.0) { [weak self] in
             self?.tickCountdown()
@@ -417,11 +437,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// so the whole sequence survives a locked screen.
     private func startGongSequence() {
         self.isStartGongSequenceActive = true
-        do {
-            try self.playerService.startSilentBackgroundAudio()
-        } catch {
-            Logger.audioPlayer.error("Failed to start silent background audio", error: error)
-        }
         self.playStartGongThenTransition()
     }
 

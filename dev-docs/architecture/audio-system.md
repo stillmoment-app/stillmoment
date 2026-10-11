@@ -235,7 +235,11 @@ der Gong verstummt, das Silent-Audio stoppt. Eine Gong-Completion, die erst nach
 ignoriert. Auf `interruptionEnded` beginnt der ganze Vorlauf von selbst neu; ohne Freigabe steht der Player
 pausiert am Anfang, und der naechste Tipp auf Play startet den Vorlauf neu. In beiden Faellen beginnt die
 Meditation genau einmal. Hat der Nutzer den Vorlauf schon waehrend der Unterbrechung neu gestartet, startet
-`interruptionEnded` ihn nicht ein zweites Mal.
+`interruptionEnded` ihn nicht ein zweites Mal. Haelt der Anruf den Ton bei diesem Tipp noch (das Silent-Audio
+bekommt keine Audio-Session), startet der Vorlauf nicht: kein Countdown, kein Gong, keine Fehlermeldung, nur
+ein Log. Der Player bleibt pausiert am Anfang, und `interruptionEnded` startet den Vorlauf genau einmal.
+Ohne vorherige Unterbrechung laeuft der Vorlauf trotz gescheitertem Silent-Audio wie bisher; scheitert dann
+der Uebergang zur Wiedergabe, zeigt der Player die Fehlermeldung.
 
 ---
 

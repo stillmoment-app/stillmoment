@@ -26,6 +26,8 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var setupRemoteCommandCenterCalled = false
     var silentBackgroundAudioStarted = false
     var silentBackgroundAudioStopped = false
+    /// Simulates a phone call still holding the sound: the audio session cannot be activated
+    var startSilentBackgroundAudioShouldThrow = false
     var transitionFromSilentToPlaybackCalled = false
     private(set) var transitionFromSilentToPlaybackCallCount = 0
     var configureEndGongCalled = false
@@ -76,6 +78,9 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     }
 
     func startSilentBackgroundAudio() throws {
+        if self.startSilentBackgroundAudioShouldThrow {
+            throw AudioPlayerError.audioSessionFailed
+        }
         self.silentBackgroundAudioStarted = true
     }
 
