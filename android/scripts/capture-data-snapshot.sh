@@ -65,7 +65,20 @@ fi
 
 read_all_snapshots() {
     echo "==> Reading all data snapshots with the current code"
-    (cd "$PROJECT_DIR" && ./gradlew --quiet :app:testDebugUnitTest --tests "com.stillmoment.datasnapshot.DataSnapshotUpgradeTest")
+    if (cd "$PROJECT_DIR" && ./gradlew --quiet :app:testDebugUnitTest --tests "com.stillmoment.datasnapshot.DataSnapshotUpgradeTest"); then
+        return 0
+    fi
+    # Gradle --quiet hides the assertion; show which version lost which value.
+    local results="$PROJECT_DIR/app/build/test-results/testDebugUnitTest/TEST-com.stillmoment.datasnapshot.DataSnapshotUpgradeTest.xml"
+    echo "" >&2
+    echo "Data snapshot upgrade test failed:" >&2
+    if [ -f "$results" ]; then
+        grep -o 'message="[^"]*"' "$results" | sed -e 's/^message="//' -e 's/"$//' \
+            -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&quot;/"/g' -e 's/&#10;/ /g' -e 's/&amp;/\&/g' \
+            -e 's/^/    /' >&2
+    fi
+    echo "Report: $PROJECT_DIR/app/build/reports/tests/testDebugUnitTest/index.html" >&2
+    return 1
 }
 
 TARGET_DIR="$SNAPSHOTS_DIR/$VERSION"
