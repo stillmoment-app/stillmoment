@@ -22,7 +22,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-139](shared/shared-139-dauer-im-bearbeiten-blatt-sichtbar.md) | Bearbeiten-Blatt: Dauer bleibt neben langem Dateinamen sichtbar | 4-Polish | [ ] | [ ] |
 | [shared-140](shared/shared-140-einzahl-bei-einer-minute.md) | Einzahl bei einer Minute im Atemkreis und in Ansagen | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
-| [shared-143](shared/shared-143-ruhige-ansicht-bis-meditationsbeginn.md) | Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt | 1-Quick Fix | [ ] | [~] |
+| [shared-143](shared/shared-143-ruhige-ansicht-bis-meditationsbeginn.md) | Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt | 1-Quick Fix | [ ] | [x] |
 | [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [ ] | [ ] |
 
 ### iOS
