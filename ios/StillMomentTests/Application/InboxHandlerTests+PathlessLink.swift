@@ -57,18 +57,6 @@ extension InboxHandlerTests {
         XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
     }
 
-    func testSharedLinkWithoutPathIsLoadedWithoutSlashAsFilename() async throws {
-        // Given
-        try ShareInbox.storeLink(XCTUnwrap(URL(string: "https://www.example.com/")), in: self.inboxDirectory)
-
-        // When
-        _ = await self.sut.processInbox()
-
-        // Then — der Download bestimmt den Namen selbst (Server oder audio.mp3/audio.m4a)
-        let filename = try XCTUnwrap(self.mockDownloadService.requestedFilenames.first)
-        XCTAssertFalse(filename.contains("/"), "Dateiname: \(filename)")
-    }
-
     // MARK: - Mehrfach geteilt (shared-132)
 
     func testOfTwoLinksWithoutPathTheLaterOneIsLoaded() async throws {

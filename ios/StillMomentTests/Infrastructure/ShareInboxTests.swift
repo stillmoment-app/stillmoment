@@ -66,9 +66,22 @@ final class ShareInboxTests: XCTestCase {
             XCTAssertEqual(entry.pathExtension, "json", address)
             let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
             XCTAssertEqual(reference.url, address)
-            XCTAssertFalse(reference.filename.contains("/"), address)
+            XCTAssertEqual(reference.filename, "", "Den Namen bestimmt der Download: \(address)")
             try FileManager.default.removeItem(at: entry)
         }
+    }
+
+    func testSharedLinkEndingInHiddenNameIsStoredAsEntryTheAppPicksUp() throws {
+        // Given — der letzte Pfadteil beginnt mit einem Punkt (ios-061)
+        let link = try XCTUnwrap(URL(string: "https://www.example.com/.hidden"))
+
+        // When
+        let entry = try ShareInbox.storeLink(link, in: self.inboxDirectory)
+
+        // Then — sichtbarer Eintrag statt versteckter Datei `.hidden.json`
+        XCTAssertEqual(try self.visibleEntries(), ["link.json"])
+        let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
+        XCTAssertEqual(reference.url, "https://www.example.com/.hidden")
     }
 
     func testSharedAudioFileIsStoredUnderItsOwnName() throws {

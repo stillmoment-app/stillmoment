@@ -54,8 +54,9 @@ enum ShareInbox {
     /// component — `lastPathComponent` is `"/"` or empty (ios-061). Its reference carries an
     /// empty filename, so the download names the file itself (server name or `audio.mp3`/
     /// `audio.m4a`). The entry gets the fixed name `link.json`: a bare `.json` would be a
-    /// hidden file the app never lists. Two such links share that name — the later one
-    /// replaces the waiting one, like links with the same ending (shared-132).
+    /// hidden file the app never lists. The same holds for a last component starting with `.`.
+    /// Two such links share that name — the later one replaces the waiting one, like links
+    /// with the same ending (shared-132).
     ///
     /// - Returns: The inbox entry
     @discardableResult
@@ -64,7 +65,8 @@ enum ShareInbox {
         in inboxDirectory: URL,
         date: Date = Date()
     ) throws -> URL {
-        let filename = url.lastPathComponent == "/" ? "" : url.lastPathComponent
+        let lastComponent = url.lastPathComponent
+        let filename = lastComponent == "/" ? "" : lastComponent
         let entryName = filename.isEmpty || filename.hasPrefix(".") ? Self.pathlessLinkEntryName : filename
         let destinationURL = inboxDirectory.appendingPathComponent("\(entryName).json")
         let reference = URLReference(
