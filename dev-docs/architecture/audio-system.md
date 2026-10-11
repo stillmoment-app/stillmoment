@@ -323,8 +323,9 @@ der Gong verstummt. Session, Ankuendigung und Vordergrund-Dienst bleiben; der Pl
 zeigen die Meditation pausiert am Anfang. Auf `interruptionEnded` beginnt der Vorlauf von selbst neu (ohne
 erneute Session-Anfrage und Ankuendigung). Bleibt die Freigabe aus, startet der naechste Tipp auf Play den
 ganzen Vorlauf neu; verweigert das System dabei den Ton (Anruf laeuft noch), passiert still nichts, und
-der Vorlauf beginnt nach dem Anruf von selbst. In beiden Faellen beginnt die Meditation genau einmal. Ein Stopp von aussen nach dem
-Abbruch verhaelt sich wie ein Stopp im Vorlauf: Play startet danach direkt, ohne Vorlauf.
+der Vorlauf beginnt nach dem Anruf von selbst. In beiden Faellen beginnt die Meditation genau einmal.
+Ein Stopp von aussen nach dem Abbruch verhaelt sich wie ein Stopp im Vorlauf: Play startet danach direkt,
+ohne Vorlauf.
 
 ---
 
