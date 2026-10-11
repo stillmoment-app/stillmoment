@@ -48,13 +48,11 @@ fail() {
     FAILED=1
 }
 
-# Expected screenshot counts = length of ORDER in <platform>/scripts/curate-store-screenshots.sh
 case "$PLATFORM" in
     ios)
         TAG_NAME="ios-v$VERSION"
         VERSION_FILE="ios/StillMoment.xcodeproj/project.pbxproj"
         SCREENSHOT_DIRS=("ios/fastlane/screenshots/de-DE" "ios/fastlane/screenshots/en-GB")
-        EXPECTED_SCREENSHOTS=10
         ;;
     android)
         TAG_NAME="android-v$VERSION"
@@ -63,7 +61,6 @@ case "$PLATFORM" in
             "android/fastlane/metadata/android/de-DE/images/phoneScreenshots"
             "android/fastlane/metadata/android/en-US/images/phoneScreenshots"
         )
-        EXPECTED_SCREENSHOTS=8
         ;;
     *)
         print_error "Unknown platform '$PLATFORM'"
@@ -87,6 +84,22 @@ if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 cd "$REPO_DIR"
+
+# Expected screenshot count = length of ORDER in the curate script (single source of truth).
+# --count only prints that number; the script touches no files in this mode.
+CURATE_SCRIPT="$PLATFORM/scripts/curate-store-screenshots.sh"
+if [ ! -x "$CURATE_SCRIPT" ]; then
+    print_error "$CURATE_SCRIPT not found or not executable — cannot determine expected screenshot count"
+    exit 1
+fi
+if ! EXPECTED_SCREENSHOTS=$("$CURATE_SCRIPT" --count); then
+    print_error "'$CURATE_SCRIPT --count' failed — cannot determine expected screenshot count"
+    exit 1
+fi
+if ! [[ "$EXPECTED_SCREENSHOTS" =~ ^[1-9][0-9]*$ ]]; then
+    print_error "'$CURATE_SCRIPT --count' returned '$EXPECTED_SCREENSHOTS', expected a positive number (is ORDER empty?)"
+    exit 1
+fi
 
 # --- Working tree -------------------------------------------------------------
 
