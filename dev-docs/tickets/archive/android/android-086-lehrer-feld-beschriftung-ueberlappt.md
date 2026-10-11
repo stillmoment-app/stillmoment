@@ -1,7 +1,7 @@
 ---
 id: android-086
 title: "Bearbeiten-Blatt: Beschriftung des Lehrer-Felds liegt über dem vorausgefüllten Namen"
-status: todo
+status: wontfix
 phase: 4-Polish
 priority: niedrig
 depends_on: []
@@ -41,6 +41,10 @@ Am Emulator (Pixel 8, Englisch, Dunkel) zeigte das Lehrer-Feld die Beschriftung 
 Laut Material3-Quelltext liegt die Beschriftung nur bei leerem, nicht ausgewähltem Feld im Feld; ist sie oben, setzt Material3 den Text immer darunter. Die vermutete Ursache (wiederverwendetes Feld, dessen Animation nicht fertig läuft) ist damit am Gerät widerlegt. Ohne Nachstellung gibt es keinen Fix. Ein Compose-UI-Test (`MeditationEditSheetTeacherFieldTest`) sichert die Akzeptanzkriterien ab.
 
 Nicht geprüft: helle Darstellung, Deutsch, größere Schrift (eine per `adb` gesetzte Systemschriftgröße zeigte im offenen Blatt keine Wirkung).
+
+## WONTFIX
+
+2026-10-11 als nicht reproduzierbar geschlossen. Die Überlappung ließ sich auf keinem der geprüften Wege nachstellen (siehe Befund), eine Ursache im Code ist nicht erkennbar. Möglicherweise stammte die Beobachtung von der ebenfalls installierten älteren Store-Version. Der Compose-UI-Test `MeditationEditSheetTeacherFieldTest` bleibt als Absicherung. Tritt es wieder auf: neues Ticket mit Screenshot, App-Version, Sprache, Hell/Dunkel und Schriftgröße.
 
 ## Manueller Test
 
