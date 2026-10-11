@@ -1,5 +1,6 @@
 package com.stillmoment.datasnapshot
 
+import com.stillmoment.domain.models.Praxis
 import java.io.File
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.fail
@@ -40,14 +41,12 @@ class DataSnapshotUpgradeTest {
         }
     }
 
-    private fun expectations(content: SnapshotContent): List<Triple<String, Any?, Any?>> {
+    private fun expectations(content: SnapshotContent): List<Triple<String, Any?, Any?>> =
+        meditationExpectations(content) + praxisExpectations(content.praxis) + settingsExpectations(content)
+
+    private fun meditationExpectations(content: SnapshotContent): List<Triple<String, Any?, Any?>> {
         val expectedMeditation = CanonicalDataSnapshot.meditation
         val meditation = content.meditations.find { it.id == expectedMeditation.id }
-        val expectedSound = CanonicalDataSnapshot.ownSound
-        val sound = content.ownSounds.find { it.id == expectedSound.id }
-        val expectedPraxis = CanonicalDataSnapshot.praxis
-        val praxis = content.praxis
-        val expectedGuided = CanonicalDataSnapshot.guidedMeditationSettings
         return listOf(
             Triple("Meditation present", true, meditation != null),
             Triple("Meditation.teacher", expectedMeditation.teacher, meditation?.teacher),
@@ -59,7 +58,13 @@ class DataSnapshotUpgradeTest {
             Triple("Meditation.trimEndMs", expectedMeditation.trimEndMs, meditation?.trimEndMs),
             Triple("Meditation.startGongEnabled", expectedMeditation.startGongEnabled, meditation?.startGongEnabled),
             Triple("Meditation.endGongEnabled", expectedMeditation.endGongEnabled, meditation?.endGongEnabled),
-            Triple("Meditation.gongSoundId", expectedMeditation.gongSoundId, meditation?.gongSoundId),
+            Triple("Meditation.gongSoundId", expectedMeditation.gongSoundId, meditation?.gongSoundId)
+        )
+    }
+
+    private fun praxisExpectations(praxis: Praxis): List<Triple<String, Any?, Any?>> {
+        val expectedPraxis = CanonicalDataSnapshot.praxis
+        return listOf(
             Triple("Praxis.id", expectedPraxis.id, praxis.id),
             Triple("Praxis.durationMinutes", expectedPraxis.durationMinutes, praxis.durationMinutes),
             Triple(
@@ -73,11 +78,26 @@ class DataSnapshotUpgradeTest {
                 praxis.preparationTimeSeconds
             ),
             Triple("Praxis.gongSoundId", expectedPraxis.gongSoundId, praxis.gongSoundId),
+            Triple("Praxis.gongVolume", expectedPraxis.gongVolume, praxis.gongVolume),
             Triple("Praxis.intervalGongsEnabled", expectedPraxis.intervalGongsEnabled, praxis.intervalGongsEnabled),
             Triple("Praxis.intervalMinutes", expectedPraxis.intervalMinutes, praxis.intervalMinutes),
             Triple("Praxis.intervalMode", expectedPraxis.intervalMode, praxis.intervalMode),
             Triple("Praxis.intervalSoundId", expectedPraxis.intervalSoundId, praxis.intervalSoundId),
+            Triple("Praxis.intervalGongVolume", expectedPraxis.intervalGongVolume, praxis.intervalGongVolume),
             Triple("Praxis.backgroundSoundId", expectedPraxis.backgroundSoundId, praxis.backgroundSoundId),
+            Triple(
+                "Praxis.backgroundSoundVolume",
+                expectedPraxis.backgroundSoundVolume,
+                praxis.backgroundSoundVolume
+            )
+        )
+    }
+
+    private fun settingsExpectations(content: SnapshotContent): List<Triple<String, Any?, Any?>> {
+        val expectedSound = CanonicalDataSnapshot.ownSound
+        val sound = content.ownSounds.find { it.id == expectedSound.id }
+        val expectedGuided = CanonicalDataSnapshot.guidedMeditationSettings
+        return listOf(
             Triple("Own sound present", true, sound != null),
             Triple("Own sound.name", expectedSound.name, sound?.name),
             Triple("Own sound.filename", expectedSound.filename, sound?.filename),

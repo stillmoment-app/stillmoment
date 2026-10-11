@@ -5,6 +5,7 @@ import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationSettings
+import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
 
 /**
@@ -35,7 +36,8 @@ object CanonicalDataSnapshot {
             trimStartMs = 30_000L,
             trimEndMs = 600_000L,
             startGongEnabled = true,
-            endGongEnabled = true
+            endGongEnabled = true,
+            gongSoundId = "clear-strike"
         )
 
     val praxis =
@@ -44,10 +46,15 @@ object CanonicalDataSnapshot {
             durationMinutes = 20,
             preparationTimeEnabled = true,
             preparationTimeSeconds = 15,
-            gongSoundId = "clear-strike",
+            gongSoundId = "deep-resonance",
+            gongVolume = 0.8f,
             intervalGongsEnabled = true,
-            intervalMinutes = 5,
-            backgroundSoundId = "forest"
+            intervalMinutes = 7,
+            intervalMode = IntervalMode.BEFORE_END,
+            intervalSoundId = "temple-bell",
+            intervalGongVolume = 0.5f,
+            backgroundSoundId = "forest",
+            backgroundSoundVolume = 0.3f
         )
 
     val ownSound =
