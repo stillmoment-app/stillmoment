@@ -75,6 +75,11 @@ protocol AudioPlayerServiceProtocol {
     /// Total duration of current audio in seconds (0 if no audio loaded)
     var duration: CurrentValueSubject<TimeInterval, Never> { get }
 
+    /// Emits when an interruption (phone call, Siri, alarm) begins (ios-065)
+    ///
+    /// Running playback is already paused then; it never resumes on its own.
+    var interruptionBegan: PassthroughSubject<Void, Never> { get }
+
     /// Loads an audio file for playback
     ///
     /// - Parameters:

@@ -24,9 +24,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 ### iOS
 
-| Nr | Ticket | Phase | Status | Abhaengigkeit |
-|----|--------|-------|--------|---------------|
-| [ios-065](ios/ios-065-anruf-waehrend-wiedergabe.md) | Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“ | 1-Quick Fix | [ ] | - |
+_Keine Tickets._
 
 ### Android
 
@@ -236,6 +234,7 @@ _Keine Tickets._
 | [ios-062](archive/ios/ios-062-gong-einstellungen-beim-import-pruefen.md) | Gong-Einstellungen gehen beim Import verloren | 1-Quick Fix | [x] | - |
 | [ios-063](archive/ios/ios-063-release-automatisch-einreichen-phased.md) | iOS-Release ohne App Store Connect: automatisch einreichen | 2-Architektur | [x] | - |
 | [ios-064](archive/ios/ios-064-leerzeichen-lehrer-name-entfernen.md) | Leerzeichen am Rand von Lehrer:in und Name führen zu doppelten Gruppen | 1-Quick Fix | [x] | - |
+| [ios-065](archive/ios/ios-065-anruf-waehrend-wiedergabe.md) | Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“ | 1-Quick Fix | [x] | - |
 | [ios-066](archive/ios/ios-066-voiceover-spulregler-nan.md) | VoiceOver liest am Spul-Regler des Players „nan“ vor | 4-Polish | [-] | - |
 
 ### Android

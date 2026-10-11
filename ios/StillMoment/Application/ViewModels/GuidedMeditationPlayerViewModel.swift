@@ -147,76 +147,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         return min(max(elapsed / effectiveDuration, 0), 1)
     }
 
-    /// Whether the player is currently playing
-    var isPlaying: Bool {
-        self.playbackState == .playing
-    }
-
-    /// Whether playback is paused (distinct from idle/loading/finished/failed).
-    ///
-    /// Used by the view to switch the remaining-time label format — only `.paused`
-    /// should show the "PAUSIERT"-Prefix, not transient states like `.loading`.
-    var isPaused: Bool {
-        self.playbackState == .paused
-    }
-
-    /// Whether the guided meditation has completed naturally (audio reached end)
-    var isCompleted: Bool {
-        self.playbackState == .finished
-    }
-
-    /// Visuelle Phase des Players.
-    ///
-    /// - `.preRoll` bis der Ton der Meditation beginnt: Vorbereitung, Start-Gong und
-    ///   Atempause (shared-143) — ruhige Ansicht ohne Play-Knopf und Wellenform.
-    /// - `.playing` ansonsten (auch bei Pause, Loading, Idle, Finished —
-    ///   der Atemkreis sieht in all diesen Zustaenden gleich aus).
-    var phase: MeditationPhase {
-        self.isBeforeAudio ? .preRoll : .playing
-    }
-
-    /// True while the meditation audio has not begun yet: preparation countdown, start gong
-    /// or breath pause. Play, pause, seek and scrub do nothing then (shared-143).
-    var isBeforeAudio: Bool {
-        self.isPreparing || self.isStartGongSequenceActive
-    }
-
-    // MARK: - Preparation Countdown Properties
-
-    /// Whether preparation countdown is currently active
-    var isPreparing: Bool {
-        if case .active = self.countdownState {
-            return true
-        }
-        return false
-    }
-
-    /// Whether Zen Mode is active: tab bar should be hidden during active session
-    ///
-    /// Active before the meditation audio begins (preparation, start gong, breath pause),
-    /// while the meditation is playing or paused, or the completion/thank-you screen is
-    /// shown. Pause keeps the player as the active surface — switching tabs is not the
-    /// intended action.
-    var isZenMode: Bool {
-        self.isBeforeAudio || self.isPlaying || self.playbackState == .paused || self.isCompleted
-    }
-
-    /// Remaining countdown seconds (for UI)
-    var remainingCountdownSeconds: Int {
-        if case let .active(countdown) = countdownState {
-            return countdown.remainingSeconds
-        }
-        return 0
-    }
-
-    /// Progress for countdown ring (0.0 to 1.0)
-    var countdownProgress: Double {
-        if case let .active(countdown) = countdownState {
-            return countdown.progress
-        }
-        return 0
-    }
-
     // MARK: - Public Methods
 
     /// Loads and prepares the audio for playback
@@ -257,9 +187,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     ///
     /// Ignored before the meditation audio begins — a tap during preparation, start gong or
     /// breath pause must not start the meditation early (shared-143). The sequence starts
-    /// it exactly once itself.
+    /// it exactly once itself. After an interruption aborted that sequence, the tap starts
+    /// it over (ios-065).
     func togglePlayPause() {
         guard !self.isBeforeAudio else {
+            return
+        }
+        guard self.hasSessionStarted else {
+            self.startPlayback()
             return
         }
         do {
@@ -424,6 +359,13 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playerService.duration
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$duration)
+
+        self.playerService.interruptionBegan
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.handleInterruption()
+            }
+            .store(in: &self.cancellables)
     }
 
     private func formatTime(_ time: TimeInterval) -> String {
@@ -515,7 +457,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             soundId: self.meditation.gongSoundId,
             volume: self.praxisRepository.load().gongVolume
         ) { [weak self] in
-            self?.startBreathPause()
+            // An interruption may have aborted the sequence before this completion arrived
+            guard let self, self.isStartGongSequenceActive else {
+                return
+            }
+            self.startBreathPause()
         }
     }
 
@@ -530,6 +476,33 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.breathPauseTimer = nil
         self.isStartGongSequenceActive = false
         self.transitionToPlayback()
+    }
+
+    // MARK: - Interruption (ios-065)
+
+    /// A phone call (or Siri, an alarm) never leads to an automatic resume. During playback
+    /// the service has already paused; a scrub in progress must not resume on release either.
+    /// Before the meditation audio begins, the pre-roll is aborted.
+    private func handleInterruption() {
+        self.dragWasPlaying = false
+        if self.isBeforeAudio {
+            self.abortPreRoll()
+        }
+    }
+
+    /// Preparation, start gong and breath pause stop, the player waits paused at the
+    /// beginning, and the next tap on Play starts the pre-roll over.
+    private func abortPreRoll() {
+        self.countdownTimer?.cancel()
+        self.countdownTimer = nil
+        self.breathPauseTimer?.cancel()
+        self.breathPauseTimer = nil
+        self.gongPlayer.stop()
+        self.playerService.stopSilentBackgroundAudio()
+        self.countdownState = .idle
+        self.isStartGongSequenceActive = false
+        self.hasSessionStarted = false
+        Logger.audioPlayer.info("Pre-roll aborted by interruption")
     }
 }
 

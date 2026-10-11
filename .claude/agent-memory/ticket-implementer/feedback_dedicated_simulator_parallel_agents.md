@@ -19,5 +19,9 @@ left on shared simulators (Dynamic Type, appearance changes stay local).
 the same simulator. Telltale: TOTAL far below the normal ~1500. Fix: `simctl create "SM <ticket>" "iPhone 17" <runtime>`
 and run `TEST_DEVICE="SM <ticket>" make -C ios test-unit-agent` (test-config.sh honours `TEST_DEVICE`); delete after.
 
+**Boot it first (ios-065, 2026-10-11):** On a fresh or shut-down dedicated sim, `make test-*-agent` failed with
+"Application failed preflight checks" / SBMainWorkspace "Busy" (BUILD_FAILED), and one run hung >10 min after the
+tests had finished. `xcrun simctl bootstatus <UDID> -b` before each test run made every later run clean.
+
 **How to apply:** Pass `--udid <new UDID>` to every `scripts/screenshot-ios/*` call. Related:
 [[shared-emulator-parallel-agents]] (Android equivalent problem).

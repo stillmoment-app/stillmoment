@@ -11,11 +11,13 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var state = CurrentValueSubject<PlaybackState, Never>(.idle)
     var currentTime = CurrentValueSubject<TimeInterval, Never>(0)
     var duration = CurrentValueSubject<TimeInterval, Never>(0)
+    let interruptionBegan = PassthroughSubject<Void, Never>()
 
     var loadedMeditation: GuidedMeditation?
     var loadedURL: URL?
     var loadShouldThrow = false
     var playCalled = false
+    private(set) var playCallCount = 0
     var pauseCalled = false
     var stopCalled = false
     var seekTime: TimeInterval?
@@ -24,6 +26,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var silentBackgroundAudioStarted = false
     var silentBackgroundAudioStopped = false
     var transitionFromSilentToPlaybackCalled = false
+    private(set) var transitionFromSilentToPlaybackCallCount = 0
     var configureEndGongCalled = false
     var endGongSoundId: String?
     var endGongVolume: Float?
@@ -40,6 +43,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
 
     func play() throws {
         self.playCalled = true
+        self.playCallCount += 1
         self.state.send(.playing)
     }
 
@@ -77,6 +81,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
 
     func transitionFromSilentToPlayback() throws {
         self.transitionFromSilentToPlaybackCalled = true
+        self.transitionFromSilentToPlaybackCallCount += 1
         // Real implementation starts playback then stops silent audio
         self.playCalled = true
         self.state.send(.playing)
@@ -87,6 +92,15 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
         self.configureEndGongCalled = true
         self.endGongSoundId = soundId
         self.endGongVolume = volume
+    }
+
+    /// Simulates a phone call like the real service: running playback pauses, then the
+    /// interruption is reported. Nothing happens when it ends (ios-065).
+    func simulateInterruption() {
+        if self.state.value == .playing {
+            self.pause()
+        }
+        self.interruptionBegan.send()
     }
 
     func cleanup() {

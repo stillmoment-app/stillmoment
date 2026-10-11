@@ -1,7 +1,7 @@
 ---
 id: ios-065
 title: "Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“"
-status: todo
+status: done
 phase: 1-Quick Fix
 priority: hoch
 depends_on: []

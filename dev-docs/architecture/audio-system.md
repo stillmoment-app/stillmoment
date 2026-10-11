@@ -124,7 +124,10 @@ Das gleiche Pattern existiert fuer Guided Meditations:
 
 ### Delegate-Absicherung
 
-Audio-Player-Delegates feuern auch bei `successfully: false` (z.B. Audio-Interruption). Verhindert dass die State Machine in `.startGong` haengen bleibt.
+Audio-Player-Delegates (`GongPlayerDelegate`) feuern auch bei `successfully: false`, wenn die Wiedergabe
+fehlerhaft endet. Bei einer Audio-Unterbrechung feuern sie dagegen **nicht**: `AVAudioPlayer` pausiert dann nur.
+Wer nicht haengen bleiben darf, beobachtet Unterbrechungen selbst, so `MeditationGongPlayer` fuer Start- und
+End-Gong der gefuehrten Meditation (shared-143).
 
 ---
 
@@ -210,12 +213,25 @@ requestAudioSession() → setupRemoteCommandCenter() → setupNowPlayingInfo() �
 
 ### Interruption Handling
 
-Audio-Unterbrechungen (Anrufe, Alerts) via `AVAudioSession.interruptionNotification`:
+Audio-Unterbrechungen (Anrufe, Siri, Wecker) via `AVAudioSession.interruptionNotification`. Bei `.began`
+hat das System den Ton bereits angehalten. Timer und gefuehrte Meditation reagieren getrennt:
 
-| Event | Verhalten |
-|-------|-----------|
-| `.began` | Playback pausiert automatisch |
-| `.ended` | Keep-Alive wird neu gestartet wenn `timerSessionActive` (unabhaengig von `.shouldResume`) |
+| Event | Timer (`AudioService`) | Gefuehrte Meditation (`AudioPlayerService`) |
+|-------|------------------------|---------------------------------------------|
+| `.began` | Nur Log | Laufende Wiedergabe → `.paused` (auch Now-Playing-Rate 0); `.finished`/`.idle` bleiben. Meldet `interruptionBegan` an das ViewModel |
+| `.ended` | Keep-Alive neu starten, wenn `timerSessionActive` (unabhaengig von `.shouldResume`) | Nichts: kein automatisches Fortsetzen, auch nicht bei `.shouldResume` |
+
+**Gefuehrte Meditation (ios-065):** Kein automatisches Fortsetzen ist eine Produktentscheidung (wie Android
+bei Fokusverlust): Wer telefoniert hat, entscheidet selbst, ob es weitergeht; ein Tipp auf Play setzt an
+derselben Stelle fort. Haelt der Finger beim Anruf gerade die Wellenform, setzt auch das Loslassen nicht
+fort. Der Observer lebt so lange wie der Dienst und bleibt ueber `load()`/`cleanup()`
+hinweg angemeldet.
+
+**Unterbrechung im Vorlauf:** Waehrend Vorbereitungszeit, Start-Gong oder Atempause bricht
+`GuidedMeditationPlayerViewModel` auf `interruptionBegan` hin den Vorlauf ab: Countdown und Atempause enden,
+der Gong verstummt, das Silent-Audio stoppt. Der Player steht pausiert am Anfang; der naechste Tipp auf Play
+startet den ganzen Vorlauf neu, danach beginnt die Meditation genau einmal. Eine Gong-Completion, die erst
+nach dem Abbruch ankommt, wird ignoriert.
 
 ---
 
