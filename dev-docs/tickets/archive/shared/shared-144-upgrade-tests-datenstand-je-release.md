@@ -2,8 +2,8 @@
 id: shared-144
 title: "Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar"
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 5-QA
 priority: hoch
 depends_on: []
