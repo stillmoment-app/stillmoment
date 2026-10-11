@@ -310,7 +310,8 @@ interface AudioFocusManagerProtocol {
 
 `AudioSessionCoordinator` manages exclusive access between Timer and Guided Meditations — always go through the coordinator.
 On focus loss it calls the active source's pause handler; on `AUDIOFOCUS_GAIN` (only after a temporary loss) its
-resume handler, if registered. Guided meditations continue by themselves then (shared-146); the timer registers none.
+resume handler, if registered. Guided meditations continue by themselves then (shared-146). The timer's background
+sound fades back in; during the interruption no timer gong sounds, and a start/end gong counts as finished (shared-147).
 
 ---
 

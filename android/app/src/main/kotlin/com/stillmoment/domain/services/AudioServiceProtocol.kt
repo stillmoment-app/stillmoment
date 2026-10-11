@@ -18,7 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
  * (AudioService is a singleton injected into both).
  */
 interface AudioServiceProtocol {
-    /** Emits when a start/completion gong finishes playing */
+    /**
+     * Emits once per start/completion gong when it finishes playing. An interruption (phone
+     * call, voice assistant) that cuts the gong off, or during which it is due, also counts as
+     * finished, so the timer never waits for it (shared-147).
+     */
     val gongCompletionFlow: SharedFlow<Unit>
 
     /**
