@@ -290,7 +290,18 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     /// Save im Edit-Sheet — verzweigt zwischen Import (persistiert via `addMeditation`)
     /// und regulaerem Edit (`updateMeditation`).
+    ///
+    /// Wirkt nur fuer das Blatt, das gerade offen ist (shared-138): Ein zweiter Tipp auf
+    /// „Speichern" im ausblendenden Blatt darf weder erneut speichern noch das Blatt eines
+    /// inzwischen geoeffneten naechsten Imports schliessen.
     func handleEditSheetSave(_ edited: GuidedMeditation) {
+        guard self.showingEditSheet, edited.id == self.meditationToEdit?.id else {
+            Logger.guidedMeditation.info(
+                "Save ignored — editor no longer open",
+                metadata: ["id": edited.id.uuidString]
+            )
+            return
+        }
         if let pending = self.pendingImport, pending.draftId == edited.id {
             self.saveImportedMeditation(edited, pending: pending)
         } else {

@@ -94,6 +94,61 @@ extension InboxHandlerTests {
         XCTAssertEqual(next, .downloadCompleted(file25402))
     }
 
+    func testRetryAfterUnreadableEntryStartsWaitingEntry() async throws {
+        // Given — ein unlesbarer Link-Eintrag ("Download fehlgeschlagen" mit "Erneut versuchen"),
+        // waehrenddessen wird 25402 geteilt
+        let talk25402 = try self.talk25402
+        let file25402 = try self.prepareDownload(talk25402)
+        let unreadable = self.inboxDirectory.appendingPathComponent("kaputt.json")
+        FileManager.default.createFile(atPath: unreadable.path, contents: Data("kein json".utf8))
+        let first = await self.sut.processInbox()
+        try self.shareLink(talk25402)
+
+        // When
+        let result = await self.sut.retry()
+
+        // Then — nichts zum erneuten Laden, also startet der wartende Eintrag
+        XCTAssertEqual(first, .error(.downloadFailed))
+        XCTAssertEqual(result, .downloadCompleted(file25402))
+        XCTAssertNil(self.sut.downloadError)
+    }
+
+    func testRetryNeverReloadsLinkWhoseMessageWasClosed() async throws {
+        // Given — 25401 war nicht erreichbar, die Meldung wurde geschlossen;
+        // danach scheitert ein unlesbarer Eintrag
+        let talk25401 = try self.talk25401
+        self.mockDownloadService.errorToThrow = .networkError
+        try self.shareLink(talk25401)
+        _ = await self.sut.processInbox()
+        self.mockDownloadService.errorToThrow = nil
+        _ = await self.sut.closeMessage()
+        let unreadable = self.inboxDirectory.appendingPathComponent("kaputt.json")
+        FileManager.default.createFile(atPath: unreadable.path, contents: Data("kein json".utf8))
+        _ = await self.sut.processInbox()
+
+        // When — "Erneut versuchen" in der Meldung des unlesbaren Eintrags
+        let result = await self.sut.retry()
+
+        // Then — 25401 wird nicht noch einmal geladen
+        XCTAssertEqual(result, .empty)
+        XCTAssertEqual(self.mockDownloadService.requestedURLs, [talk25401])
+    }
+
+    func testOpenedFileInUnsupportedFormatKeepsStandingMessage() async throws {
+        // Given — die Meldung "nicht erreichbar" steht
+        self.mockDownloadService.errorToThrow = .networkError
+        try self.shareLink(self.talk25401)
+        _ = await self.sut.processInbox()
+        let opened = try self.makeSharedAudioFile(named: "Vortrag.wav")
+
+        // When
+        self.sut.acceptOpenedFile(opened)
+
+        // Then — die stehende Meldung bleibt, keine zweite verdraengt sie
+        XCTAssertEqual(self.sut.downloadError, .notReachable)
+        XCTAssertNil(self.sut.importError)
+    }
+
     func testWaitingAudioFileStartsWhenPodcastMessageIsClosed() async throws {
         // Given — ein ganzer Podcast statt einer Folge (Meldung ohne Ladefenster), dann eine Audiodatei
         try self.share(Self.podcastLink)

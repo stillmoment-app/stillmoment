@@ -10,9 +10,10 @@ import Foundation
 
 /// Writes shared audio files and links into the inbox directory (App Group `ShareInbox/`).
 ///
-/// Every entry is written completely first and then atomically renamed into place,
-/// replacing a waiting entry with the same name. The main app never reads a half-written
-/// entry and never finds the inbox without it.
+/// Every entry is written completely first and then atomically renamed into place.
+/// The main app never reads a half-written entry and never finds the inbox without it.
+/// A shared audio file replaces a waiting one with the same name; every shared link gets
+/// an entry of its own (shared-138).
 ///
 /// No logging here: the Share Extension has no `Logger`.
 enum ShareInbox {
@@ -48,15 +49,15 @@ enum ShareInbox {
 
     /// Writes a reference to a shared link (`URLReference` from Domain, as JSON) into the inbox.
     ///
-    /// The entry is named after the link's last path component plus `.json`.
+    /// Every link gets an entry of its own, `<UUID>.json` (shared-138). Links with the same
+    /// ending (`…/25401/download`, `…/25402/download`) never replace each other: the app may
+    /// be importing one while the other waits. "The last shared wins" (shared-132) is decided
+    /// by the app via the entries' modification dates; it removes the older ones.
     ///
+    /// The reference carries the link's last path component as filename for the download.
     /// A link without path (`https://www.example.com/`, also with `?id=1`) has no usable
-    /// component — `lastPathComponent` is `"/"` or empty (ios-061). Its reference carries an
-    /// empty filename, so the download names the file itself (server name or `audio.mp3`/
-    /// `audio.m4a`). The entry gets the fixed name `link.json`: a bare `.json` would be a
-    /// hidden file the app never lists. The same holds for a last component starting with `.`.
-    /// Two such links share that name — the later one replaces the waiting one, like links
-    /// with the same ending (shared-132).
+    /// component — `lastPathComponent` is `"/"` or empty (ios-061) — so the filename stays
+    /// empty and the download names the file itself (server name or `audio.mp3`/`audio.m4a`).
     ///
     /// - Returns: The inbox entry
     @discardableResult
@@ -67,8 +68,7 @@ enum ShareInbox {
     ) throws -> URL {
         let lastComponent = url.lastPathComponent
         let filename = lastComponent == "/" ? "" : lastComponent
-        let entryName = filename.isEmpty || filename.hasPrefix(".") ? Self.pathlessLinkEntryName : filename
-        let destinationURL = inboxDirectory.appendingPathComponent("\(entryName).json")
+        let destinationURL = inboxDirectory.appendingPathComponent("\(UUID().uuidString).json")
         let reference = URLReference(
             url: url.absoluteString,
             filename: filename,
@@ -79,16 +79,12 @@ enum ShareInbox {
         encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(reference)
 
-        // `.atomic` writes to a temporary file and renames it into place, replacing a
-        // waiting entry with the same name in one step (see `replaceAtomically`).
+        // `.atomic` writes to a temporary file and renames it into place.
         try data.write(to: destinationURL, options: .atomic)
         return destinationURL
     }
 
     // MARK: Private
-
-    /// Entry name for links whose last path component cannot name a visible file
-    private static let pathlessLinkEntryName = "link"
 
     /// Puts the completely written (hidden) temporary file in place of `destinationURL`.
     ///

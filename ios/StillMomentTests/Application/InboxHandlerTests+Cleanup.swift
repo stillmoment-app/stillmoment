@@ -160,7 +160,7 @@ extension InboxHandlerTests {
             )
             XCTAssertFalse(
                 FileManager.default.fileExists(atPath: freshURL.path),
-                "Fresh entry should be cleaned up after direct import"
+                "Fresh entry should be taken out of the inbox for import"
             )
             // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
             XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)

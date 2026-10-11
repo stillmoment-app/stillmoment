@@ -93,10 +93,13 @@ final class InboxHandler: ObservableObject {
 
     /// Processes the running shared link again after a retryable error ("Retry" in the alert).
     ///
-    /// The import continues; a waiting entry keeps waiting. Returns `.empty` if there is
-    /// nothing to retry.
+    /// The import continues; a waiting entry keeps waiting. Without a link to load again
+    /// (the entry itself was unreadable), "Retry" ends the import like closing the message.
     func retry() async -> InboxResult {
-        guard !self.isProcessing, let link = self.retryableSharedLink else {
+        guard let link = self.retryableSharedLink else {
+            return await self.closeMessage()
+        }
+        guard !self.isProcessing else {
             return .empty
         }
         self.downloadError = nil
@@ -112,6 +115,7 @@ final class InboxHandler: ObservableObject {
     func closeMessage() async -> InboxResult {
         self.downloadError = nil
         self.importError = nil
+        self.retryableSharedLink = nil
         return await self.processInbox()
     }
 
@@ -129,7 +133,7 @@ final class InboxHandler: ObservableObject {
     func acceptOpenedFile(_ url: URL) {
         guard self.fileOpenHandler.canHandle(url: url) else {
             Logger.infrastructure.info("Opened file has an unsupported format: \(url.lastPathComponent)")
-            self.importError = .unsupportedFormat
+            self.reportUnlessMessageStands(.unsupportedFormat)
             return
         }
         let didStartAccessing = url.startAccessingSecurityScopedResource()
@@ -142,7 +146,7 @@ final class InboxHandler: ObservableObject {
             try self.inbox.storeOpenedFile(url)
         } catch {
             Logger.infrastructure.error("Failed to accept opened file: \(error.localizedDescription)")
-            self.importError = .importFailed
+            self.reportUnlessMessageStands(.importFailed)
         }
     }
 
@@ -251,9 +255,19 @@ final class InboxHandler: ObservableObject {
         return self.readSharedLink(at: entry).map { .link($0.url) }
     }
 
+    /// "Open in" outside the rule: a message that already stands stays, the new one is only logged.
+    private func reportUnlessMessageStands(_ error: FileOpenError) {
+        guard self.downloadError == nil, self.importError == nil else {
+            Logger.infrastructure.info("Message already shown, not replaced: \(String(describing: error))")
+            return
+        }
+        self.importError = error
+    }
+
     /// Takes the inbox entry over and processes it
     private func processEntry(at inboxEntry: URL) async -> InboxResult {
         self.cancelRequested = false
+        self.retryableSharedLink = nil
         let isAudioFile = Self.supportedAudioExtensions.contains(inboxEntry.pathExtension.lowercased())
         guard let entry = self.inbox.takeOver(inboxEntry) else {
             return isAudioFile ? self.failImport(.importFailed) : self.fail(.downloadFailed)

@@ -68,6 +68,29 @@ extension InboxHandlerTests {
         XCTAssertEqual(self.mockDownloadService.requestedURLs, [talk25401])
     }
 
+    func testRepeatOfRunningLinkLeavesWaitingLinkWithSameEndingWaiting() async throws {
+        // Given — 25401 laedt, 25402 wartet, dann wird 25401 erneut geteilt
+        // (alle drei Adressen enden auf ".../download")
+        let (talk25401, talk25402) = try (self.talk25401, self.talk25402)
+        let (_, file25402) = try self.prepareDownloads(talk25401, talk25402)
+        try self.shareLink(talk25401)
+        self.mockDownloadService.whileDownloadingFrom[talk25401] = { [weak self] in
+            try? self?.shareLink(talk25402)
+            _ = await self?.appBecomesActive()
+            try? self?.shareLink(talk25401)
+            _ = await self?.appBecomesActive()
+        }
+        _ = await self.sut.processInbox()
+        self.openEditor()
+
+        // When
+        let result = await self.closeEditor()
+
+        // Then — 25402 wird danach geladen, 25401 kein zweites Mal
+        XCTAssertEqual(result, .downloadCompleted(file25402))
+        XCTAssertEqual(self.mockDownloadService.requestedURLs, [talk25401, talk25402])
+    }
+
     func testSameAudioFileSharedAgainWhileEditorOpenIsIgnored() async throws {
         // Given — Blatt fuer Vortrag.mp3 offen, Vortrag.mp3 wird erneut geteilt
         try self.shareAudioFile(named: "Vortrag.mp3")

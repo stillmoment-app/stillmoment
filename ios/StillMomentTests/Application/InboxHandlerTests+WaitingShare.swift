@@ -269,7 +269,7 @@ extension InboxHandlerTests {
     // MARK: - AK-7: Kein stiller Verlust bei gleichem Namen
 
     func testLinkWithSameNameSharedWhileLoadingKeepsWaiting() async throws {
-        // Given — 25401 laedt, waehrenddessen wird 25402 geteilt (beide heissen download.json)
+        // Given — 25401 laedt, waehrenddessen wird 25402 geteilt (beide enden auf ".../download")
         let file = try self.makeDownloadedFile(named: "download.mp3")
         defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
         self.mockDownloadService.downloadedFileURL = file

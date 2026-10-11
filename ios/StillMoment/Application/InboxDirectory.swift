@@ -11,8 +11,8 @@ import OSLog
 /// The Share Extension inbox on disk: the entries waiting there and how one is taken over.
 ///
 /// Every entry in the inbox is a *waiting* entry (shared-138). The entry in progress has been
-/// moved out (`takeOver`), so an entry shared meanwhile under the same name (`download.json`
-/// for two audiodharma talks) can never be mistaken for it.
+/// moved out (`takeOver`), so an audio file shared meanwhile under the same name can never be
+/// mistaken for it. Links get an entry name of their own anyway (`ShareInbox.storeLink`).
 struct InboxDirectory {
     // MARK: Internal
 

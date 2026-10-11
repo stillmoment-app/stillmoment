@@ -3,8 +3,9 @@
 //  Still Moment
 //
 //  shared-132: Die Share-Extension legt geteilte Links und Audiodateien in der Inbox ab.
-//  Mehrfaches Teilen darf nie scheitern; der zuletzt geteilte Eintrag ersetzt einen
-//  gleichnamigen, der noch wartet.
+//  Mehrfaches Teilen darf nie scheitern. Eine Audiodatei ersetzt eine gleichnamige, die noch
+//  wartet; jeder Link bekommt einen eigenen Eintrag (shared-138), welcher gewinnt, entscheidet
+//  die App ueber das Datum.
 //
 
 import XCTest
@@ -79,7 +80,8 @@ final class ShareInboxTests: XCTestCase {
         let entry = try ShareInbox.storeLink(link, in: self.inboxDirectory)
 
         // Then — sichtbarer Eintrag statt versteckter Datei `.hidden.json`
-        XCTAssertEqual(try self.visibleEntries(), ["link.json"])
+        XCTAssertEqual(try self.visibleEntries(), [entry.lastPathComponent])
+        XCTAssertEqual(entry.pathExtension, "json")
         let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
         XCTAssertEqual(reference.url, "https://www.example.com/.hidden")
     }
@@ -124,32 +126,38 @@ final class ShareInboxTests: XCTestCase {
 
     // MARK: - Mehrfach geteilt
 
-    func testSameLinkSharedTwiceSucceedsAndLeavesOneEntry() throws {
+    func testSameLinkSharedTwiceSucceedsWithoutLeftovers() throws {
         // Given
         let link = try XCTUnwrap(URL(string: Self.talk25401))
-        try ShareInbox.storeLink(link, in: self.inboxDirectory)
+        let first = try ShareInbox.storeLink(link, in: self.inboxDirectory)
 
-        // When — versehentlich doppelt geteilt
-        XCTAssertNoThrow(try ShareInbox.storeLink(link, in: self.inboxDirectory))
+        // When — versehentlich doppelt geteilt (die App laedt ihn trotzdem nur einmal)
+        let second = try ShareInbox.storeLink(link, in: self.inboxDirectory)
 
-        // Then
-        XCTAssertEqual(try self.visibleEntries(), ["download.json"])
-        XCTAssertEqual(try self.allEntriesIncludingHidden(), ["download.json"], "Keine Temp-Datei bleibt liegen")
+        // Then — keine Temp-Datei bleibt liegen
+        XCTAssertEqual(
+            try self.allEntriesIncludingHidden(),
+            [first.lastPathComponent, second.lastPathComponent].sorted()
+        )
     }
 
-    func testLaterLinkWithSameEndingReplacesTheWaitingOne() throws {
-        // Given
+    func testLinkWithSameEndingNeverReplacesTheWaitingOne() throws {
+        // Given — 25401 wartet (vielleicht laedt die App ihn gerade)
         let first = try XCTUnwrap(URL(string: Self.talk25401))
         let second = try XCTUnwrap(URL(string: Self.talk25402))
-        try ShareInbox.storeLink(first, in: self.inboxDirectory)
+        let firstEntry = try ShareInbox.storeLink(first, in: self.inboxDirectory)
 
-        // When
-        let entry = try ShareInbox.storeLink(second, in: self.inboxDirectory)
+        // When — 25402 endet ebenfalls auf ".../download"
+        let secondEntry = try ShareInbox.storeLink(second, in: self.inboxDirectory)
 
-        // Then — es wartet nur noch 25402
-        XCTAssertEqual(try self.visibleEntries(), ["download.json"])
-        let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
-        XCTAssertEqual(reference.url, Self.talk25402)
+        // Then — beide Eintraege bleiben, der spaetere ist der neuere
+        let firstReference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: firstEntry))
+        let secondReference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: secondEntry))
+        XCTAssertEqual(firstReference.url, Self.talk25401)
+        XCTAssertEqual(secondReference.url, Self.talk25402)
+        let firstDate = try XCTUnwrap(self.modificationDate(of: firstEntry))
+        let secondDate = try XCTUnwrap(self.modificationDate(of: secondEntry))
+        XCTAssertGreaterThan(secondDate, firstDate)
     }
 
     func testSameAudioFileSharedTwiceSucceedsAndLeavesOneEntry() throws {
