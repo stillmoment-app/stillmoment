@@ -60,6 +60,7 @@
 - [Worktree-Build + UI-Test-Simulatorzustand](feedback_ios_worktree_and_ui_test_state.md) — Local.xcconfig in Worktree kopieren; LibraryFlowUITests-Empty-State-Fehler = alte Bibliothek auf Test-Simulator.
 - [Share-Extension auf iOS 26](project_share_extension_ios26_presentation.md) — Vollbild-Key ignoriert, Sheet opak; App-Dateien per Exception-Set ins Extension-Target; Simulator-Testwege.
 - [Fastlane-Screenshot im Worktree](feedback_worktree_fastlane_screenshot.md) — Gemfile.lock, .bundle/config, vendor-Symlink aus Main; Symlink danach löschen.
+- [Test gegen alten Release-Tag laufen lassen](feedback_ios_old_tag_test_run.md) — Worktree auf Tag im Scratchpad, TEST_RUNNER_-Env erreicht Unit-Tests, Guard-Fallen.
 - [Test-Fixtures liegen flach im Bundle](project_test_fixtures_bundle_flat.md) — `url(forResource:withExtension:)` ohne `subdirectory:`.
 
 ## Cross-Platform-Migration (iOS Pendant existiert)
