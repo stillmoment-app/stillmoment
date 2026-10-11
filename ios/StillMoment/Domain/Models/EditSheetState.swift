@@ -72,10 +72,11 @@ struct EditSheetState {
     }
 
     /// Returns the original meditation with the edited values applied.
+    /// Teacher and name are trimmed, so "Tara Brach " groups with "Tara Brach".
     func applyChanges() -> GuidedMeditation {
         var updated = self.originalMeditation
-        updated.teacher = self.editedTeacher
-        updated.name = self.editedName
+        updated.teacher = self.editedTeacher.trimmingCharacters(in: .whitespacesAndNewlines)
+        updated.name = self.editedName.trimmingCharacters(in: .whitespacesAndNewlines)
         updated.trimStart = self.editedTrimStart
         updated.trimEnd = self.editedTrimEnd
         updated.startGongEnabled = self.editedStartGongEnabled
