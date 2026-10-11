@@ -45,9 +45,11 @@ across active **and** archived tickets. Filename: `<id>-<slug>.md`.
   INDEX.md is stale.
 - **WONTFIX**: `status: wontfix` plus a `## WONTFIX` section stating why.
 - **Ticket body**: `## Was` (what) and `## Warum` (why) up front, then
-  `## Akzeptanzkriterien` as checkboxes, then `## Manueller Test`. Acceptance
-  criteria are the implementation roadmap — `/implement-ticket` walks them
-  one at a time under TDD. Optional `## Nicht Teil dieses Tickets` (scope
+  `## Akzeptanzkriterien` as checkboxes. Bugs add `## Reproduktion` (steps to
+  reproduce). `## Manueller Test` only for criteria that cannot be tested
+  automatically (device-only: lock screen, audio interruption), with the reason.
+  Acceptance criteria are the implementation roadmap — `/implement-ticket`
+  walks them one at a time under TDD. Optional `## Nicht Teil dieses Tickets` (scope
   boundary) and `## Hinweise` (constraints, decisions, free-text dependencies).
   Tickets describe the problem, not the solution — no file paths or code; the
   Definition of Done in `dev-docs/tickets/README.md` applies to every ticket.

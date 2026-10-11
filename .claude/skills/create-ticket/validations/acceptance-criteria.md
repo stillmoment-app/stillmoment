@@ -2,7 +2,7 @@
 
 Pruefregeln und Beispiele fuer gute Akzeptanzkriterien.
 
-Akzeptanzkriterien sind der Fahrplan fuer `/implement-ticket`: Jedes Kriterium wird einzeln per TDD umgesetzt und von `/review-code` einzeln geprueft. Ein gutes Kriterium laesst sich direkt in einen Test oder einen manuellen Pruefschritt uebersetzen.
+Akzeptanzkriterien sind der Fahrplan fuer `/implement-ticket`: Jedes Kriterium wird einzeln per TDD umgesetzt und von `/review-code` einzeln geprueft. Ein gutes Kriterium laesst sich direkt in einen automatisierten Test uebersetzen, nur wo das nicht geht in einen manuellen Pruefschritt.
 
 ## Eigenschaften guter Kriterien
 

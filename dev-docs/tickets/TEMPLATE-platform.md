@@ -28,11 +28,24 @@ depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
 
 ---
 
-## Manueller Test
+## Reproduktion
+
+<!-- Nur bei Bugs: Schritte, mit denen sich der Fehler nachstellen laesst. Vorlage fuer den Test, der zuerst fehlschlaegt. Sonst Abschnitt entfernen. -->
 
 1. {Schritt 1}
 2. {Schritt 2}
 3. Erwartung: {Was soll passieren?}
+
+---
+
+## Manueller Test
+
+<!-- Nur fuer Kriterien, die sich nicht automatisch pruefen lassen (z.B. nur am Geraet: Sperrbildschirm, Audio-Unterbrechung durch Anruf, Hintergrundbetrieb). Grund nennen. Sonst Abschnitt entfernen. -->
+
+{Warum nicht automatisierbar}
+
+1. {Schritt 1}
+2. Erwartung: {Was soll passieren?}
 
 ---
 

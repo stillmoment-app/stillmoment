@@ -79,7 +79,9 @@ Lade das passende Template und fuelle es nur mit dem, was aus Beschreibung, Antw
 **Umstaende:** {Wann/wo tritt es auf, seit wann}
 ```
 
-`## Manueller Test` beschreibt bei Bugs die Schritte, mit denen sich der Fehler nachstellen laesst, und endet mit dem erwarteten Verhalten.
+`## Reproduktion` nur bei Bugs: die Schritte, mit denen sich der Fehler nachstellen laesst, endend mit dem erwarteten Verhalten. Sonst Abschnitt entfernen.
+
+`## Manueller Test` nur, wenn ein Kriterium sich nicht automatisch pruefen laesst — typisch nur am Geraet: Sperrbildschirm, Audio-Unterbrechung, Hintergrundbetrieb. Grund nennen. Alles, was ein Unit- oder UI-Test belegen kann, braucht keinen manuellen Test; dann Abschnitt entfernen.
 
 **Akzeptanzkriterien:** beobachtbare Ergebnisse, keine Taetigkeiten. Regeln und Beispiele: `validations/acceptance-criteria.md`. Gefaehrdet die Aenderung bestehendes Verhalten, das ein Nutzer bemerken wuerde (aus Recherche oder Gespraech), schreib ein **Erhalt-Kriterium** ("Gongs spielen weiterhin bei gesperrtem Bildschirm").
 
@@ -96,7 +98,7 @@ Lade das passende Template und fuelle es nur mit dem, was aus Beschreibung, Antw
 
 ### Schritt 6: Pruefen
 
-Geh den fertigen Entwurf durch — **jede Zeile, alle Abschnitte**, auch Hinweise und Manueller Test:
+Geh den fertigen Entwurf durch — **jede Zeile, alle Abschnitte**, auch Hinweise, Reproduktion und Manueller Test:
 
 1. **Problem statt Loesung:** die vier Fragen aus `validations/philosophy.md`.
 2. **Akzeptanzkriterien:** Pflicht-Pruefungen und Warnungen aus `validations/acceptance-criteria.md`.
