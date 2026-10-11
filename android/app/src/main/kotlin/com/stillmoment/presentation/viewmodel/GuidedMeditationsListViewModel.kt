@@ -26,6 +26,7 @@ import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.SearchHistory
 import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.presentation.navigation.SharedEntryGate
 import com.stillmoment.presentation.util.languageDisplayName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -188,7 +189,9 @@ data class GuidedMeditationsListUiState(
  * Manages the list of guided meditations, import functionality,
  * and edit/delete operations.
  */
-@Suppress("TooManyFunctions") // ViewModel orchestrates library + search + import + preview flows
+// TooManyFunctions: the ViewModel orchestrates library + search + import + preview flows.
+// LongParameterList: one collaborator per flow plus the gate for shared entries (shared-138).
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class GuidedMeditationsListViewModel
 @Inject
@@ -201,10 +204,20 @@ constructor(
     private val praxisRepository: PraxisRepository,
     private val waveformProvider: WaveformProviderProtocol,
     private val importDownloads: ImportDownloadsProtocol,
+    private val sharedEntryGate: SharedEntryGate,
     private val logger: LoggerProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
+
+    /**
+     * Whether an import of this screen holds back shared entries (shared-138):
+     * a file being read, an edit sheet open or its message shown.
+     */
+    private var holdsSharedEntries = false
+
+    /** A file is being read for the edit sheet — its sheet or message is about to appear. */
+    private var isPreparingImport = false
 
     init {
         observeMeditations()
@@ -267,15 +280,20 @@ constructor(
     // MARK: - Import (shared-103)
 
     /**
-     * Starts the share-import flow. Validates the file, extracts metadata,
-     * computes prefill against the current library, and opens the edit sheet
-     * in IMPORT mode. Persistence happens on save (see [saveImportedMeditation]).
+     * Starts the import of a shared or picked file. Validates the file, extracts
+     * metadata, computes prefill against the current library, and opens the edit
+     * sheet in IMPORT mode. Persistence happens on save (see [saveImportedMeditation]).
      *
-     * @param uri Content URI from the share intent
+     * Shared entries wait until this import is done (shared-138), so it never
+     * replaces an open edit sheet.
+     *
+     * @param uri Content URI from the share intent or the file picker
      * @param suggestion Podcast import (shared-128): episode title / podcast
      *        author; wins field-wise over ID3 tags and filename
      */
     fun importMeditation(uri: Uri, suggestion: ImportPrefill? = null) {
+        beginImport()
+        isPreparingImport = true
         viewModelScope.launch {
             _uiState.update { it.copy(error = null) }
             val result = fileOpenHandler.validateAndPrepareImport(uri)
@@ -295,7 +313,6 @@ constructor(
                     teacher = refined.prefill.teacher ?: "",
                     name = refined.prefill.name ?: ""
                 )
-                val replaced = _uiState.value.pendingImport
                 _uiState.update {
                     it.copy(
                         pendingImport = refined,
@@ -304,10 +321,6 @@ constructor(
                         error = null
                     )
                 }
-                // A newer share replaced the open edit sheet: its download is not needed any more.
-                if (replaced != null && replaced.uri != refined.uri) {
-                    importDownloads.discard(replaced.uri)
-                }
             }.onFailure { error ->
                 val libraryError = when ((error as? FileOpenException)?.error) {
                     FileOpenError.ALREADY_IMPORTED -> LibraryError.AlreadyImported
@@ -315,13 +328,12 @@ constructor(
                     FileOpenError.IMPORT_FAILED, null -> LibraryError.ImportFailed
                 }
                 _uiState.update { it.copy(error = libraryError) }
-                // "Already there", unreadable file: the import ends here. An open edit
-                // sheet for the very same file keeps its download.
-                val sharedUri = uri.toString()
-                if (sharedUri != _uiState.value.pendingImport?.uri) {
-                    importDownloads.discard(sharedUri)
-                }
+                // "Already there", unreadable file: no edit sheet, the download is
+                // not needed any more (android-087).
+                importDownloads.discard(uri.toString())
             }
+            isPreparingImport = false
+            endImportIfSettled()
         }
     }
 
@@ -367,6 +379,8 @@ constructor(
                     editorWaveform = null
                 )
             }
+            // Only now: a waiting entry's sheet must not be closed by this save.
+            endImportIfSettled()
         }
     }
 
@@ -388,6 +402,7 @@ constructor(
                 editorWaveform = null
             )
         }
+        endImportIfSettled()
     }
 
     // MARK: - Delete
@@ -429,9 +444,11 @@ constructor(
     // MARK: - Edit
 
     /**
-     * Shows the edit sheet for a meditation (Edit mode).
+     * Shows the edit sheet for a meditation (Edit mode). Like an import, an open
+     * edit sheet holds back shared entries until it is closed (shared-138).
      */
     fun showEditSheet(meditation: GuidedMeditation) {
+        beginImport()
         _uiState.update {
             it.copy(
                 selectedMeditation = meditation,
@@ -474,6 +491,7 @@ constructor(
                 editorWaveform = null
             )
         }
+        endImportIfSettled()
     }
 
     /**
@@ -629,13 +647,48 @@ constructor(
 
     // MARK: - Error Handling
 
+    /** The message was closed. */
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+        endImportIfSettled()
+    }
+
+    // MARK: - Shared entries wait for this screen's import (shared-138)
+
+    /** An import or edit sheet of this screen began: shared entries wait until it is done. */
+    private fun beginImport() {
+        if (holdsSharedEntries) {
+            return
+        }
+        holdsSharedEntries = true
+        sharedEntryGate.importBegan()
+    }
+
+    /**
+     * Lets a waiting shared entry start once this screen's import is done: no
+     * file being read, no edit sheet, no message. Every way out of an import
+     * calls this — a missed one would hold back every later share.
+     */
+    private fun endImportIfSettled() {
+        val state = _uiState.value
+        val isSettled = !isPreparingImport && !state.showEditSheet && state.error == null
+        if (holdsSharedEntries && isSettled) {
+            releaseSharedEntries()
+        }
+    }
+
+    private fun releaseSharedEntries() {
+        holdsSharedEntries = false
+        sharedEntryGate.importEnded()
     }
 
     override fun onCleared() {
         super.onCleared()
         audioService.stopMeditationPreview()
+        // Sheet and message are gone with this screen.
+        if (holdsSharedEntries) {
+            releaseSharedEntries()
+        }
     }
 
     companion object {

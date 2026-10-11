@@ -70,7 +70,10 @@ constructor(private val logger: LoggerProtocol) {
                 logger.d(TAG, if (waiting == null) "Busy, entry waits" else "Busy, entry replaces the waiting one")
                 waiting = entry
             }
-            else -> start(entry)
+            else -> {
+                logger.d(TAG, "Free, entry starts")
+                start(entry)
+            }
         }
     }
 
