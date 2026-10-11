@@ -184,6 +184,8 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     baseline = file("$rootDir/config/detekt/baseline.xml")
+    // Default sources cover main/test only; sharedTest (shared-144) is test code too.
+    source.from("src/sharedTest/kotlin")
     parallel = true
 }
 
