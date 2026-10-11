@@ -1,7 +1,7 @@
 ---
 id: ios-057
 title: Unit-Tests hinterlassen keine Daten im echten App-Ordner
-status: todo
+status: wontfix
 phase: 5-QA
 priority: niedrig
 ---
@@ -38,6 +38,10 @@ Die Unit-Tests laufen innerhalb der App auf dem Simulator. Nach einem Lauf am 08
 - [ ] `dev-docs/guides/tdd.md` bzw. `ios/CLAUDE.md`: Regel ergänzen, dass Unit-Tests nur in eigene, temporäre Speicherorte schreiben und hinter sich aufräumen.
 
 ---
+
+## WONTFIX
+
+2026-10-11 In ios-056 aufgegangen. Beide Tickets haben dieselbe Ursache (Tests benutzen den echten App-Speicher) und dieselbe Lösung (eigener Test-Speicher, Speicherorte nur in `AppDependencies.live()`). Das Kriterium „keine Reste nach Unit-Tests“ steht jetzt in ios-056. Der Nachweis der Ursache und ein eigener Wächter-Check entfallen, weil Tests den echten Speicher nicht mehr erreichen.
 
 ## Manueller Test
 

@@ -54,4 +54,4 @@ Seit ios-055 entstehen alle Dienste an einer Stelle, und ein Lint-Check verhinde
 ## Hinweise
 
 - Heute liest nur noch die Composition Root (`AppDependencies.live()`) den globalen Zugriff; die Tests greifen dagegen direkt darauf zu. Der Umbau betrifft also vor allem die Test-Seite.
-- Thematisch verwandt mit ios-057 (Testisolation).
+- Thematisch verwandt mit ios-056 (Testisolation).
