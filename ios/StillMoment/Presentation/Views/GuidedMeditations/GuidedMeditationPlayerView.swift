@@ -243,12 +243,7 @@ struct GuidedMeditationPlayerView: View {
             )
             .foregroundColor(self.theme.textPrimary)
             .accessibilityIdentifier("player.countdown")
-            .accessibilityLabel(
-                String(
-                    format: NSLocalizedString("guided_meditations.player.countdown", comment: ""),
-                    self.viewModel.remainingCountdownSeconds
-                )
-            )
+            .accessibilityLabel(SecondWording.countdown(for: self.viewModel.remainingCountdownSeconds))
 
             Text("guided_meditations.player.preroll.label")
                 .textStyle(.micro, color: \.textSecondary)

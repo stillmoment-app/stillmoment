@@ -114,5 +114,37 @@
 			<string>%d Minuten</string>
 		</dict>
 	</dict>
+	<key>accessibility.preparation</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@seconds@</string>
+		<key>seconds</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Vorbereitung: %d Sekunde</string>
+			<key>other</key>
+			<string>Vorbereitung: %d Sekunden</string>
+		</dict>
+	</dict>
+	<key>guided_meditations.player.countdown</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@seconds@</string>
+		<key>seconds</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d Sekunde bis die Meditation beginnt</string>
+			<key>other</key>
+			<string>%d Sekunden bis die Meditation beginnt</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
