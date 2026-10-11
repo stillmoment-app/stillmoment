@@ -2,8 +2,8 @@
 id: shared-141
 title: "Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“"
 status:
-  ios: todo
-  android: todo
+  ios: wontfix
+  android: wontfix
 phase: 4-Polish
 priority: niedrig
 depends_on: []
@@ -31,6 +31,10 @@ Grammatikfehler direkt im Mittelpunkt des Timer-Bildschirms wirken nachlässig.
 - [ ] VoiceOver bzw. TalkBack sagt die Dauer bei 1 Minute ebenfalls in der Einzahl an
 
 ---
+
+## WONTFIX
+
+2026-10-11 Duplikat von shared-140. shared-140 deckt denselben Fehler ab, zusätzlich die Intervall-Gong-Ansage auf Android und den Schutz bereits korrekter Stellen. Das Kriterium „Einheit wechselt sofort mit“ und der Screenshot-Hinweis wurden nach shared-140 übernommen.
 
 ## Manueller Test
 

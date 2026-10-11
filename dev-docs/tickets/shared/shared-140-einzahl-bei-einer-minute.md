@@ -28,6 +28,7 @@ Ein grammatischer Fehler an der prominentesten Stelle des Timers wirkt nachläss
 ## Akzeptanzkriterien
 
 - [ ] Atemkreis bei 1 Minute: Einheit „MINUTE“ (in EN und DE gleich); bei 2 und 60 Minuten „MINUTES“ bzw. „MINUTEN“
+- [ ] Die Einheit wechselt sofort mit, wenn die Dauer zwischen 1 und 2 Minuten verstellt wird
 - [ ] Screenreader-Ansage des Atemkreises: „1 minute“ / „1 Minute“ bei 1, „2 minutes“ / „2 Minuten“ bei 2
 - [ ] Android: TalkBack-Ansage des Intervall-Gong-Abstands bei 1 Minute in der Einzahl, ab 2 in der Mehrzahl
 - [ ] Bereits korrekte Stellen bleiben korrekt: „von 1 Minute“ in der laufenden Sitzung, Vorbereitungszeit-Anzeige, Restzeit-Ansage, Intervall-Hinweistexte
@@ -48,3 +49,4 @@ Ein grammatischer Fehler an der prominentesten Stelle des Timers wirkt nachläss
 
 - shared-125 (offen) ersetzt den Atemkreis später durch „Zahl mit Einheit darunter + Bahn“. Entschieden: trotzdem jetzt beheben. Die Lösung sollte so gebaut sein, dass shared-125 die Einzahl-fähige Einheit übernehmen kann, statt den Fehler neu einzuführen.
 - Zahl und Einheit stehen im Atemkreis in getrennten Zeilen; die Einheit enthält die Zahl selbst nicht.
+- Aufgenommen aus shared-141 (Duplikat). Die Store-Screenshots zeigen den Timer ab 2.6.0 mit 10 Minuten, der Fehler ist dort also nicht sichtbar.

@@ -22,7 +22,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-138](shared/shared-138-teilen-waehrend-laufendem-import.md) | Teilen während eines laufenden Imports: der zuletzt geteilte Eintrag gewinnt, nichts geht still verloren | 4-Polish | [ ] | [ ] |
 | [shared-139](shared/shared-139-dauer-im-bearbeiten-blatt-sichtbar.md) | Bearbeiten-Blatt: Dauer bleibt neben langem Dateinamen sichtbar | 4-Polish | [ ] | [ ] |
 | [shared-140](shared/shared-140-einzahl-bei-einer-minute.md) | Einzahl bei einer Minute im Atemkreis und in Ansagen | 4-Polish | [ ] | [ ] |
-| [shared-141](shared/shared-141-timer-dial-singular-minute.md) | Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“ | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
 
 ### iOS
@@ -177,6 +176,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-135](archive/shared/shared-135-eigener-abschnitt-rueckmeldung.md) | Eigener Abschnitt Rückmeldung in den Einstellungen | 4-Polish | [x] | [x] |
 | [shared-136](archive/shared/shared-136-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) in den Einstellungen | 5-QA | [x] | [x] |
 | [shared-137](archive/shared/shared-137-quellenliste-sprachen-lehrerinnen.md) | Quellenliste: Lehrer:innen vorne, alle Sprachen sichtbar | 4-Polish | [x] | [x] |
+| [shared-141](archive/shared/shared-141-timer-dial-singular-minute.md) | Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“ | 4-Polish | [-] | [-] |
 
 ### iOS
 
