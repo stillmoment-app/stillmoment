@@ -157,6 +157,8 @@ Text("greeting: \(name)")                           // BUG: not localizable
 Text(String(format: NSLocalizedString("greeting", comment: ""), name)) // OK
 ```
 
+**Documentation** (dev-docs, CLAUDE.md, ADRs) describes *what* a component does and *why*, then points to the type or file that holds the details. Code blocks show patterns (right vs. wrong, like the pitfalls above) — signatures of real classes go stale silently, so name the type instead. Change dates live in git history, not in the document.
+
 ---
 
 ## Testing Philosophy
