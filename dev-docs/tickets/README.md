@@ -150,7 +150,7 @@ feat(shared): #shared-001 Ambient Sound Fade (Android)
 Gilt fuer jedes Ticket, ohne dass es im Ticket steht. Die Akzeptanzkriterien beschreiben nur das fachliche Ergebnis.
 `/implement-ticket` arbeitet diese Liste vor dem Abschluss ab, `/review-code` prueft sie.
 
-- Jedes Akzeptanzkriterium ist durch einen fachlichen Test belegt (pro betroffener Plattform) oder, wo nicht testbar, manuell verifiziert
+- Jedes Akzeptanzkriterium ist durch einen automatisierten fachlichen Test belegt (pro betroffener Plattform). Nur was sich nicht automatisch pruefen laesst (siehe `## Manueller Test` im Ticket), wird manuell verifiziert
 - `make check` und `make test-unit` sind gruen
 - UI-Texte sind lokalisiert (DE + EN), interaktive Elemente haben Accessibility-Labels
 - Shared-Tickets: Verhalten und Darstellung sind auf iOS und Android gleich (Ausnahmen nur laut `## UX-Konsistenz`)
@@ -182,7 +182,8 @@ Gilt fuer jedes Ticket, ohne dass es im Ticket steht. Die Akzeptanzkriterien bes
 | Was aendert sich fuer den Nutzer? | Betroffene Dateien und Code-Stellen |
 | Warum, fuer wen, warum jetzt? | Vorgehen, Patterns, Schichten |
 | Akzeptanzkriterien mit konkreten Beispielen | Technische Risiken und Refactorings |
-| Manueller Testfall | Test-Befehle (stehen in CLAUDE.md) |
+| Bei Bugs: Schritte zum Nachstellen | Test-Befehle (stehen in CLAUDE.md) |
+| Manueller Test, nur wo nicht automatisierbar | |
 | Abgrenzung: was nicht dazugehoert | |
 | Rahmenbedingungen und Entscheidungen mit Begruendung | |
 
