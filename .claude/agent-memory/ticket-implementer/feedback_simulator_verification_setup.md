@@ -31,6 +31,11 @@ installieren, pruefen, danach das unveraenderte wieder installieren.
 - `.mp3` oder `.json` (`{"url","filename","timestamp"}`) nach `<group-container>/ShareInbox/`, dann
   `simctl openurl <udid> stillmoment://import`. Ist die App nicht vorne, fragt SpringBoard
   „In Still Moment oeffnen?" — „Oeffnen" antippen.
+- Inbox-Pfad: `xcrun simctl get_app_container <udid> com.stillmoment.StillMoment group.com.stillmoment`
+  + `/ShareInbox` (Ordner ggf. anlegen). Die Gruppen-ID wechselt nach Neuinstallation — jedes Mal neu abfragen;
+  `<data>/tmp/ShareInbox` wird nur ohne Gruppen-Entitlement gelesen (shared-139, 2026-10-11).
+- `make test-*-agent` installiert den Worktree-Build als Test-Host über die Debug-App des Simulators: Die
+  „vorinstallierte alte Version" enthält danach schon die eigene Änderung — Vorher-Bild immer selbst bauen.
 - Vorher-Nachweis: geaenderte Datei per `git checkout HEAD~1 -- <datei>` zuruecksetzen, in eigenen
   `-derivedDataPath` bauen, sofort `git checkout HEAD -- <datei>`, installieren, Szenario wiederholen.
 - Eigenen Simulator per `simctl clone` anlegen und am Ende `simctl delete` — nicht 91211B93 nutzen. Fuer den
