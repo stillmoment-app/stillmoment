@@ -83,6 +83,12 @@ constructor(
                 onGongCompleted()
             }
         }
+        // A timer sound could not be played: one calm message (details stay in the log)
+        viewModelScope.launch {
+            audioService.timerSoundFailedFlow.collect {
+                _uiState.update { it.copy(error = TimerError.SoundFailed) }
+            }
+        }
     }
 
     // MARK: - Action Dispatch (Unidirectional Data Flow)
@@ -188,6 +194,9 @@ constructor(
     }
 
     fun startTimer() {
+        // A new meditation starts without the previous sound message. Cleared before
+        // dispatching, so a failure while preparing this session is shown again.
+        clearError()
         dispatch(TimerAction.StartPressed)
     }
 
@@ -265,8 +274,8 @@ constructor(
         saveSettings()
     }
 
-    fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+    private fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 
     // MARK: - Timer Loop

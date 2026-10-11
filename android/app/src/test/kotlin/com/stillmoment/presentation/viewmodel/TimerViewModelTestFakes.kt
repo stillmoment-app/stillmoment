@@ -42,6 +42,10 @@ class FakeAudioService : AudioServiceProtocol {
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
 
+    /** Lets tests simulate "a timer sound could not be played". */
+    val timerSoundFailedBacking = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val timerSoundFailedFlow: SharedFlow<Unit> = timerSoundFailedBacking.asSharedFlow()
+
     // shared-098 — preview position / duration / completion flows.
     // Exposed as mutable backing flows so tests can drive emissions.
     val previewPositionBacking = MutableStateFlow(0L)

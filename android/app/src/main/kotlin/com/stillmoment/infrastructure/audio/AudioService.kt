@@ -87,6 +87,10 @@ constructor(
     private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     override val gongCompletionFlow: SharedFlow<Unit> = _gongCompletionFlow.asSharedFlow()
 
+    // Report-only: emitting never changes what happens to playback (see AudioServiceProtocol).
+    private val _timerSoundFailedFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val timerSoundFailedFlow: SharedFlow<Unit> = _timerSoundFailedFlow.asSharedFlow()
+
     // shared-098: meditation-preview position / duration / completion flows.
     // Position polls roughly every 100 ms while a preview plays so the slider
     // in the library list moves with the audio. Reset to 0 on stop / switch /
@@ -200,9 +204,14 @@ constructor(
                 }
                 start()
             }
+            if (gongPlayer == null) {
+                logger.e(TAG, "Failed to create player for gong: ${gongSound.id}")
+                reportTimerSoundFailed()
+            }
             logger.d(TAG, "Playing gong sound: ${gongSound.id}, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play gong - invalid state: ${e.message}")
+            reportTimerSoundFailed()
         }
     }
 
@@ -213,10 +222,26 @@ constructor(
      * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
     override fun playIntervalGong(soundId: String, volume: Float) {
+        startIntervalGong(soundId, volume)
+    }
+
+    /**
+     * Play the interval gong of a running timer. Same playback as [playIntervalGong];
+     * additionally reports a failure via [timerSoundFailedFlow]. The plain variant stays
+     * silent because it also serves the settings preview, which never shows the timer message.
+     */
+    fun playTimerIntervalGong(soundId: String, volume: Float) {
+        if (!startIntervalGong(soundId, volume)) {
+            reportTimerSoundFailed()
+        }
+    }
+
+    /** Plays the interval gong (or short vibration). Returns false if the sound could not be played. */
+    private fun startIntervalGong(soundId: String, volume: Float): Boolean {
         try {
             if (soundId == GongSound.VIBRATION_ID) {
                 vibrationService.vibrateShort()
-                return
+                return true
             }
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
@@ -231,9 +256,23 @@ constructor(
                 start()
             }
             logger.d(TAG, "Playing interval gong: ${gongSound.id}, volume: $clampedVolume")
+            if (gongPlayer == null) {
+                logger.e(TAG, "Failed to create player for interval gong: ${gongSound.id}")
+                return false
+            }
+            return true
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
+            return false
         }
+    }
+
+    /**
+     * Report that a sound of the running timer could not be played. Report only: the
+     * caller keeps its own fallback (e.g. silence for a missing own soundscape).
+     */
+    fun reportTimerSoundFailed() {
+        _timerSoundFailedFlow.tryEmit(Unit)
     }
 
     /**
@@ -432,6 +471,7 @@ constructor(
         try {
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
                 logger.w(TAG, "Failed to acquire audio session for background audio from file")
+                reportTimerSoundFailed()
                 return
             }
 
@@ -445,6 +485,7 @@ constructor(
             player.setOnErrorListener { what, extra ->
                 logger.e(TAG, "Background audio error: what=$what, extra=$extra")
                 backgroundPlayer = null
+                reportTimerSoundFailed()
                 false
             }
             player.setOnPreparedListener {
@@ -456,6 +497,7 @@ constructor(
             player.prepareAsync()
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to start background audio from file - invalid state: ${e.message}")
+            reportTimerSoundFailed()
         }
     }
 
@@ -471,6 +513,7 @@ constructor(
             // Request exclusive audio session
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
                 logger.w(TAG, "Failed to acquire audio session for background audio")
+                reportTimerSoundFailed()
                 return
             }
 
@@ -487,12 +530,17 @@ constructor(
                 setVolume(0f, 0f) // Start at 0 for fade in
                 start()
             }
+            if (backgroundPlayer == null) {
+                logger.e(TAG, "Failed to create player for background audio: $soundId")
+                reportTimerSoundFailed()
+            }
 
             // Fade in to target volume
             fadeToVolume(targetVolume)
             logger.d(TAG, "Started background audio with fade in: $soundId, volume: $targetVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to start background audio - invalid state: ${e.message}")
+            reportTimerSoundFailed()
         }
     }
 

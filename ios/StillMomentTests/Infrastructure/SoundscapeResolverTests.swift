@@ -174,4 +174,20 @@ final class SoundscapeResolverTests: XCTestCase {
         // When/Then
         XCTAssertThrowsError(try sut.resolveAudioURL(id: "nonexistent"))
     }
+
+    /// A deleted own soundscape must throw (no silent fallback), so the timer shows
+    /// "A sound could not be played" — same as Android.
+    func testResolveAudioURLForDeletedCustomSoundscapeThrowsSoundFileNotFound() {
+        guard let sut else {
+            return XCTFail("sut is nil")
+        }
+        let deletedId = UUID()
+
+        // When/Then
+        XCTAssertThrowsError(try sut.resolveAudioURL(id: deletedId.uuidString)) { error in
+            guard case AudioServiceError.soundFileNotFound = error else {
+                return XCTFail("Expected soundFileNotFound but got \(error)")
+            }
+        }
+    }
 }

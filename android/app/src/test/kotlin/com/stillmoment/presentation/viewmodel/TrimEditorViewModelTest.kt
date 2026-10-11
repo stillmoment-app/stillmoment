@@ -337,6 +337,7 @@ private class RecordingAudioService : AudioServiceProtocol {
     }
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
+    override val timerSoundFailedFlow: SharedFlow<Unit> = MutableSharedFlow()
     override val meditationPreviewPositionFlow: StateFlow<Long> = positionBacking.asStateFlow()
     override val meditationPreviewDurationFlow: StateFlow<Long> = durationBacking.asStateFlow()
     override val meditationPreviewCompletionFlow: SharedFlow<Unit> = completionBacking.asSharedFlow()

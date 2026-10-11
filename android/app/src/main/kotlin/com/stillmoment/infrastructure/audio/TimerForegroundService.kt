@@ -96,7 +96,7 @@ class TimerForegroundService : Service() {
     private fun handlePlayIntervalGong(intent: Intent) {
         val gongSoundId = intent.getStringExtra(EXTRA_GONG_SOUND_ID) ?: currentGongSoundId
         val gongVolume = intent.getFloatExtra(EXTRA_GONG_VOLUME, currentGongVolume)
-        audioService.playIntervalGong(gongSoundId, gongVolume)
+        audioService.playTimerIntervalGong(gongSoundId, gongVolume)
     }
 
     private fun handleUpdateBackgroundAudio(intent: Intent) {
@@ -165,6 +165,7 @@ class TimerForegroundService : Service() {
                     audioService.startBackgroundAudioFromFile(filePath, soundVolume)
                 } else {
                     logger.w(TAG, "Custom background audio not found: $soundId, falling back to silence")
+                    audioService.reportTimerSoundFailed()
                     audioService.startBackgroundAudio("silent", soundVolume)
                 }
             }
