@@ -29,7 +29,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-061](ios/ios-061-link-ohne-pfad-geht-verloren.md) | Geteilter Link ohne Pfad: „Fast geschafft“, aber die App übernimmt nichts | 1-Quick Fix | [ ] | - |
 
@@ -223,6 +222,7 @@ _Keine Tickets._
 | [ios-046](archive/ios/ios-046-running-timer-sanduhr-vessel.md) | Running-Timer-Display "Sanduhr-Vessel" | 4-Polish | [x] | - |
 | [ios-047](archive/ios/ios-047-screenshot-running-timer-mondphase.md) | Running-Timer-Screenshot mit sichtbarer Mondphase | 4-Polish | [x] | - |
 | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) | Typografie Newsreader + Geist nachziehen | 4-Polish | [x] | - |
+| [ios-050](archive/ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [-] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-051](archive/ios/ios-051-library-header-suchfeld-sichtbar.md) | Library-Header — Suchfeld immer sichtbar, Titel raus | 4-Polish | [x] | [ios-041](archive/ios/ios-041-library-search.md) |
 | [ios-052](archive/ios/ios-052-library-bottom-fade.md) | Bibliothek — letzte Zeile verschwindet im unteren Verlauf | 4-Polish | [x] | [shared-094](archive/shared/shared-094-theme-refinement-kerzenschein.md) |
 | [ios-054](archive/ios/ios-054-waveform-generierung-nur-einmal.md) | Waveform einer Meditation nur einmal gleichzeitig berechnen | 2-Architektur | [x] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |

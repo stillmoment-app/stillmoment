@@ -1,7 +1,7 @@
 ---
 id: ios-050
 title: Typografie 2.1 — Layout-Anpassungen fuer DT AX2+
-status: todo
+status: wontfix
 phase: 5-QA
 priority: mittel
 depends_on: [ios-048]
@@ -80,3 +80,9 @@ Die App soll bis AX5 lesbar bleiben (Plan-Section "A11y Scale"). Aktuell ist sie
 - `@ScaledMetric` fuer Spacing-Werte die mit DT skalieren sollen (z.B. `padding`).
 - Plan-Regel: ".display cappt @ AX1". `DisplayNumeral` setzt das schon um — die View-Komponente muss bei AX2+ das Layout aendern, nicht die Numerik selbst.
 - Android: gleicher Pattern (`MaterialTheme.typography` reagiert auf System-Font-Scale, aber Layouts brauchen analoge `WindowSizeClass`-/Density-Switches). Eigenes Ticket falls portiert.
+
+---
+
+## WONTFIX
+
+Bei rund 50 Installationen steht der Aufwand (Layout-Umbau aller Hauptscreens, Snapshot-Tests, Android-Port) in keinem Verhaeltnis zum Nutzen. Accessibility-Schriftgroessen ab AX2 sind ein Nischen-Setting, und es gibt keinen Bug Report. Wieder aufnehmen, wenn ein Nutzer das Problem meldet oder die Nutzerzahl deutlich waechst. Die Smoketest-Befunde oben bleiben als Ausgangspunkt erhalten.
