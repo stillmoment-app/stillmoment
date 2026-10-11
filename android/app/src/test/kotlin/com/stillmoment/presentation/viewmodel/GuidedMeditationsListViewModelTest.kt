@@ -20,7 +20,9 @@ import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.presentation.navigation.SharedEntryGate
 import com.stillmoment.testutil.FakeImportDownloads
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -109,6 +111,7 @@ class GuidedMeditationsListViewModelTest {
             praxisRepository = mockPraxisRepository,
             waveformProvider = mockWaveformProvider,
             importDownloads = importDownloads,
+            sharedEntryGate = SharedEntryGate(logger = mock()),
             logger = mockLogger
         )
     }
@@ -400,43 +403,6 @@ class GuidedMeditationsListViewModelTest {
         }
     }
 
-    // MARK: - shared-132: Dieselbe Datei zweimal geteilt
-
-    @Nested
-    inner class SameFileSharedTwice {
-        @Test
-        fun `the same file handed over twice leads to one edit sheet and one entry without a message`() = runTest {
-            fakeRepository.emitMeditations(emptyList())
-            advanceUntilIdle()
-            val pending = PendingImport(
-                uri = "content://downloads/body-scan.mp3",
-                fileName = "body-scan.mp3",
-                metadata = AudioMetadata(duration = 600_000L, artist = "Tara Brach", title = "Body Scan"),
-                prefill = ImportPrefill(teacher = "Tara Brach", name = "Body Scan")
-            )
-            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
-                .thenReturn(Result.success(pending))
-            val sharedFile = mock<Uri>()
-
-            viewModel.importMeditation(sharedFile)
-            advanceUntilIdle()
-            viewModel.importMeditation(sharedFile)
-            advanceUntilIdle()
-            val sheet = viewModel.uiState.value
-            assertTrue(sheet.showEditSheet)
-            assertNull(sheet.error)
-
-            val draft = sheet.selectedMeditation
-            checkNotNull(draft) { "Edit sheet shows the shared file" }
-            viewModel.saveImportedMeditation(draft)
-            advanceUntilIdle()
-
-            assertEquals(1, fakeRepository.addedMeditations.size)
-            assertNull(viewModel.uiState.value.error)
-            assertFalse(viewModel.uiState.value.showEditSheet)
-        }
-    }
-
     // MARK: - android-087: Geladene Dateien werden weggeraeumt
 
     @Nested
@@ -529,47 +495,6 @@ class GuidedMeditationsListViewModelTest {
             advanceUntilIdle()
 
             assertEquals(listOf(shared.toString()), importDownloads.discarded)
-        }
-
-        @Test
-        fun `a newer share replacing the open edit sheet frees the older download`() = runTest {
-            val olderDownload = "file:///data/cache/link_import/1111/25401.mp3"
-            val newerDownload = "file:///data/cache/link_import/2222/25402.mp3"
-            openEditSheetFor(olderDownload)
-            advanceUntilIdle()
-
-            openEditSheetFor(newerDownload)
-            advanceUntilIdle()
-
-            assertEquals(newerDownload, viewModel.uiState.value.pendingImport?.uri)
-            assertEquals(listOf(olderDownload), importDownloads.discarded)
-        }
-
-        @Test
-        fun `a newer share that fails keeps the open edit sheet and its download`() = runTest {
-            openEditSheetFor(downloadedFile)
-            advanceUntilIdle()
-            val failing = mock<Uri>()
-            whenever(mockFileOpenHandler.validateAndPrepareImport(failing))
-                .thenReturn(Result.failure(FileOpenException(FileOpenError.ALREADY_IMPORTED)))
-
-            viewModel.importMeditation(failing)
-            advanceUntilIdle()
-
-            assertEquals(downloadedFile, viewModel.uiState.value.pendingImport?.uri)
-            assertEquals(listOf(failing.toString()), importDownloads.discarded)
-        }
-
-        @Test
-        fun `the same file handed over twice keeps its download while the edit sheet is open`() = runTest {
-            openEditSheetFor(downloadedFile)
-            advanceUntilIdle()
-
-            openEditSheetFor(downloadedFile)
-            advanceUntilIdle()
-
-            assertTrue(viewModel.uiState.value.showEditSheet)
-            assertTrue(importDownloads.discarded.isEmpty())
         }
     }
 
@@ -1115,6 +1040,9 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     /** When set, [addMeditation] fails with it (e.g. copying into the library failed). */
     var addFailure: Throwable? = null
 
+    /** When set, saving waits until the test completes it — like copying a long recording. */
+    var saveInProgress: CompletableDeferred<Unit>? = null
+
     override val meditationsFlow: Flow<List<GuidedMeditation>>
         get() = _meditations
 
@@ -1134,6 +1062,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         trimStartMs: Long?,
         trimEndMs: Long?
     ): Result<GuidedMeditation> {
+        saveInProgress?.await()
         addFailure?.let { return Result.failure(it) }
         val item = GuidedMeditation(
             fileUri = sourceUri,
@@ -1159,6 +1088,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     }
 
     override suspend fun updateMeditation(meditation: GuidedMeditation) {
+        saveInProgress?.await()
         updateWasCalled = true
         lastUpdatedMeditation = meditation
         _meditations.value = _meditations.value.map {

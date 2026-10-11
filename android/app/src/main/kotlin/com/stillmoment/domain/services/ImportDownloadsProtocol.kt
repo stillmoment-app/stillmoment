@@ -4,7 +4,7 @@ package com.stillmoment.domain.services
  * Audio files the link and podcast import loaded from the internet (android-087).
  *
  * A downloaded file is only needed until its import ends — saved, discarded,
- * "already there", failed or replaced by a newer share. The library keeps its
+ * "already there", failed, or cancelled while loading. The library keeps its
  * own copy, so every download must be discarded afterwards; otherwise each
  * import takes up the recording's storage twice.
  */

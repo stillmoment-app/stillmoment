@@ -8,7 +8,7 @@
 
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
-- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*.
+- [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren; Scratchpad auch geteilt (Präfix); `am instrument` statt connected*; "app died" = fremder Testlauf, freien Emulator nehmen; MP3 per run-as in den Cache + file://-VIEW.
 - [Screengrab-Einzeltest: Sprachmix](project_android_screengrab_single_test_locale.md) — Einzelner Screenshot-Test liefert DE-UI mit EN-Quellen; Store-Bilder nur über vollen Lauf.
 - [Doppelte Scaffold-Insets auf Android-Tabs](project_android_double_scaffold_insets.md) — innere Scaffold zieht Status-/Systemleiste nochmal ab (~65-70 dp); Timer gefixt, Library nicht.
 - [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
