@@ -283,6 +283,9 @@ constructor(
             audioPlayerService.interruptionBegan.collect {
                 if (isBeforeAudio()) {
                     abortPreRoll()
+                } else {
+                    // Interrupted while the file loads: the service holds it, paused at the start
+                    _uiState.update { it.copy(isLoading = false) }
                 }
             }
         }
@@ -487,7 +490,13 @@ constructor(
         val meditation = _uiState.value.meditation ?: return false
         if (!audioSessionCoordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
             hasSessionStarted = false
-            _uiState.update { it.copy(error = AUDIO_SESSION_ERROR) }
+            if (preRollInterrupted) {
+                // Tap during the call that cut the pre-roll short: stay quiet, the pre-roll
+                // begins by itself once the call is over (shared-146), like resume()
+                logger.w(TAG, "Audio session refused during the interruption: waiting for the sound to come back")
+            } else {
+                _uiState.update { it.copy(error = AUDIO_SESSION_ERROR) }
+            }
             return false
         }
         audioPlayerService.announce(meditation)

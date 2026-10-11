@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -265,6 +266,32 @@ class GuidedMeditationPlayerViewModelInterruptionTest {
             }
 
         @Test
+        fun `a tap on play while the call still holds the sound shows no error, the pre-roll follows the call`() =
+            runTest(testDispatcher) {
+                load(gongMeditation)
+                viewModel.startPlayback()
+                advanceUntilIdle()
+                fakePlayer.beginInterruption()
+                advanceUntilIdle()
+
+                whenever(mockCoordinator.requestAudioSession(any())).thenReturn(false)
+                viewModel.togglePlayPause()
+                advanceUntilIdle()
+
+                assertNull(viewModel.uiState.value.error)
+                assertEquals(1, fakeGong.playCount)
+                assertWaitingAtStart()
+
+                whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
+                fakePlayer.endInterruption()
+                advanceUntilIdle()
+                finishGongAndBreathPause()
+
+                assertEquals(2, fakeGong.playCount)
+                assertEquals(1, fakePlayer.playCount)
+            }
+
+        @Test
         fun `closing the player before the sound comes back starts nothing`() = runTest(testDispatcher) {
             load(gongMeditation, prepSeconds = 5)
             viewModel.startPlayback()
@@ -301,6 +328,20 @@ class GuidedMeditationPlayerViewModelInterruptionTest {
 
     @Nested
     inner class InterruptionDuringPlayback {
+        @Test
+        fun `an interruption while the meditation loads shows it paused, not loading`() = runTest(testDispatcher) {
+            load(noGongMeditation)
+            viewModel.startPlayback()
+            advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.isLoading)
+
+            fakePlayer.beginInterruption()
+            advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.isLoading)
+            assertWaitingAtStart()
+        }
+
         @Test
         fun `an interruption after the meditation began does not ring the gong or start it again`() =
             runTest(testDispatcher) {

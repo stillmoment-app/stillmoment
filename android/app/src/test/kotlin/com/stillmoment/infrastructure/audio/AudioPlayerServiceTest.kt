@@ -726,6 +726,54 @@ class AudioPlayerServiceTest {
             assertEquals(PlaybackState(), sut.playbackState.value)
         }
 
+        /** Starts a meditation whose file is still loading; returns "file loaded". */
+        private fun loadingMeditation(): () -> Unit {
+            val preparedCaptor = argumentCaptor<() -> Unit>()
+            sut.play(mockUri("file", "/test/audio.mp3"), 600_000L)
+            verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+            return preparedCaptor.firstValue
+        }
+
+        @Test
+        fun `an interruption while the meditation loads keeps it from starting`() {
+            val fileLoaded = loadingMeditation()
+
+            interruptionBegins()
+            fileLoaded()
+
+            assertFalse(playerRunning)
+            verify(mockMediaPlayer, never()).start()
+            assertFalse(sut.playbackState.value.isPlaying)
+            assertEquals(0L, sut.playbackState.value.currentPosition)
+        }
+
+        @Test
+        fun `interrupted while loading, it begins once when the system gives the sound back`() {
+            val fileLoaded = loadingMeditation()
+            interruptionBegins()
+            fileLoaded()
+
+            systemGivesSoundBack()
+
+            assertTrue(playerRunning)
+            assertTrue(sut.playbackState.value.isPlaying)
+            verify(mockMediaPlayer).start()
+            assertEquals(0L, sut.playbackState.value.currentPosition)
+        }
+
+        @Test
+        fun `when the sound comes back before the file has loaded, it begins once loaded`() {
+            val fileLoaded = loadingMeditation()
+            interruptionBegins()
+            systemGivesSoundBack()
+            verify(mockMediaPlayer, never()).start()
+
+            fileLoaded()
+
+            assertTrue(playerRunning)
+            verify(mockMediaPlayer).start()
+        }
+
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `begin and end of an interruption are reported`() = runTest {

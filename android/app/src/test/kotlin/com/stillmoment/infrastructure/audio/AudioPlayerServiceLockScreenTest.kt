@@ -230,6 +230,27 @@ class AudioPlayerServiceLockScreenTest {
             verify(mockMediaSessionManager, never()).release()
             assertEquals(trimmedMeditation, sut.nowPlaying.value)
         }
+
+        @Test
+        fun `interrupted while loading, the lock screen shows it paused at the trim start until the sound is back`() {
+            sut.play(trimmedMeditation)
+            interruptionBegins()
+            val preparedCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+            preparedCaptor.firstValue.invoke()
+            val seekCompleteCaptor = argumentCaptor<() -> Unit>()
+            verify(mockMediaPlayer).setOnSeekCompleteListener(seekCompleteCaptor.capture())
+            seekCompleteCaptor.firstValue.invoke()
+
+            verify(mockMediaPlayer, never()).start()
+            verify(mockMediaSessionManager).updatePlaybackState(false, 0L, 480_000L)
+
+            systemGivesSoundBack()
+
+            verify(mockMediaPlayer).start()
+            verify(mockMediaSessionManager).updatePlaybackState(true, 0L, 480_000L)
+            assertEquals(60_000L, sut.playbackState.value.currentPosition)
+        }
     }
 
     @Nested

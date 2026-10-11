@@ -305,15 +305,17 @@ Nach einem dauerhaften Verlust (`AUDIOFOCUS_LOSS`, z. B. eine andere App spielt 
 Stopp, neue Wiedergabe und das Ende loeschen die Absicht, fortzusetzen. `resume()` (Play in App und auf dem
 Sperrbildschirm) fordert die Session neu an, weil Android 12+ die Player nach einem Fokusverlust stumm laesst,
 bis die App den Fokus erneut anfordert. Verweigert das System sie (laufender Anruf), bleibt die Meditation
-pausiert und laeuft nach dem Anruf von selbst weiter. Der Timer registriert keinen Resume Handler; fuer ihn
-aendert sich nichts.
+pausiert und laeuft nach dem Anruf von selbst weiter. Kommt die Unterbrechung, waehrend die Datei noch laedt,
+startet die Wiedergabe nach dem Laden nicht, sondern wartet pausiert am Anfang auf die Freigabe. Der Timer
+registriert keinen Resume Handler; fuer ihn aendert sich nichts.
 
 **Unterbrechung im Vorlauf:** Waehrend Vorbereitungszeit, Start-Gong oder Atempause bricht
 `GuidedMeditationPlayerViewModel` auf `interruptionBegan` hin den Vorlauf ab: Countdown und Atempause enden,
 der Gong verstummt. Session, Ankuendigung und Vordergrund-Dienst bleiben; der Player und der Sperrbildschirm
 zeigen die Meditation pausiert am Anfang. Auf `interruptionEnded` beginnt der Vorlauf von selbst neu (ohne
 erneute Session-Anfrage und Ankuendigung). Bleibt die Freigabe aus, startet der naechste Tipp auf Play den
-ganzen Vorlauf neu. In beiden Faellen beginnt die Meditation genau einmal. Ein Stopp von aussen nach dem
+ganzen Vorlauf neu; verweigert das System dabei den Ton (Anruf laeuft noch), passiert still nichts, und
+der Vorlauf beginnt nach dem Anruf von selbst. In beiden Faellen beginnt die Meditation genau einmal. Ein Stopp von aussen nach dem
 Abbruch verhaelt sich wie ein Stopp im Vorlauf: Play startet danach direkt, ohne Vorlauf.
 
 ---
