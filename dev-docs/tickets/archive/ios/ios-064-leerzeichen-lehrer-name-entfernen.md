@@ -1,7 +1,7 @@
 ---
 id: ios-064
 title: "Leerzeichen am Rand von Lehrer:in und Name führen zu doppelten Gruppen"
-status: todo
+status: done
 phase: 1-Quick Fix
 priority: mittel
 depends_on: []

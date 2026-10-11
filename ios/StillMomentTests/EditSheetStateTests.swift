@@ -219,4 +219,45 @@ final class EditSheetStateTests: XCTestCase {
         XCTAssertEqual(updated.dateAdded, meditation.dateAdded)
         XCTAssertEqual(updated.fileBookmark, meditation.fileBookmark)
     }
+
+    // MARK: - applyChanges Whitespace Tests (ios-064)
+
+    func testApplyChangesRemovesTrailingSpaceFromTeacher() {
+        // Given - keyboard suggestion appended a space
+        let meditation = self.makeTestMeditation()
+        var state = EditSheetState(meditation: meditation)
+        state.editedTeacher = "Tara Brach "
+
+        // When
+        let updated = state.applyChanges()
+
+        // Then - lands in the same group as "Tara Brach"
+        XCTAssertEqual(updated.teacher, "Tara Brach")
+    }
+
+    func testApplyChangesRemovesLeadingAndTrailingWhitespaceFromName() {
+        // Given
+        let meditation = self.makeTestMeditation()
+        var state = EditSheetState(meditation: meditation)
+        state.editedName = "  Body Scan\n"
+
+        // When
+        let updated = state.applyChanges()
+
+        // Then
+        XCTAssertEqual(updated.name, "Body Scan")
+    }
+
+    func testApplyChangesKeepsSpacesInsideTeacherName() {
+        // Given
+        let meditation = self.makeTestMeditation()
+        var state = EditSheetState(meditation: meditation)
+        state.editedTeacher = "  Thich Nhat Hanh  "
+
+        // When
+        let updated = state.applyChanges()
+
+        // Then
+        XCTAssertEqual(updated.teacher, "Thich Nhat Hanh")
+    }
 }
