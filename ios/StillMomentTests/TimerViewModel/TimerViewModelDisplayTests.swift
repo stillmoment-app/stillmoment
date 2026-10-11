@@ -150,4 +150,35 @@ final class TimerViewModelDisplayTests: XCTestCase {
         )
         XCTAssertEqual(self.sut.runningSubLabel, expected)
     }
+
+    // MARK: - accessibilityRemainingTimeValue (shared-140: Einzahl bleibt erhalten)
+
+    func testRemainingTimeAnnouncementUsesSingularForOneMinute() {
+        // Given noch genau 1 Minute uebrig
+        self.sut.timer = MeditationTimer(
+            durationMinutes: 10,
+            remainingSeconds: 60,
+            state: .running,
+            preparationTimeSeconds: 0
+        )
+
+        // Then „1 Minute verbleibend", nicht „1 Minuten"
+        let singular = String(format: NSLocalizedString("time.minute", comment: ""), 1)
+        let plural = String(format: NSLocalizedString("time.minutes", comment: ""), 1)
+        XCTAssertTrue(self.sut.accessibilityRemainingTimeValue.hasPrefix(singular + " "))
+        XCTAssertFalse(self.sut.accessibilityRemainingTimeValue.contains(plural))
+    }
+
+    func testRemainingTimeAnnouncementUsesPluralForTwoMinutes() {
+        // Given noch 2 Minuten uebrig
+        self.sut.timer = MeditationTimer(
+            durationMinutes: 10,
+            remainingSeconds: 120,
+            state: .running,
+            preparationTimeSeconds: 0
+        )
+
+        let plural = String(format: NSLocalizedString("time.minutes", comment: ""), 2)
+        XCTAssertTrue(self.sut.accessibilityRemainingTimeValue.hasPrefix(plural + " "))
+    }
 }

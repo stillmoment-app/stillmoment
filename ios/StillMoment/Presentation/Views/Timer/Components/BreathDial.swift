@@ -115,7 +115,7 @@ struct BreathDial: View {
                 .foregroundColor(self.theme.textPrimary)
                 .accessibilityIdentifier("timer.dial.value")
 
-            Text(NSLocalizedString("timer.dial.unit", comment: ""))
+            Text(MinuteWording.unit(for: self.value))
                 .textStyle(.eyebrow, color: \.textSecondary)
         }
         .allowsHitTesting(false)
@@ -159,7 +159,7 @@ struct BreathDial: View {
     // MARK: - Accessibility-Helfer
 
     private var accessibilityValueString: String {
-        String(format: NSLocalizedString("accessibility.dial.value", comment: ""), self.value)
+        MinuteWording.spokenDuration(for: self.value)
     }
 }
 
