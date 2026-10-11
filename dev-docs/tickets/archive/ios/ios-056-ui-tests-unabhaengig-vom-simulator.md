@@ -1,7 +1,7 @@
 ---
 id: ios-056
 title: Tests nutzen eigenen Speicher statt der App-Daten
-status: in-progress
+status: done
 phase: 5-QA
 priority: mittel
 depends_on: [ios-055]
@@ -62,7 +62,7 @@ Alle Läufe am 2026-10-11 auf „iPhone 17“, die Dev-App hatte dabei einen Ein
 
 ## Hinweise
 
-- Recherche und Quellen: [ios-ui-test-isolation.md](../../concepts/ios-ui-test-isolation.md). Empfehlung, kein Lösungszwang:
+- Recherche und Quellen: [ios-ui-test-isolation.md](../../../concepts/ios-ui-test-isolation.md). Empfehlung, kein Lösungszwang:
   - Feste Pfade auf `applicationSupportDirectory` heute in `GuidedMeditationService.swift:138`, `CustomAudioRepository.swift:149`, `WaveformCacheService.swift:77`. Basisverzeichnis übergebbar machen.
   - Defaults wie `UserDefaults = .standard` und `FileManager = .default` entfernen und die Speicherorte ausdrücklich in `live()` übergeben. Dann muss jeder Test schon beim Kompilieren einen Speicherort wählen, und `live()` lässt sich mit temporären Speicherorten testen.
   - UI-Tests: Launch-Argument in `setUp` (WWDC25-344), an genau einer Stelle im App-Einstieg ausgewertet. Erst leeren, dann bei Bedarf seeden (nicht „seeden nur wenn leer“ wie heute im `TestFixtureSeeder`).
