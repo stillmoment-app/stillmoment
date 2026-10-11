@@ -1,4 +1,4 @@
-.PHONY: help build-release format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
+.PHONY: help build-release format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single data-snapshot release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent lint-selftest
 
 DEVICE ?= iPhone 17
 IOS_VERSION ?= latest
@@ -143,6 +143,9 @@ screenshot-single: ## Run single screenshot (TEST=... MODE=dark optional)
 	@echo "📸 Running screenshot: $(TEST) (EN + DE via Fastlane)..."
 	@SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshot_single test:$(TEST)
 	@echo "✅ Screenshots → docs/images/screenshots/"
+
+data-snapshot: ## Freeze this version's stored data for the upgrade test (VERSION=x.y.z required, shared-144)
+	@./scripts/generate-data-snapshot.sh $(VERSION)
 
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
 	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh

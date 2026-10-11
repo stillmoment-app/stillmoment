@@ -1,4 +1,4 @@
-.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-ui test-ui-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
+.PHONY: help build-release format check test test-unit test-unit-agent test-single test-single-agent test-ui test-ui-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare data-snapshot
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -144,3 +144,6 @@ screenshots-upload: ## Upload screenshots to Play Store without new build
 
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
 	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh
+
+data-snapshot: ## Capture the data snapshot of VERSION on the running emulator (shared-144; release-prepare does this itself)
+	@./scripts/capture-data-snapshot.sh $(VERSION)

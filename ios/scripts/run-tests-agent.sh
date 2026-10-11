@@ -80,6 +80,7 @@ ELAPSED=$((SECONDS - START_SECONDS))
 
 # Parse the summary line:
 #   "Executed N tests, with M failures (M unexpected) in X.XXX (Y.YYY) seconds"
+#   "Executed N tests, with S tests skipped and M failures (M unexpected) in ..."
 SUMMARY_LINE=$(grep "Executed [0-9]* test" "$TEMP_OUTPUT" | tail -1 || true)
 
 if [ -z "$SUMMARY_LINE" ]; then
@@ -93,8 +94,12 @@ if [ -z "$SUMMARY_LINE" ]; then
 fi
 
 TOTAL=$(echo "$SUMMARY_LINE" | sed -E 's/.*Executed ([0-9]+) test.*/\1/')
-FAIL_COUNT=$(echo "$SUMMARY_LINE" | sed -E 's/.*with ([0-9]+) failure.*/\1/')
-PASS_COUNT=$((TOTAL - FAIL_COUNT))
+FAIL_COUNT=$(echo "$SUMMARY_LINE" | sed -E 's/.* ([0-9]+) failures? \(.*/\1/')
+SKIP_COUNT=0
+if [[ "$SUMMARY_LINE" =~ ([0-9]+)\ tests?\ skipped ]]; then
+    SKIP_COUNT="${BASH_REMATCH[1]}"
+fi
+PASS_COUNT=$((TOTAL - FAIL_COUNT - SKIP_COUNT))
 
 if [ "$FAIL_COUNT" -eq 0 ] && [ "$XCODE_EXIT" -eq 0 ]; then
     echo "RESULT: PASS"
@@ -107,6 +112,9 @@ else
 fi
 echo "PASSED: $PASS_COUNT"
 echo "FAILED: $FAIL_COUNT"
+if [ "$SKIP_COUNT" -gt 0 ]; then
+    echo "SKIPPED: $SKIP_COUNT"
+fi
 echo "TOTAL: $TOTAL"
 echo "TIME: ${ELAPSED}s"
 

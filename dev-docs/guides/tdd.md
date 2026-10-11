@@ -314,6 +314,15 @@ On iOS `make test-single` treats a class name containing `UITests` as a UI test 
 
 **UI test flakiness:** Simulator issues (Spotlight crashes) are normal. Re-run if needed.
 
+## Upgrade Test (Data Snapshots)
+
+Hand-written migration tests prove single migrations; they do not prove "this is how version X
+actually stored its data". For that, every release freezes the raw data it leaves on a device as a
+data snapshot, and a unit test reads all of them with the current code (shared-144). If it turns
+red, a stored value would be lost or changed on update — fix the read path, never the snapshot.
+What it covers, where the snapshots live and how to produce a missing one:
+`dev-docs/release/RELEASE_GUIDE.md` → "Datenstand je Release (Upgrade-Test)".
+
 ## What TDD Ensures
 
 When writing tests first:

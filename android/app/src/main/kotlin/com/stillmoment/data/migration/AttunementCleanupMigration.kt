@@ -1,6 +1,8 @@
 package com.stillmoment.data.migration
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -37,17 +39,29 @@ import kotlinx.serialization.json.jsonPrimitive
  *
  * Failure mode: each step is wrapped in try/catch and logged. A partial failure does not
  * prevent the marker from being set — leftover files cannot be referenced anymore.
+ *
+ * The primary constructor takes the stores and the files directory so the data-snapshot
+ * upgrade test (shared-144) can run this startup step on a stored release; the app always
+ * goes through the injected constructor.
  */
 @Singleton
-class AttunementCleanupMigration @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AttunementCleanupMigration internal constructor(
+    private val settingsStore: DataStore<Preferences>,
+    private val customAudioStore: DataStore<Preferences>,
+    private val filesDir: File,
     private val logger: LoggerProtocol
 ) {
+    @Inject
+    constructor(
+        @ApplicationContext context: Context,
+        logger: LoggerProtocol
+    ) : this(context.appSettingsDataStore, context.customAudioDataStore, context.filesDir, logger)
+
     /**
      * Runs the migration once. Subsequent calls are no-ops thanks to the marker.
      */
     suspend fun runIfNeeded() {
-        val alreadyRun = context.appSettingsDataStore.data.first()[MARKER_KEY] == true
+        val alreadyRun = settingsStore.data.first()[MARKER_KEY] == true
         if (alreadyRun) return
 
         val filteredCount = filterCustomAudioJson()
@@ -66,7 +80,7 @@ class AttunementCleanupMigration @Inject constructor(
     private suspend fun filterCustomAudioJson(): Int {
         return try {
             var removed = 0
-            context.customAudioDataStore.edit { prefs ->
+            customAudioStore.edit { prefs ->
                 val raw = prefs[CUSTOM_AUDIO_FILES_KEY] ?: return@edit
                 val (filtered, removedCount) = filterAttunementEntries(raw)
                 removed = removedCount
@@ -84,7 +98,7 @@ class AttunementCleanupMigration @Inject constructor(
     @Suppress("TooGenericExceptionCaught") // intentional: any failure is logged, marker still set
     private fun deleteCustomAttunementDirectory(): Int {
         return try {
-            val dir = File(context.filesDir, "$CUSTOM_AUDIO_DIR/$ATTUNEMENT_SUBDIR")
+            val dir = File(filesDir, "$CUSTOM_AUDIO_DIR/$ATTUNEMENT_SUBDIR")
             if (!dir.exists()) return 0
             val count = dir.walkTopDown().count { it.isFile }
             val deleted = dir.deleteRecursively()
@@ -101,7 +115,7 @@ class AttunementCleanupMigration @Inject constructor(
     @Suppress("TooGenericExceptionCaught") // intentional: any failure is logged, marker still set
     private suspend fun removeLegacySettingsKeys() {
         try {
-            context.appSettingsDataStore.edit { prefs ->
+            settingsStore.edit { prefs ->
                 prefs.remove(stringPreferencesKey("introductionId"))
                 prefs.remove(booleanPreferencesKey("introductionEnabled"))
             }
@@ -111,7 +125,7 @@ class AttunementCleanupMigration @Inject constructor(
     }
 
     private suspend fun setMarker() {
-        context.appSettingsDataStore.edit { prefs ->
+        settingsStore.edit { prefs ->
             prefs[MARKER_KEY] = true
         }
     }

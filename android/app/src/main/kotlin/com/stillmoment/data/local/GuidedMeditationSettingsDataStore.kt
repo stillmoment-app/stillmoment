@@ -17,20 +17,27 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 // Extension property for DataStore (separate from timer settings)
+// File name on the device; the upgrade test (shared-144) opens stored releases by it.
+internal const val GUIDED_MEDITATION_SETTINGS_FILE_NAME = "guided_meditation_settings"
+
 private val Context.guidedMeditationSettingsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "guided_meditation_settings"
+    name = GUIDED_MEDITATION_SETTINGS_FILE_NAME
 )
 
 /**
  * DataStore-based implementation of GuidedMeditationSettingsRepository.
  * Persists guided meditation settings using Jetpack DataStore.
+ *
+ * The primary constructor takes the underlying [DataStore] so the data-snapshot upgrade
+ * test (shared-144) can read a stored release file through this exact class; the app
+ * always goes through the injected constructor and the `guided_meditation_settings` file.
  */
 @Singleton
-class GuidedMeditationSettingsDataStore
-@Inject
-constructor(
-    @ApplicationContext private val context: Context
+class GuidedMeditationSettingsDataStore internal constructor(
+    private val dataStore: DataStore<Preferences>
 ) : GuidedMeditationSettingsRepository {
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context.guidedMeditationSettingsDataStore)
 
     private object Keys {
         val PREPARATION_TIME_ENABLED = booleanPreferencesKey("preparation_time_enabled")
@@ -38,7 +45,7 @@ constructor(
     }
 
     override val settingsFlow: Flow<GuidedMeditationSettings> =
-        context.guidedMeditationSettingsDataStore.data
+        dataStore.data
             .map { preferences ->
                 GuidedMeditationSettings(
                     preparationTimeEnabled = preferences[Keys.PREPARATION_TIME_ENABLED]
@@ -55,7 +62,7 @@ constructor(
     }
 
     override suspend fun updateSettings(settings: GuidedMeditationSettings) {
-        context.guidedMeditationSettingsDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[Keys.PREPARATION_TIME_ENABLED] = settings.preparationTimeEnabled
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
         }

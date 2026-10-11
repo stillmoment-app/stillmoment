@@ -18,7 +18,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-142](shared/shared-142-gestaltete-store-screenshots.md) | Gestaltete Store-Screenshots mit Headline statt roher Screenshots | 4-Polish | [ ] | [ ] |
-| [shared-144](shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [~] | [~] |
 
 ### iOS
 
@@ -170,6 +169,7 @@ _Keine Tickets._
 | [shared-140](archive/shared/shared-140-einzahl-bei-einer-minute.md) | Einzahl bei einer Minute im Atemkreis und in Ansagen | 4-Polish | [x] | [x] |
 | [shared-141](archive/shared/shared-141-timer-dial-singular-minute.md) | Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“ | 4-Polish | [-] | [-] |
 | [shared-143](archive/shared/shared-143-ruhige-ansicht-bis-meditationsbeginn.md) | Geführte Meditation: ruhige Ansicht bis zum Beginn, Play während des Start-Gongs startet nicht doppelt | 1-Quick Fix | [x] | [x] |
+| [shared-144](archive/shared/shared-144-upgrade-tests-datenstand-je-release.md) | Upgrade-Pfad automatisch prüfen: Datenstand jeder Release-Version bleibt lesbar | 5-QA | [x] | [x] |
 | [shared-145](archive/shared/shared-145-einzahl-bei-einer-sekunde-vorbereitung.md) | Einzahl bei einer Sekunde in der Ansage der Vorbereitungszeit | 4-Polish | [x] | [x] |
 | [shared-146](archive/shared/shared-146-gefuehrte-meditation-nach-unterbrechung-weiter.md) | Geführte Meditation läuft nach einer Unterbrechung von selbst weiter | 1-Quick Fix | [x] | [x] |
 | [shared-147](archive/shared/shared-147-timer-nach-unterbrechung-weiter.md) | Timer läuft nach einer Unterbrechung vollständig weiter | 1-Quick Fix | [x] | [x] |
