@@ -9,6 +9,8 @@ depends_on: []
 
 # Ticket ios-065: Anruf während einer geführten Meditation: Anzeige bleibt auf „spielt“
 
+**Plan**: `dev-docs/tickets/plans/ios-065.md`
+
 ## Was
 
 **Beobachtet:** Unterbricht ein Anruf (oder Siri, ein Wecker) eine laufende geführte Meditation, hält iOS den Ton an. Der Player zeigt aber weiter „spielt“: Die Restzeit steht, der Knopf zeigt Pause. Der erste Tipp auf den Knopf pausiert eine Wiedergabe, die gar nicht läuft; erst der zweite setzt sie fort.
@@ -27,7 +29,7 @@ Kein automatisches Fortsetzen (Produktentscheidung, beide Plattformen): Wer eine
 
 - [ ] Während einer Unterbrechung zeigt der Player die Meditation als pausiert, auch auf dem Sperrbildschirm
 - [ ] Nach der Unterbrechung bleibt die Meditation pausiert; ein Tipp auf Play setzt sie an derselben Stelle fort
-- [ ] Eine Unterbrechung während Vorbereitung, Start-Gong oder Atempause startet die Meditation weder während der Unterbrechung noch danach von selbst; nach einem Tipp auf Play beginnt sie genau einmal (shared-143)
+- [ ] Eine Unterbrechung während Vorbereitung, Start-Gong oder Atempause startet die Meditation weder während der Unterbrechung noch danach von selbst; ein Tipp auf Play startet den Vorlauf neu, und die Meditation beginnt genau einmal (shared-143)
 - [ ] War die Meditation vor der Unterbrechung pausiert, bleibt sie danach pausiert
 - [ ] Timer, Gongs und Hintergrundklang des Timers verhalten sich bei Unterbrechungen wie bisher
 
@@ -40,7 +42,7 @@ Unterbrechungen durch Anrufe lassen sich im Simulator nicht zuverlässig auslös
 1. Geführte Meditation starten, Bildschirm sperren
 2. Das Telefon anrufen lassen, Anruf annehmen und nach einigen Sekunden beenden
 3. Erwartung: Während und nach dem Anruf zeigt der Sperrbildschirm die Meditation als pausiert; ein Tipp auf Play setzt sie an derselben Stelle fort
-4. Dasselbe, während der Start-Gong klingt. Erwartung: Die Meditation beginnt nicht von selbst; nach einem Tipp auf Play beginnt sie einmal, nicht doppelt
+4. Dasselbe, während der Start-Gong klingt. Erwartung: Die Meditation beginnt nicht von selbst; ein Tipp auf Play startet Start-Gong und Atempause neu, danach beginnt die Meditation einmal, nicht doppelt
 
 ---
 
