@@ -39,9 +39,14 @@ enum InboxResult: Equatable {
 /// 1. Check inbox directory exists
 /// 2. Remove stale entries (>24h old)
 /// 3. Filter to supported types (.mp3, .m4a, .json)
-/// 4. Remove unrecognized files
-/// 5. Process the newest entry (audio file or URL reference)
-/// 6. Clean up all entries
+/// 4. Remove unrecognized files and all entries except the newest
+/// 5. Take the newest entry over: move it out of the inbox into `tmp/share_<UUID>/` (shared-138)
+/// 6. Process it (audio file or URL reference)
+///
+/// Taking the entry over before processing keeps the inbox for waiting entries only: an entry
+/// shared meanwhile under the same name (`download.json` for two audiodharma talks) is never
+/// mistaken for the one in progress. A shared audio file stays in `tmp` until "Save" in the
+/// editor copies it into the library.
 @MainActor
 final class InboxHandler: ObservableObject {
     // MARK: Lifecycle
@@ -108,16 +113,7 @@ final class InboxHandler: ObservableObject {
         let otherFiles = supportedFiles.filter { $0 != newestFile }
         self.deleteFiles(otherFiles)
 
-        // Process the newest entry
-        let result = await self.processEntry(at: newestFile)
-
-        // Audio files are imported synchronously by processAudioFile — the
-        // copy lives in the library, so we can delete the inbox entry here.
-        // JSON references describe a download; the downloaded file is stored
-        // elsewhere, so deleting the JSON reference is safe too.
-        self.deleteFiles([newestFile])
-
-        return result
+        return await self.processEntry(at: newestFile)
     }
 
     /// Processes the last shared link again after a retryable error ("Retry" in the alert).
@@ -166,7 +162,9 @@ final class InboxHandler: ObservableObject {
     private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
     private static let supportedExtensions: Set<String> = ["mp3", "m4a", "json"]
     private static let staleThreshold: TimeInterval = 24 * 3600
-    private static let downloadFolderPrefix = "dl_"
+    /// Folders this handler may remove with their file: downloads (`dl_`) and taken-over entries
+    private static let ownedFolderPrefixes = ["dl_", takenEntryFolderPrefix]
+    private static let takenEntryFolderPrefix = "share_"
 
     private let fileOpenHandler: FileOpenHandler
     private let downloadService: AudioDownloadServiceProtocol
@@ -217,17 +215,36 @@ final class InboxHandler: ObservableObject {
         }
     }
 
-    /// Processes a single inbox entry
-    private func processEntry(at url: URL) async -> InboxResult {
-        let ext = url.pathExtension.lowercased()
-
-        if Self.supportedAudioExtensions.contains(ext) {
-            return await self.processAudioFile(at: url)
-        } else if ext == "json" {
-            return await self.processURLReference(at: url)
+    /// Takes the inbox entry over and processes it
+    private func processEntry(at inboxEntry: URL) async -> InboxResult {
+        let isAudioFile = Self.supportedAudioExtensions.contains(inboxEntry.pathExtension.lowercased())
+        guard let entry = self.takeOver(inboxEntry) else {
+            return isAudioFile ? .audioImportFailed(.importFailed) : self.fail(.downloadFailed)
         }
+        return isAudioFile ? await self.processAudioFile(at: entry) : await self.processURLReference(at: entry)
+    }
 
-        return .empty
+    /// Moves the entry out of the inbox into a folder of its own, `tmp/share_<UUID>/<name>`.
+    ///
+    /// On the same volume (app group container and app `tmp` both live on the data volume)
+    /// the move is a rename and atomic: either the entry is taken over, or it is still waiting.
+    /// An entry that cannot be moved is removed, so it is not retried forever.
+    private func takeOver(_ inboxEntry: URL) -> URL? {
+        let folder = self.fileManager.temporaryDirectory
+            .appendingPathComponent("\(Self.takenEntryFolderPrefix)\(UUID().uuidString)")
+        let entry = folder.appendingPathComponent(inboxEntry.lastPathComponent)
+        do {
+            try self.fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try self.fileManager.moveItem(at: inboxEntry, to: entry)
+            return entry
+        } catch {
+            Logger.infrastructure.error(
+                "Failed to take over inbox entry \(inboxEntry.lastPathComponent): \(error.localizedDescription)"
+            )
+            try? self.fileManager.removeItem(at: folder)
+            try? self.fileManager.removeItem(at: inboxEntry)
+            return nil
+        }
     }
 
     /// Validates a freshly downloaded file and imports it as a meditation.
@@ -238,7 +255,7 @@ final class InboxHandler: ObservableObject {
     private func importDownloadedFile(at url: URL, plan: DownloadPlan) async -> InboxResult {
         guard case .success = self.fileOpenHandler.validateFileForImport(url: url) else {
             Logger.infrastructure.error("Downloaded file rejected by importer: \(url.lastPathComponent)")
-            self.discardDownload(at: url)
+            self.discardFile(at: url)
             return self.fail(plan.rejectedFileError)
         }
         let result = await self.fileOpenHandler.importFile(
@@ -250,44 +267,56 @@ final class InboxHandler: ObservableObject {
         case .success:
             return .downloadCompleted(url)
         case let .failure(error):
-            self.discardDownload(at: url)
+            self.discardFile(at: url)
             return .audioImportFailed(error)
         }
     }
 
-    /// Removes a download that will not be imported, including its per-download folder
-    /// `tmp/dl_<UUID>/` (created by AudioDownloadService). Other folders are never removed.
-    private func discardDownload(at url: URL) {
+    /// Removes a file that will not be imported, including its own folder: `tmp/dl_<UUID>/`
+    /// (created by AudioDownloadService) or `tmp/share_<UUID>/` (taken-over inbox entry).
+    /// Other folders are never removed.
+    private func discardFile(at url: URL) {
         let folder = url.deletingLastPathComponent()
-        let target = folder.lastPathComponent.hasPrefix(Self.downloadFolderPrefix) ? folder : url
-        try? self.fileManager.removeItem(at: target)
+        let ownsFolder = Self.ownedFolderPrefixes.contains { folder.lastPathComponent.hasPrefix($0) }
+        try? self.fileManager.removeItem(at: ownsFolder ? folder : url)
     }
 
-    /// Processes an audio file entry — imports directly as a meditation.
+    /// Processes a taken-over audio file entry: opens the editor with it (pending import).
     ///
-    /// Surfaces import errors (duplicate, metadata failure, persistence failure)
-    /// via `.audioImportFailed` so the caller can present an alert. Without this,
-    /// "bereits importiert"-Hinweise verschwinden im Share-Extension-Pfad.
+    /// The file stays where it is until "Save" in the editor copies it into the library.
+    /// Surfaces import errors (duplicate, metadata failure) via `.audioImportFailed` so the
+    /// caller can present an alert. Without this, "bereits importiert"-Hinweise verschwinden
+    /// im Share-Extension-Pfad.
     private func processAudioFile(at url: URL) async -> InboxResult {
         Logger.infrastructure.info("Processing audio inbox entry: \(url.lastPathComponent)")
         switch await self.fileOpenHandler.importFile(from: url) {
         case .success:
             return .audioFile(url)
         case let .failure(error):
+            self.discardFile(at: url)
             return .audioImportFailed(error)
         }
     }
 
-    /// Processes a URL reference (JSON) entry
+    /// Processes a taken-over URL reference (JSON) entry. The reference is removed once read.
     private func processURLReference(at url: URL) async -> InboxResult {
+        let link = self.readSharedLink(at: url)
+        self.discardFile(at: url)
+        guard let link else {
+            Logger.infrastructure.error("Failed to parse URL reference: \(url.lastPathComponent)")
+            return self.fail(.downloadFailed)
+        }
+        return await self.processSharedLink(link)
+    }
+
+    private func readSharedLink(at url: URL) -> SharedLink? {
         guard let data = try? Data(contentsOf: url),
               let urlRef = try? JSONDecoder().decode(URLReference.self, from: data),
               let sharedURL = URL(string: urlRef.url)
         else {
-            Logger.infrastructure.error("Failed to parse URL reference: \(url.lastPathComponent)")
-            return self.fail(.downloadFailed)
+            return nil
         }
-        return await self.processSharedLink(SharedLink(url: sharedURL, filename: urlRef.filename))
+        return SharedLink(url: sharedURL, filename: urlRef.filename)
     }
 
     /// Processes a shared link: an Apple Podcasts episode is resolved to its audio file first
@@ -374,7 +403,7 @@ final class InboxHandler: ObservableObject {
 
         guard !self.cancelRequested else {
             Logger.infrastructure.info("Import cancelled after download")
-            self.discardDownload(at: downloadedURL)
+            self.discardFile(at: downloadedURL)
             return .empty
         }
 

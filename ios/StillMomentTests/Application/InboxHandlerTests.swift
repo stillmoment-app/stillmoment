@@ -97,7 +97,7 @@ final class InboxHandlerTests: XCTestCase {
         XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
     }
 
-    func testAudioFileIsCleanedUpFromInboxAfterImport() async {
+    func testSharedAudioFileLeavesInboxButStaysAvailableForSaving() async throws {
         // Given
         let filename = "\(UUID().uuidString)_meditation.mp3"
         let fileURL = self.inboxDirectory.appendingPathComponent(filename)
@@ -106,11 +106,14 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then — Inbox-Datei wurde nach dem Import aufgeraeumt
+        // Then — die Inbox ist leer, aber die Datei, die "Speichern" im Bearbeiten-Blatt
+        // in die Bibliothek kopiert, liegt noch da (shared-138 Befund 5)
         XCTAssertFalse(
             FileManager.default.fileExists(atPath: fileURL.path),
-            "Inbox audio file should be removed after import"
+            "Inbox audio file should be taken out of the inbox"
         )
+        let signal = try XCTUnwrap(self.mockFileOpenHandler.pendingImportSignal)
+        XCTAssertEqual(try Data(contentsOf: signal.url), Data(repeating: 0xFF, count: 100))
     }
 
     func testM4AFileIsAlsoProcessed() async {

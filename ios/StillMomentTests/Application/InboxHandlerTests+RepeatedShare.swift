@@ -73,8 +73,11 @@ extension InboxHandlerTests {
         let result = await self.sut.processInbox()
 
         // Then — ein Import, danach wartet nichts mehr
-        XCTAssertEqual(result, .audioFile(self.inboxDirectory.appendingPathComponent("Vortrag.mp3")))
-        XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
+        guard case let .audioFile(imported) = result else {
+            return XCTFail("Expected .audioFile, got \(result)")
+        }
+        XCTAssertEqual(imported.lastPathComponent, "Vortrag.mp3")
+        XCTAssertEqual(self.mockFileOpenHandler.pendingImportSignal?.url, imported)
         let secondPass = await self.sut.processInbox()
         XCTAssertEqual(secondPass, .empty)
     }
