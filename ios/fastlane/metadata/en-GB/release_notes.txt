@@ -1,2 +1,1 @@
-- Add podcast episodes from Apple Podcasts to your library
-- New guide: how to import from Apple Podcasts
+- Bug fixes and improvements

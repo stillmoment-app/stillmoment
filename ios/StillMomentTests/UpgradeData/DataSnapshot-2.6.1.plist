@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>appearanceMode</key>
+	<string>light</string>
+	<key>currentPraxis</key>
+	<data>
+	eyJkdXJhdGlvbk1pbnV0ZXMiOjIwLCJpZCI6IjJBNkIzQzhELTRFNUYtNDA2MS05Mjcz
+	LUE0QjVDNkQ3RThGOSIsImludGVydmFsR29uZ3NFbmFibGVkIjp0cnVlLCJpbnRlcnZh
+	bE1pbnV0ZXMiOjcsImludGVydmFsR29uZ1ZvbHVtZSI6MC41LCJiYWNrZ3JvdW5kU291
+	bmRWb2x1bWUiOjAuMywic3RhcnRHb25nU291bmRJZCI6ImRlZXAtcmVzb25hbmNlIiwi
+	aW50ZXJ2YWxNb2RlIjoiYmVmb3JlRW5kIiwicHJlcGFyYXRpb25UaW1lU2Vjb25kcyI6
+	MTUsImludGVydmFsU291bmRJZCI6InRlbXBsZS1iZWxsIiwicHJlcGFyYXRpb25UaW1l
+	RW5hYmxlZCI6dHJ1ZSwiYmFja2dyb3VuZFNvdW5kSWQiOiJmb3Jlc3QiLCJnb25nVm9s
+	dW1lIjowLjh9
+	</data>
+	<key>customAudioFiles_soundscape</key>
+	<data>
+	W3siZmlsZW5hbWUiOiJCNUY0REQzRC1FMzU3LTRDRDItQjE5OS00ODNDOUM2MTdGODIu
+	bXAzIiwiaWQiOiJCNUY0REQzRC1FMzU3LTRDRDItQjE5OS00ODNDOUM2MTdGODIiLCJk
+	YXRlQWRkZWQiOjgxMzUxNDY3Ny44ODg2NzQsIm5hbWUiOiJSYWluIFVwZ3JhZGUgVGVz
+	dCJ9XQ==
+	</data>
+	<key>guidedMeditation.preparationTimeSeconds</key>
+	<integer>10</integer>
+	<key>guidedMeditationsLibrary</key>
+	<data>
+	W3siZ29uZ1NvdW5kSWQiOiJjbGVhci1zdHJpa2UiLCJkYXRlQWRkZWQiOjgwMDAwMDAw
+	MCwidHJpbVN0YXJ0IjozMCwibG9jYWxGaWxlUGF0aCI6IjFFNUYyQjlBLTNDNEQtNEU2
+	Ri04QTdCLTlDMEQxRTJGM0E0Qi5tcDMiLCJlbmRHb25nRW5hYmxlZCI6dHJ1ZSwidGVh
+	Y2hlciI6IlRhcmEgQnJhY2giLCJmaWxlTmFtZSI6InVwZ3JhZGUtdGVzdC5tcDMiLCJk
+	dXJhdGlvbiI6OTAwLCJpZCI6IjFFNUYyQjlBLTNDNEQtNEU2Ri04QTdCLTlDMEQxRTJG
+	M0E0QiIsIm5hbWUiOiJVcGdyYWRlIFRlc3QgTWVkaXRhdGlvbiIsInRyaW1FbmQiOjYw
+	MCwic3RhcnRHb25nRW5hYmxlZCI6dHJ1ZX1d
+	</data>
+	<key>guidedMeditationsOverrideMigratedV1</key>
+	<true/>
+</dict>
+</plist>

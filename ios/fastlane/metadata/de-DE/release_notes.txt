@@ -1,2 +1,1 @@
-- Podcast-Folgen aus Apple Podcasts in die Bibliothek übernehmen
-- Neue Anleitung: So importierst du aus Apple Podcasts
+- Fehlerbehebungen und Verbesserungen
