@@ -28,8 +28,8 @@ android {
         applicationId = "com.stillmoment"
         minSdk = 26
         targetSdk = 36
-        versionCode = 22
-        versionName = "2.6.0"
+        versionCode = 23
+        versionName = "2.6.1"
 
         testInstrumentationRunner = "com.stillmoment.HiltTestRunner"
         // shared-144: the data snapshot generator wipes the app's data and only runs via
