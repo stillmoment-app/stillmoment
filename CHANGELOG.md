@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.1] - 2026-10-12
+
 ### Added (iOS + Android)
 - **Upgrade-Pfad wird bei jedem Release automatisch geprüft** - Ein Test belegt jetzt, dass eine neue Version die gespeicherten Daten jeder bisher veröffentlichten Version vollständig übernimmt: Bibliothek mit Lehrer:in, Name, Wiedergabe-Bereich und Gongs, die Praxis mit allen Werten, eigene Klänge, Darstellung und Vorbereitungszeit für geführte Meditationen. Dafür friert jede Release-Version den Datenstand, den sie auf dem Gerät hinterlässt, als Testdaten ein, erzeugt vom Code dieser Version, nicht von Hand. Die Unit-Tests lesen alle aufbewahrten Datenstände mit dem aktuellen Code; geht ein Wert verloren oder ändert er sich, ist der Lauf rot und nennt Version und Wert. Den Anfang macht 2.6.0. `make release-prepare` erzeugt den Datenstand der neuen Version selbst und nimmt ihn in den Release-Commit auf, ein vorhandener bleibt unverändert. Bisher prüfte das ein manueller Test, der zuletzt nicht mehr durchgeführt wurde. Auf Android lesen die DataStore-Klassen dafür über einen austauschbaren Speicher, ohne Verhaltensänderung. Für Nutzer ändert sich nichts. (Ticket: shared-144)
 
