@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.2] - 2026-10-23
+
+### Changed (iOS)
+- **App-Store-Untertitel und Suchbegriffe auf eigene Audios ausgerichtet** - Untertitel und Keywords zielten auf allgemeine Begriffe wie „meditation“ oder „achtsamkeit“, bei denen Still Moment laut Ranking-Analyse nicht unter den ersten 200 Treffern stand. Der Untertitel lautet jetzt „Meditation mit eigenen Audios“ bzw. „Meditation with your own audio“, die Keywords zielen auf schwach besetzte Begriffe wie mp3, mbsr, bodyscan, klangschale und selbstmitgefühl. Das Release bringt die neuen Store-Texte live; in der App ändert sich nichts.
+
 ## [2.6.1] - 2026-10-12
 
 ### Added (iOS + Android)
