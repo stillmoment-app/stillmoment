@@ -1,20 +1,25 @@
-Still Moment ist deine persönliche Meditations-App: eigene Aufnahmen importieren, Timer nach deinen Wünschen gestalten — ohne Abo, ohne Werbung, ohne Tracking.
+Still Moment ist die Meditations-App für deine eigenen Aufnahmen: Meditationen aus deinem MBSR- oder MBCT-Kurs, aus Podcasts oder von Websites importieren und offline hören. Dazu ein Meditationstimer für stille Meditation mit Klangschale und Gong — werbefrei, ohne Abo, ohne Tracking.
 
 DEINE PERSÖNLICHE MEDITATIONS-BIBLIOTHEK
-Deine Lieblings-Meditationen, immer verfügbar — auch ohne Internet, ohne Tracking.
-• Eigene Aufnahmen importieren – aus Dateien oder direkt aus dem Browser geteilt
+Sammle die Meditationen, die dir guttun: den Bodyscan aus deinem Achtsamkeitskurs, Übungen zu Selbstmitgefühl, die Aufnahmen deiner Lehrerin oder deines Lehrers. Alles liegt privat auf deinem Gerät, ohne Tracking — niemand schaut zu. Und es ist immer verfügbar, auch ohne Internet.
+• MP3- und M4A-Dateien importieren – aus deinen Dateien oder direkt aus dem Browser geteilt
+• Podcast-Folgen importieren – Meditationen aus Apple Podcasts mit Still Moment teilen
 • Schnelle Suche – nach Titel oder Lehrerin/Lehrer
 • Vorhören bevor du startest – an jede Stelle der Aufnahme springen
+• Zuschneiden – Anfang und Ende einer Aufnahme selbst festlegen
+• Auf Wunsch ein Gong zu Beginn und am Ende der Meditation
+• Pausieren und Fortsetzen auf dem Sperrbildschirm
 
-DEIN TIMER
-Gestalte den Meditations-Timer so, wie er sich für dich richtig anfühlt.
+DEIN MEDITATIONSTIMER FÜR STILLE MEDITATION
+Gestalte den Meditationstimer so, wie er sich für dich richtig anfühlt. Starte, leg das Handy weg — der Gong sagt dir, wann die Zeit um ist, auch bei gesperrtem Bildschirm.
 • Dauer: 1 bis 60 Minuten
 • Einstellbare Vorbereitungszeit
-• Klangschalen für Beginn, Ende und Intervall-Gongs
+• Klangschale oder Gong für Beginn, Ende und Intervalle
+• Lautstärke für Gong und Hintergrund getrennt einstellbar
 • Hintergrundklang: Stille, Regen, Waldgeräusche oder eigene Klänge
 
 RUHIG, KLAR, OHNE ABLENKUNG
-Still Moment ist bewusst einfach gehalten. Kein Punkte-System, keine Statistiken, keine Benachrichtigungen.
+Still Moment ist bewusst einfach gehalten. Kein Punkte-System, keine Statistiken, keine Benachrichtigungen. Die App soll sich anfühlen wie eine Pause — nicht wie eine weitere Aufgabe.
 
 DEINE MEDITATION, DEINE DATEN, DEIN GERÄT
 Still Moment sammelt absolut keine Daten. Alles bleibt auf deinem Gerät, wo es hingehört.

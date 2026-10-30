@@ -1,20 +1,25 @@
-Still Moment is your personal meditation app: import your own recordings, shape the timer to your liking — no subscription, no ads, no tracking.
+Still Moment is the meditation app for your own recordings: import meditations from your MBSR or MBCT course, from podcasts or from websites, and listen offline. Plus a meditation timer for silent meditation with singing bowl and gong — ad-free, no subscription, no tracking.
 
 YOUR PERSONAL MEDITATION LIBRARY
-Your favourite meditations, always at hand — even without internet, and tracking-free.
-• Import your own recordings — from your files or shared directly from the browser
+Collect the meditations that do you good: the body scan from your mindfulness course, self-compassion practices, the recordings of your teacher. Everything stays private on your device, with no tracking — nobody is watching. And it's always at hand, even without internet.
+• Import MP3 and M4A files — from your files or shared directly from the browser
+• Import podcast episodes — share meditations from Apple Podcasts with Still Moment
 • Quick search — by title or teacher
 • Preview before you start — jump to any point in a recording
+• Trim — set where a recording begins and ends
+• Optional gong at the start and end of a meditation
+• Pause and resume from the lock screen
 
-YOUR TIMER
-Shape the meditation timer to feel right for you.
+YOUR TIMER FOR SILENT MEDITATION
+Shape the meditation timer to feel right for you. Start it, put your phone down — the gong tells you when your time is up, even with the screen locked.
 • Duration: 1 to 60 minutes
 • Adjustable preparation time
-• Singing bowls for start, end, and interval gongs
+• Singing bowl or gong for start, end, and intervals
+• Separate volume for gong and background sound
 • Background sound: silence, rain, forest sounds, or your own
 
 CALM, CLEAR, WITHOUT DISTRACTION
-Still Moment is intentionally simple. No points system, no statistics, no notifications pulling you out of stillness.
+Still Moment is intentionally simple. No points system, no statistics, no notifications pulling you out of stillness. The app should feel like a pause — not like another task.
 
 YOUR MEDITATION, YOUR DATA, YOUR DEVICE
 Still Moment collects absolutely zero data. Everything stays on your device, where it belongs.
