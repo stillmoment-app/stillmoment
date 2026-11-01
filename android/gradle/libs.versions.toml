@@ -6,7 +6,7 @@ ktlintEngine = "1.0.1"
 detekt = "1.23.8"
 # compose-rules ab 0.5 braucht detekt 2.x — bis zum Umstieg bei 0.4.x bleiben (siehe .github/dependabot.yml)
 detektCompose = "0.4.28"
-serialization = "1.11.0"
+serialization = "1.12.0"
 collectionsImmutable = "0.5.2"
 coreKtx = "1.19.1"
 lifecycleRuntimeKtx = "2.8.7"
